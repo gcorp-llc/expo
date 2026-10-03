@@ -1,8 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
-import { locate } from '@iconify/json';
 import { getIconData } from '@iconify/utils/lib/icon-set/get-icon';
 import { iconToSVG } from '@iconify/utils/lib/svg/build';
+import solarIconsData from '@iconify-json/solar/icons.json';
 
 async function scanForIcons(directory: string): Promise<string[]> {
   const iconPattern = /solar:([a-z0-9-]+)/g;
@@ -38,13 +38,7 @@ async function generateIcons() {
   console.log(`\n🔍 Scanning codebase for icons...`);
   console.log(`✅ Found ${usedIcons.length} unique solar icons in use.`);
 
-  const filename = locate('solar');
-  if (!filename) {
-      console.error('❌ Error: @iconify-json/solar package not found. Please run "npm install -D @iconify-json/solar"');
-      process.exit(1);
-  }
-
-  const data = JSON.parse(await fs.readFile(filename, 'utf8'));
+  const data = solarIconsData as any;
   const result: Record<string, { body: string; attributes: Record<string, string> }> = {};
   const missingIcons: string[] = [];
 
