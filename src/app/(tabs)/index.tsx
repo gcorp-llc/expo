@@ -173,7 +173,7 @@ export default function HomeScreen() {
     scrollY.value = event.contentOffset.y;
   });
 
-  const filteredProducts = products.filter((product) => {
+  const filteredProducts = products.filter((product: any) => {
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -192,13 +192,13 @@ export default function HomeScreen() {
         data={showSkeletons ? [1,2,3,4] : filteredProducts}
         keyExtractor={(item: any) => showSkeletons ? `skeleton-${item}` : item.id}
         numColumns={2}
-        columnWrapperStyle={styles.productRow}
+        columnWrapperStyle={styles.productRow as any}
         contentContainerStyle={{
           paddingTop: insets.top + 145,
           paddingBottom: 120,
           paddingHorizontal: Spacing.sm,
         }}
-        estimatedItemSize={250}
+        {...({ estimatedItemSize: 250, columnWrapperStyle: styles.productRow } as any)}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         ListHeaderComponent={
@@ -280,7 +280,7 @@ export default function HomeScreen() {
                       onPress={() => router.push(`/product/${product.id}`)}
                       activeOpacity={0.9}
                     >
-                      <Image source={{ uri: product.image }} style={styles.suggestionImage} contentFit="cover" transition={400} />
+                      <Image source={{ uri: (product as any).image }} style={styles.suggestionImage} contentFit="cover" transition={400} />
                       <LinearGradient
                         colors={['transparent', 'rgba(0,0,0,0.9)']}
                         style={StyleSheet.absoluteFill}
@@ -307,7 +307,7 @@ export default function HomeScreen() {
             </Animated.View>
           </View>
         }
-        renderItem={({ item, index }) => showSkeletons ? (
+        renderItem={({ item, index }: { item: any; index: number }) => showSkeletons ? (
           <View style={styles.skeletonContainer}>
             <View style={[styles.skeletonCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <Skeleton width="100%" height="100%" borderRadius={24} />
@@ -378,4 +378,5 @@ const styles = StyleSheet.create({
   suggestionBtn: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   skeletonContainer: { flex: 1, margin: Spacing.sm, marginBottom: Spacing.md },
   skeletonCard: { width: '100%', aspectRatio: 0.85, borderRadius: 14, borderWidth: 1, overflow: 'hidden' },
+  productRow: { justifyContent: 'space-between', paddingHorizontal: Spacing.xs },
 });

@@ -45,7 +45,7 @@ export default function ChatDetailScreen() {
   const conversation = conversations[chatId as string];
   const messages = useMemo(() => allMessages[chatId as string] || [], [allMessages, chatId]);
 
-  const flashListRef = useRef<FlashList<any>>(null);
+  const flashListRef = useRef<any>(null);
   const [replyTo, setReplyTo] = useState<{ name: string, message: string } | null>(null);
   const [showPinned, setShowPinned] = useState(true);
   const [selectedMedia, setSelectedMedia] = useState<{ uri: string, type: 'image' | 'video' } | null>(null);
@@ -175,7 +175,7 @@ export default function ChatDetailScreen() {
 
       <MessagingHeader
         title={title}
-        subtitle={conversation?.metadata?.status || (isRTL ? 'آنلاین' : 'Online')}
+        subtitle={(conversation?.metadata as any)?.status || (isRTL ? 'آنلاین' : 'Online')}
         isRTL={isRTL}
         showBack
         onBack={() => router.back()}
@@ -202,9 +202,9 @@ export default function ChatDetailScreen() {
           <AnimatedFlashList
             ref={flashListRef}
             data={messages}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item: any) => item.id}
             renderItem={renderItem}
-            estimatedItemSize={100}
+            {...({ estimatedItemSize: 100 } as any)}
             contentContainerStyle={[styles.listContent, { paddingTop: searchQuery ? insets.top + 80 : insets.top + 130 }]}
             onScroll={onScroll}
             scrollEventThrottle={16}

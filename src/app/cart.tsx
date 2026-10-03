@@ -94,7 +94,7 @@ export default function CartScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {cartItems.length === 0 ? (
-          <View style={{ py: 60, alignItems: "center" }}>
+          <View style={{ paddingVertical: 60, alignItems: "center" }}>
             <Iconify icon="solar:cart-large-minimalistic-broken" size={64} color={colors.textSecondary} />
             <Text style={{ color: colors.text, marginTop: 12, fontWeight: "bold" }}>
               {isRTL ? "سبد خرید شما خالی است." : "Your shopping cart is empty."}

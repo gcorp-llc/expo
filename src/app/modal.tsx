@@ -2,7 +2,11 @@ import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { MOCK_CONTACTS } from '@/constants/mock-data';
+const MOCK_CONTACTS = [
+  { id: '1', name: 'Ali Ahmadi', status: 'online' },
+  { id: '2', name: 'Sara Mohammadi', status: 'last seen recently' },
+  { id: '3', name: 'Reza Karimi', status: 'offline' },
+];
 import { Iconify } from '@/components/ui/Iconify';
 import { useRouter } from 'expo-router';
 

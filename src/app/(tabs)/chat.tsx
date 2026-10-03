@@ -118,8 +118,8 @@ export default function ChatScreen() {
 
       <FlashList
         data={filteredChats}
-        keyExtractor={(item) => item.id}
-        estimatedItemSize={86}
+        keyExtractor={(item: any) => item.id}
+        {...({ estimatedItemSize: 86 } as any)}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}

@@ -207,9 +207,9 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={onBlock}
-                  style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.error + '40' }]}
+                  style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.destructive + '40' }]}
                 >
-                  <Text style={[styles.secondaryActionText, { color: colors.error }]}>{isRTL ? 'مسدود کردن' : 'Block'}</Text>
+                  <Text style={[styles.secondaryActionText, { color: colors.destructive }]}>{isRTL ? 'مسدود کردن' : 'Block'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.iconAction, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                   <Iconify icon="solar:user-plus-broken" size={20} color={colors.text} />

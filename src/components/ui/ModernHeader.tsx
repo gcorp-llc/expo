@@ -13,12 +13,13 @@ import Animated, {
   Extrapolate,
   useSharedValue,
   withSpring,
+  SharedValue,
 } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 
 interface ModernHeaderProps {
-  scrollY: Animated.SharedValue<number>;
+  scrollY: SharedValue<number>;
 }
 
 const SPRING_CONFIG = {
@@ -32,7 +33,7 @@ interface IconButtonProps {
   onPress?: () => void;
   badge?: string;
   colors: any;
-  pressedScale: Animated.SharedValue<number>;
+  pressedScale: SharedValue<number>;
   handlePressIn: () => void;
   handlePressOut: () => void;
 }

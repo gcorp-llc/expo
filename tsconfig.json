@@ -24,8 +24,10 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "lib/**/*.ts",
+    "lib/**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ]

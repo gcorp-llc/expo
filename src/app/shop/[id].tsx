@@ -72,13 +72,7 @@ export default function PublicShopScreen() {
           {PRODUCTS.map((product) => (
             <View key={product.id} style={styles.productWrapper}>
               <ProductCard
-                item={{
-                    ...product,
-                    title: product.name,
-                    price: `${product.price} تومان`,
-                    rating: 4.5,
-                    isFavorite: false
-                }}
+                product={product}
                 onPress={() => router.push(`/product/${product.id}`)}
               />
             </View>

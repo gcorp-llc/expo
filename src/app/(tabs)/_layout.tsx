@@ -138,7 +138,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
-                color={color} 
+                color={String(color)}
                 iconName="solar:home-angle-broken"
                 activeIconName="solar:home-angle-bold-duotone"
               />
@@ -153,7 +153,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
-                color={color} 
+                color={String(color)}
                 iconName="solar:heart-broken" 
                 activeIconName="solar:heart-bold-duotone"
               />
@@ -168,7 +168,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
-                color={color} 
+                color={String(color)}
                 iconName="solar:add-square-broken" 
                 activeIconName="solar:add-square-bold-duotone"
               />
@@ -183,7 +183,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon
                 focused={focused}
-                color={color}
+                color={String(color)}
                 iconName="solar:chat-line-broken"
                 activeIconName="solar:chat-line-bold-duotone"
                 badge="2"
@@ -199,7 +199,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
-                color={color} 
+                color={String(color)}
                 iconName="solar:settings-minimalistic-broken"
                 activeIconName="solar:settings-minimalistic-bold-duotone"
               />

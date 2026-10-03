@@ -121,6 +121,6 @@ const styles = StyleSheet.create({
   replyContainer: { padding: 12, borderRadius: 12, gap: 4 },
   replyLabel: { fontSize: 12, fontWeight: '800' },
   replyText: { fontSize: 13, fontWeight: '600' },
-  replyBtn: { height: 44, borderRadius: 12, borderWith: 1, borderStyle: 'dashed', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, borderWidth: 1 },
+  replyBtn: { height: 44, borderRadius: 12, borderWidth: 1, borderStyle: 'dashed', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   replyBtnText: { fontSize: 14, fontWeight: '800' },
 });

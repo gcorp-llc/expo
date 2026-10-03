@@ -1,6 +1,7 @@
 import { ProfileData } from '../types/profile';
 
 export const MOCK_PROFILE: ProfileData = {
+  blockedUserIds: [],
   name: 'جول بارکر',
   headline: 'توسعه‌دهنده ارشد React Native و طراح محصول',
   role: 'مدیر فروشگاه',
