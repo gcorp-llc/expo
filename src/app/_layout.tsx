@@ -1,6 +1,6 @@
 import "../../i18n";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { activateKeepAwakeAsync } from "expo-keep-awake";
+// import { activateKeepAwakeAsync } from "expo-keep-awake";
 import { Stack } from "expo-router";
 import {
   DarkTheme,
@@ -42,11 +42,11 @@ export default function RootLayout() {
     useStore.persist.hasHydrated(),
   );
 
-  useEffect(() => {
-    if (__DEV__) {
-      activateKeepAwakeAsync().catch(() => {});
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (__DEV__) {
+  //     activateKeepAwakeAsync().catch(() => {});
+  //   }
+  // }, []);
 
   useEffect(() => {
     const unsubscribe = useStore.persist.onFinishHydration(() => {

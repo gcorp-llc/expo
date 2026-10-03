@@ -13,29 +13,47 @@ const getBaseUrl = () => {
 // Create a singleton instance of our API Client
 export const api = new ApiClient(getBaseUrl());
 
+import { PRODUCTS } from "@/constants/mock-data";
+
 export const productService = {
   getProducts: async () => {
-    const res = await api.getProducts();
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getProducts();
+      if (res.success && res.data && res.data.length > 0) {
+        return res.data;
+      }
+    } catch (e) {
+      console.warn("[productService] API failed, falling back to mock PRODUCTS", e);
     }
-    return [];
+    return PRODUCTS;
   },
 
   getProductById: async (id: string) => {
-    const res = await api.getProductById(id);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getProductById(id);
+      if (res.success && res.data) {
+        return res.data;
+      }
+    } catch (e) {
+      console.warn("[productService] API failed, searching in mock PRODUCTS", e);
     }
-    return null;
+    return PRODUCTS.find((p) => p.id === id) || null;
   },
 
   getRelatedProducts: async (id: string) => {
-    const res = await api.getRelatedProducts(id);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getRelatedProducts(id);
+      if (res.success && res.data && res.data.length > 0) {
+        return res.data;
+      }
+    } catch (e) {
+      console.warn("[productService] API failed, returning mock related products", e);
     }
-    return [];
+    const current = PRODUCTS.find((p) => p.id === id);
+    if (current) {
+      return PRODUCTS.filter((p) => p.category === current.category && p.id !== id);
+    }
+    return PRODUCTS.slice(0, 4);
   },
 
   searchProducts: async (

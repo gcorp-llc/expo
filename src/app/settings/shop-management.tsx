@@ -160,7 +160,7 @@ export default function ShopManagementScreen() {
                 source={{ uri: 'https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/51.3890,35.6892,12,0/600x300?access_token=mock' }}
                 style={styles.mapImage}
              />
-             <View intensity={80} style={styles.mapOverlay}>
+             <View style={styles.mapOverlay}>
                 <TouchableOpacity style={[styles.mapBtn, { backgroundColor: colors.tint }]}>
                     <Iconify icon="solar:map-point-broken" size={20} color="#fff" />
                     <Text style={styles.mapBtnText}>{isRTL ? 'انتخاب روی نقشه زنده' : 'Select on Live Map'}</Text>
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: 14, fontWeight: '600' },
   mapPlaceholder: { height: 180, borderRadius: 20, overflow: 'hidden', marginTop: 8 },
   mapImage: { width: '100%', height: '100%' },
-  mapOverlay: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
+  mapOverlay: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center' },
   mapBtn: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, height: 44, borderRadius: 22, gap: 8 },
   mapBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
   deleteBtn: { height: 56, borderRadius: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 8 },

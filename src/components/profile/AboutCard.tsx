@@ -74,7 +74,7 @@ export const AboutCard = ({ bio, isRTL, mode = 'own' }: AboutCardProps) => {
             maxLength={500}
             autoFocus
           />
-          <View style={[styles.charCount, { textAlign: isRTL ? 'left' : 'right' }]}>
+          <View style={[styles.charCount, { alignItems: isRTL ? 'flex-start' : 'flex-end' }]}>
             <Text style={{ color: colors.textSecondary, fontSize: 10 }}>{tempBio.length}/500</Text>
           </View>
           <View style={[styles.actionButtons, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>

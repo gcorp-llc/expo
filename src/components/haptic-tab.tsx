@@ -8,10 +8,7 @@ export function HapticTab(props: BottomTabBarButtonProps) {
       {...props}
       android_ripple={null}
       pressColor="transparent"
-      style={({ pressed }) => [
-        props.style,
-        pressed && { opacity: 1 } // Ensure no default opacity change
-      ]}
+      style={props.style}
       onPressIn={(ev) => {
         if (process.env.EXPO_OS === 'ios') {
           // Add a soft haptic feedback when pressing down on the tabs.

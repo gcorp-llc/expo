@@ -105,9 +105,9 @@ export default function ProfileScreen() {
               name="firstName"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <View style={[styles.inputGroup, { backgroundColor: colors.surfaceStrong, borderColor: errors.firstName ? colors.error : 'transparent', borderWidth: errors.firstName ? 1 : 0 }]}>
+                  <View style={[styles.inputGroup, { backgroundColor: colors.surfaceStrong, borderColor: errors.firstName ? colors.destructive : 'transparent', borderWidth: errors.firstName ? 1 : 0 }]}>
                     <View style={styles.inputIcon}>
-                      <Iconify icon="solar:user-broken" size={22} color={errors.firstName ? colors.error : colors.tint} />
+                      <Iconify icon="solar:user-broken" size={22} color={errors.firstName ? colors.destructive : colors.tint} />
                     </View>
                     <TextInput
                       style={[styles.input, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
@@ -119,7 +119,7 @@ export default function ProfileScreen() {
                       autoFocus
                     />
                   </View>
-                  {errors.firstName && <Text style={[styles.errorText, { color: colors.error, textAlign: isRTL ? 'right' : 'left' }]}>{errors.firstName.message}</Text>}
+                  {errors.firstName && <Text style={[styles.errorText, { color: colors.destructive, textAlign: isRTL ? 'right' : 'left' }]}>{errors.firstName.message}</Text>}
                 </View>
               )}
             />

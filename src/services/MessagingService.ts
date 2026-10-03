@@ -12,7 +12,7 @@ import { realtimeService } from './realtime/RealtimeService';
 
 export default class MessagingService {
   private static instance: MessagingService;
-  private typingTimeouts: Record<string, NodeJS.Timeout> = {};
+  private typingTimeouts: Record<string, ReturnType<typeof setTimeout>> = {};
 
   private constructor() {
     this.setupRealtimeListeners();

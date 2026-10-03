@@ -104,7 +104,7 @@ export const SkillsCard = ({ skills, isRTL, mode = 'own' }: SkillsCardProps) => 
               <Text style={[styles.chipText, { color: colors.text }]}>{skill.name}</Text>
               {isEditing && isOwn && (
                 <TouchableOpacity onPress={() => removeSkill(skill.id)} style={styles.removeIcon}>
-                   <Iconify icon="solar:close-circle-bold" size={16} color={colors.error} />
+                   <Iconify icon="solar:close-circle-bold" size={16} color={colors.destructive} />
                 </TouchableOpacity>
               )}
             </Animated.View>

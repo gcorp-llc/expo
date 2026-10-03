@@ -167,7 +167,7 @@ export default function ProductDetailScreen() {
         <Animated.View style={[styles.imageContainer, headerImageStyle]}>
           <Animated.Image
             entering={FadeIn.duration(800)}
-            source={{ uri: product.thumbnail || "https://images.unsplash.com/photo-1503376780353-7e6692767b70" }}
+            source={{ uri: (product as any).thumbnail || (product as any).image || "https://images.unsplash.com/photo-1503376780353-7e6692767b70" }}
             style={styles.image}
             resizeMode="cover"
           />
@@ -215,7 +215,7 @@ export default function ProductDetailScreen() {
               </Text>
             </View>
             <View style={[styles.tag, { backgroundColor: colors.tint + "15" }]}>
-              <Text style={[styles.tagText, { color: colors.tint }]}>{product.sku}</Text>
+              <Text style={[styles.tagText, { color: colors.tint }]}>{(product as any).sku || (product as any).category || "Cardiani"}</Text>
             </View>
           </Animated.View>
 

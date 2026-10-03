@@ -143,7 +143,7 @@ export default function StaffManagementScreen() {
       {/* Add Staff Modal */}
       {isAdding && (
         <View style={StyleSheet.absoluteFill}>
-          <View intensity={20} style={StyleSheet.absoluteFill} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.4)' }]} />
           <TouchableOpacity style={StyleSheet.absoluteFill} onPress={() => setIsAdding(false)} />
           <View style={[styles.modalContainer, { backgroundColor: colors.background }]}>
              <View style={styles.modalHeader}>

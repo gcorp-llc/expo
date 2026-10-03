@@ -29,7 +29,7 @@ export default function FavoritesScreen() {
   const handleNavigate = useCallback((id: string) => router.push(`/product/${id}`), [router]);
 
   const renderItem = useCallback(
-    ({ item }) => (
+    ({ item }: { item: any }) => (
       <ProductCard product={item} style={{ width: CARD_WIDTH }} onPress={() => handleNavigate(item.id)} />
     ),
     [handleNavigate]
