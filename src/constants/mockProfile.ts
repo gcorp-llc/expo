@@ -1,0 +1,64 @@
+import { ProfileData } from '../types/profile';
+
+export const MOCK_PROFILE: ProfileData = {
+  name: 'جول بارکر',
+  headline: 'توسعه‌دهنده ارشد React Native و طراح محصول',
+  role: 'مدیر فروشگاه',
+  businessName: 'کاردانی دیزاین',
+  bio: 'علاقه‌مند به ساخت تجربه‌های کاربری منحصر به فرد با استفاده از تکنولوژی‌های روز. بیش از ۵ سال سابقه در طراحی و توسعه اپلیکیشن‌های موبایل.',
+  location: 'تهران',
+  region: 'شمیرانات',
+  website: 'https://jules.design',
+  instagram: 'jules_design',
+  email: 'jules@cardiani.design',
+  phoneNumber: '+98 912 345 6789',
+  followers: 1250,
+  following: 450,
+  productsCount: 12,
+  rating: 4.9,
+  completionPercentage: 85,
+  isVerified: true,
+  isOpenToWork: true,
+  avatar: 'https://i.pravatar.cc/300?u=jules',
+  coverImage: 'https://images.unsplash.com/photo-1557683316-973673baf926',
+  experiences: [
+    {
+      id: '1',
+      company: 'تک‌نولوژی پیشرو',
+      role: 'برنامه‌نویس ارشد موبایل',
+      period: '۱۴۰۱ - اکنون',
+      description: 'مدیریت تیم توسعه اپلیکیشن و پیاده‌سازی معماری‌های نوین.',
+    },
+    {
+      id: '2',
+      company: 'استودیو طراحی نوین',
+      role: 'طراح رابط کاربری',
+      period: '۱۳۹۸ - ۱۴۰۱',
+      description: 'طراحی بیش از ۱۰ اپلیکیشن موفق در حوزه تجارت الکترونیک.',
+    },
+  ],
+  skills: [
+    { id: '1', name: 'React Native' },
+    { id: '2', name: 'Expo' },
+    { id: '3', name: 'TypeScript' },
+    { id: '4', name: 'Reanimated' },
+    { id: '5', name: 'UI/UX Design' },
+  ],
+  achievements: [
+    { id: '1', title: 'فروشنده برتر', icon: 'solar:star-bold-duotone', description: 'کسب عنوان فروشنده برتر در سال ۱۴۰۲' },
+    { id: '2', title: 'تایید شده', icon: 'solar:verified-check-bold-duotone', description: 'هویت تایید شده توسط سیستم' },
+  ],
+  products: [
+    { id: 'p1', title: 'قالب اپلیکیشن فروشگاهی', price: '۴۵۰,۰۰۰ تومان', rating: 4.8, image: 'https://picsum.photos/400/400?random=1', isFavorite: true },
+    { id: 'p2', title: 'مجموعه آیکون‌های سه بعدی', price: '۱۲۰,۰۰۰ تومان', rating: 4.5, image: 'https://picsum.photos/400/400?random=2', isFavorite: false },
+    { id: 'p3', title: 'دوره جامع React Native', price: '۸۹۰,۰۰۰ تومان', rating: 5.0, image: 'https://picsum.photos/400/400?random=3', isFavorite: true },
+  ],
+  timeline: [
+    { id: 't1', title: 'به کاردانی پیوست', date: 'دی ۱۴۰۲', icon: 'solar:user-plus-broken' },
+    { id: 't2', title: 'اولین محصول را منتشر کرد', date: 'بهمن ۱۴۰۲', icon: 'solar:box-broken' },
+  ],
+  socialLinks: [
+    { id: 's1', platform: 'Instagram', username: '@jules_design', url: 'https://instagram.com/jules_design', icon: 'solar:camera-broken' },
+    { id: 's2', platform: 'LinkedIn', username: 'jules-barker', url: 'https://linkedin.com/in/jules-barker', icon: 'solar:user-broken' },
+  ],
+};
