@@ -431,11 +431,8 @@ export interface DynamicIconProps extends IconProps {
 
 export const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
   const cleanName = name.startsWith('solar:') ? name.replace('solar:', '') : name;
-  const IconComponent = ICON_MAP[cleanName];
+  const IconComponent = ICON_MAP[cleanName] || ICON_MAP['box-broken'] || ICON_MAP['square-broken'];
   if (!IconComponent) {
-    if (__DEV__) {
-      console.warn(`[Icons] Icon "${name}" (parsed as "${cleanName}") not found in local icons.`);
-    }
     return null;
   }
   return <IconComponent {...props} />;

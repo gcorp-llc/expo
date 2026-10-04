@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, TextInput, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  TextInput,
+  Share,
+} from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -9,6 +18,7 @@ import { Image } from "expo-image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productService, mobileCartService } from "@/services/api";
 import { useStore } from "@/hooks/use-store";
+import { BentoProductSkeleton } from "@/components/ui/BentoSkeleton";
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -19,7 +29,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
-const IMG_HEIGHT = 400;
+const GALLERY_HEIGHT = 360;
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,6 +45,7 @@ export default function ProductDetailScreen() {
   const [comment, setComment] = useState("");
   const [reviewOrderId, setReviewOrderId] = useState("");
   const [statusMsg, setStatusMsg] = useState("");
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const scrollY = useSharedValue(0);
 
@@ -74,7 +85,7 @@ export default function ProductDetailScreen() {
   const submitReviewMutation = useMutation({
     mutationFn: () => productService.submitReview(id as string, reviewOrderId, rating, comment),
     onSuccess: () => {
-      setStatusMsg(isRTL ? "دیدگاه با موفقیت تایید و ثبت شد!" : "Review submitted successfully!");
+      setStatusMsg(isRTL ? "دیدگاه شما با موفقیت ثبت گردید!" : "Review submitted successfully!");
       setComment("");
       setReviewOrderId("");
       queryClient.invalidateQueries({ queryKey: ["product-reviews", id] });
@@ -95,44 +106,72 @@ export default function ProductDetailScreen() {
         {
           translateY: interpolate(
             scrollY.value,
-            [-IMG_HEIGHT, 0, IMG_HEIGHT],
-            [-IMG_HEIGHT / 2, 0, IMG_HEIGHT * 0.75]
+            [-GALLERY_HEIGHT, 0, GALLERY_HEIGHT],
+            [-GALLERY_HEIGHT / 2, 0, GALLERY_HEIGHT * 0.75]
           ),
         },
         {
-          scale: interpolate(scrollY.value, [-IMG_HEIGHT, 0, IMG_HEIGHT], [2, 1, 1]),
+          scale: interpolate(scrollY.value, [-GALLERY_HEIGHT, 0, GALLERY_HEIGHT], [1.8, 1, 1]),
         },
       ],
     };
   });
 
+  const handleShare = async () => {
+    if (!product) return;
+    try {
+      await Share.share({
+        message: `${product.name} - ${product.price} USD\n${product.description}`,
+      });
+    } catch (e) {
+      // share ignored
+    }
+  };
+
+  const handleStartChatWithSeller = () => {
+    // Navigate to chat route with seller id/name parameter
+    const sellerId = (product as any)?.seller_id || (product as any)?.user_id || "seller-1";
+    const sellerName = (product as any)?.seller_name || (product as any)?.shop_name || (isRTL ? "فروشنده کاردیانی" : "Cardiani Seller");
+    router.push({
+      pathname: "/chat/[id]",
+      params: { id: sellerId, name: sellerName },
+    });
+  };
+
+  const imagesList = (product as any)?.images?.length
+    ? (product as any).images
+    : [
+        (product as any)?.image || (product as any)?.thumbnail || "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=80",
+        "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=80",
+      ];
+
   const t = {
     reviews: isRTL ? "دیدگاه" : "Reviews",
     addToCart: isRTL ? "افزودن به سبد خرید" : "Add to Cart",
-    description: isRTL ? "توضیحات محصول" : "Description",
-    seller: isRTL ? "فروشگاه" : "Seller",
-    warranty: isRTL ? "گارانتی اصالت و سلامت فیزیکی" : "Authenticity & Health Warranty",
-    shipping: isRTL ? "ارسال سریع کاردیانی" : "Fast Cardiani Shipping",
-    loading: isRTL ? "در حال دریافت اطلاعات..." : "Loading product details...",
+    description: isRTL ? "توضیحات و مشخصات" : "Description & Specifications",
+    seller: isRTL ? "فروشگاه و غرفه‌دار" : "Store & Seller Info",
+    chatWithSeller: isRTL ? "گفتگو با فروشنده" : "Chat with Seller",
+    warranty: isRTL ? "گارانتی اصالت و سلامت" : "Guaranteed Authenticity",
+    shipping: isRTL ? "ارسال سریع کاردیانی" : "Fast Shipping",
     notFound: isRTL ? "محصول یافت نشد." : "Product not found.",
+    storeRating: isRTL ? "رضایت خریداران ۹۸٪" : "98% Positive Feedback",
   };
 
   if (isProductLoading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.tint} />
-        <Text style={{ color: colors.textSecondary, marginTop: 12 }}>{t.loading}</Text>
-      </View>
-    );
+    return <BentoProductSkeleton />;
   }
 
   if (!product || productError) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Iconify icon="solar:box-broken" size={48} color={colors.textSecondary} />
-        <Text style={{ color: colors.text, marginTop: 12, fontWeight: "bold" }}>{t.notFound}</Text>
+        <Iconify icon="solar:box-broken" size={54} color={colors.textSecondary} />
+        <Text style={{ color: colors.text, marginTop: 14, fontSize: 18, fontWeight: "bold" }}>
+          {t.notFound}
+        </Text>
         <TouchableOpacity onPress={() => router.back()} style={{ marginTop: 20 }}>
-          <Text style={{ color: colors.tint, fontWeight: "bold" }}>{isRTL ? "بازگشت" : "Go Back"}</Text>
+          <Text style={{ color: colors.tint, fontWeight: "bold", fontSize: 16 }}>
+            {isRTL ? "بازگشت به فروشگاه" : "Go Back"}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -140,148 +179,237 @@ export default function ProductDetailScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Custom Header Buttons */}
-      <View style={[styles.headerButtons, { top: insets.top + 10, flexDirection: isRTL ? "row-reverse" : "row" }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.circleButton}>
-          <View style={[styles.blur, { backgroundColor: "rgba(0,0,0,0.3)" }]}>
+      {/* Top Action Floating Bar */}
+      <View
+        style={[
+          styles.headerButtons,
+          { top: insets.top + 8, flexDirection: isRTL ? "row-reverse" : "row" },
+        ]}
+      >
+        <TouchableOpacity onPress={() => router.back()} style={styles.circleButton} activeOpacity={0.8}>
+          <View style={styles.blurOverlay}>
             <Iconify
               icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
-              size={24}
+              size={22}
               color="#fff"
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.circleButton}>
-          <View style={[styles.blur, { backgroundColor: "rgba(0,0,0,0.3)" }]}>
-            <Iconify icon="solar:share-broken" size={24} color="#fff" />
-          </View>
-        </TouchableOpacity>
+
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <TouchableOpacity onPress={handleShare} style={styles.circleButton} activeOpacity={0.8}>
+            <View style={styles.blurOverlay}>
+              <Iconify icon="solar:share-broken" size={22} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <Animated.ScrollView
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
       >
+        {/* Gallery Carousel Bento Box Header */}
         <Animated.View style={[styles.imageContainer, headerImageStyle]}>
-          <Animated.Image
-            entering={FadeIn.duration(800)}
-            source={{ uri: (product as any).thumbnail || (product as any).image || "https://images.unsplash.com/photo-1503376780353-7e6692767b70" }}
-            style={styles.image}
-            resizeMode="cover"
-          />
+          <ScrollView
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onScroll={(e) => {
+              const x = e.nativeEvent.contentOffset.x;
+              const idx = Math.round(x / width);
+              setActiveImageIndex(idx);
+            }}
+            scrollEventThrottle={16}
+          >
+            {imagesList.map((imgUrl: string, idx: number) => (
+              <Image
+                key={idx}
+                source={{ uri: imgUrl }}
+                style={styles.image}
+                contentFit="cover"
+                transition={400}
+              />
+            ))}
+          </ScrollView>
+
+          {/* Dots Indicator */}
+          {imagesList.length > 1 && (
+            <View style={styles.dotsContainer}>
+              {imagesList.map((_: any, idx: number) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.dot,
+                    activeImageIndex === idx ? { width: 20, backgroundColor: "#fff" } : { backgroundColor: "rgba(255,255,255,0.4)" },
+                  ]}
+                />
+              ))}
+            </View>
+          )}
         </Animated.View>
 
-        <View style={[styles.content, { backgroundColor: colors.background }]}>
-          <View style={styles.indicator} />
-
+        {/* Bento Content Container */}
+        <View style={[styles.bentoWrapper, { backgroundColor: colors.background }]}>
           {statusMsg ? (
-            <View style={{ backgroundColor: colors.surfaceStrong, padding: 12, borderRadius: 12, marginBottom: 16 }}>
-              <Text style={{ color: colors.tint, fontSize: 13, fontWeight: "bold", textAlign: "center" }}>
-                {statusMsg}
-              </Text>
-            </View>
+            <Animated.View entering={FadeInDown} style={[styles.statusCard, { backgroundColor: colors.tint + "18", borderColor: colors.tint }]}>
+              <Iconify icon="solar:shield-check-bold" size={20} color={colors.tint} />
+              <Text style={[styles.statusMsgText, { color: colors.tint }]}>{statusMsg}</Text>
+            </Animated.View>
           ) : null}
 
+          {/* Bento Card 1: Product Title & Price */}
           <Animated.View
-            entering={FadeInDown.duration(600).delay(200)}
-            style={[styles.titleRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}
+            entering={FadeInDown.duration(500)}
+            style={[
+              styles.bentoCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
           >
-            <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
-              {product.name}
-            </Text>
-            <Text style={[styles.price, { color: colors.tint }]}>
-              {product.price.toLocaleString()} <Text style={{ fontSize: 12 }}>USD</Text>
-            </Text>
+            <View style={[styles.titleRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+              <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+                {product.name}
+              </Text>
+            </View>
+
+            <View style={[styles.priceTagRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+              <View style={styles.priceContainer}>
+                <Text style={[styles.priceValue, { color: colors.tint }]}>
+                  ${product.price.toLocaleString()}
+                </Text>
+                <Text style={[styles.priceSub, { color: colors.textSecondary }]}>
+                  {isRTL ? "شامل تمامی مالیات‌ها" : "Taxes included"}
+                </Text>
+              </View>
+
+              <View style={[styles.badge, { backgroundColor: colors.surfaceStrong }]}>
+                <Iconify icon="solar:star-bold" size={16} color="#fbbf24" />
+                <Text style={[styles.badgeText, { color: colors.text }]}>
+                  {ratingSummary?.rating_average?.toFixed(1) || "5.0"}
+                </Text>
+                <Text style={[styles.badgeSub, { color: colors.textSecondary }]}>
+                  ({ratingSummary?.rating_count || 0})
+                </Text>
+              </View>
+            </View>
           </Animated.View>
 
-          <Animated.View
-            entering={FadeInDown.duration(600).delay(300)}
-            style={[styles.metaRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}
-          >
-            <View
+          {/* Bento Grid Row 2: 2 Column Highlights (Warranty & Delivery) */}
+          <View style={[styles.bentoRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+            <Animated.View
+              entering={FadeInDown.delay(100).duration(500)}
               style={[
-                styles.ratingBox,
-                { backgroundColor: colors.surfaceStrong, flexDirection: isRTL ? "row-reverse" : "row" },
+                styles.bentoColCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
               ]}
             >
-              <Iconify icon="solar:star-bold" size={16} color="#fbbf24" />
-              <Text style={[styles.ratingText, { color: colors.text }]}>
-                {ratingSummary?.rating_average?.toFixed(1) || "5.0"}
-              </Text>
-              <Text style={[styles.reviewsText, { color: colors.textSecondary }]}>
-                ({ratingSummary?.rating_count || 0} {t.reviews})
-              </Text>
-            </View>
-            <View style={[styles.tag, { backgroundColor: colors.tint + "15" }]}>
-              <Text style={[styles.tagText, { color: colors.tint }]}>{(product as any).sku || (product as any).category || "Cardiani"}</Text>
-            </View>
-          </Animated.View>
-
-          <View style={styles.divider} />
-
-          <Animated.View entering={FadeInDown.duration(600).delay(400)} style={[styles.infoSection, { gap: 12 }]}>
-            <View style={[styles.infoItem, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-              <Iconify icon="solar:shield-check-broken" size={20} color={colors.textSecondary} />
-              <Text
-                style={[
-                  styles.infoItemText,
-                  { color: colors.text, textAlign: isRTL ? "right" : "left", [isRTL ? "marginRight" : "marginLeft"]: 12 },
-                ]}
-              >
+              <View style={[styles.iconCircle, { backgroundColor: colors.tint + "18" }]}>
+                <Iconify icon="solar:shield-check-broken" size={22} color={colors.tint} />
+              </View>
+              <Text style={[styles.colTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
                 {t.warranty}
               </Text>
-            </View>
-            <View style={[styles.infoItem, { flexDirection: isRTL ? "row-reverse" : "row", marginTop: 4 }]}>
-              <Iconify icon="solar:delivery-broken" size={20} color={colors.textSecondary} />
-              <Text
-                style={[
-                  styles.infoItemText,
-                  { color: colors.text, textAlign: isRTL ? "right" : "left", [isRTL ? "marginRight" : "marginLeft"]: 12 },
-                ]}
-              >
+              <Text style={[styles.colSub, { color: colors.textSecondary, textAlign: isRTL ? "right" : "left" }]}>
+                {isRTL ? "تضمین اصالت کالا" : "100% Authentic"}
+              </Text>
+            </Animated.View>
+
+            <Animated.View
+              entering={FadeInDown.delay(150).duration(500)}
+              style={[
+                styles.bentoColCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
+            >
+              <View style={[styles.iconCircle, { backgroundColor: colors.tint + "18" }]}>
+                <Iconify icon="solar:delivery-broken" size={22} color={colors.tint} />
+              </View>
+              <Text style={[styles.colTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
                 {t.shipping}
               </Text>
+              <Text style={[styles.colSub, { color: colors.textSecondary, textAlign: isRTL ? "right" : "left" }]}>
+                {isRTL ? "تحویل ۱ الی ۳ روز کاری" : "1-3 Business Days"}
+              </Text>
+            </Animated.View>
+          </View>
+
+          {/* Bento Card 3: Seller Info & Quick Seller Chat */}
+          <Animated.View
+            entering={FadeInDown.delay(200).duration(500)}
+            style={[
+              styles.bentoCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
+          >
+            <View style={[styles.sellerRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+              <View style={[styles.sellerAvatarCircle, { backgroundColor: colors.surfaceStrong }]}>
+                <Iconify icon="solar:shop-2-broken" size={26} color={colors.tint} />
+              </View>
+
+              <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
+                <Text style={[styles.sellerName, { color: colors.text }]}>
+                  {(product as any)?.shop_name || (product as any)?.seller_name || (isRTL ? "فروشگاه رسمی کاردیانی" : "Cardiani Official Store")}
+                </Text>
+                <Text style={[styles.sellerStatus, { color: colors.success }]}>
+                  {t.storeRating}
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                onPress={handleStartChatWithSeller}
+                style={[styles.chatBtn, { backgroundColor: colors.tint + "15", borderColor: colors.tint }]}
+                activeOpacity={0.8}
+              >
+                <Iconify icon="solar:chat-line-broken" size={18} color={colors.tint} />
+                <Text style={[styles.chatBtnText, { color: colors.tint }]}>
+                  {t.chatWithSeller}
+                </Text>
+              </TouchableOpacity>
             </View>
           </Animated.View>
 
-          <View style={styles.divider} />
-
-          <Animated.Text
-            entering={FadeInDown.duration(600).delay(500)}
-            style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}
+          {/* Bento Card 4: Description */}
+          <Animated.View
+            entering={FadeInDown.delay(250).duration(500)}
+            style={[
+              styles.bentoCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
           >
-            {t.description}
-          </Animated.Text>
-          <Animated.Text
-            entering={FadeInDown.duration(600).delay(550)}
-            style={[styles.description, { color: colors.textSecondary, textAlign: isRTL ? "right" : "left" }]}
+            <Text style={[styles.cardHeaderTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+              {t.description}
+            </Text>
+            <Text style={[styles.descriptionText, { color: colors.textSecondary, textAlign: isRTL ? "right" : "left" }]}>
+              {product.description}
+            </Text>
+          </Animated.View>
+
+          {/* Bento Card 5: Ratings & Verified Customer Reviews + Seller Reply Support */}
+          <Animated.View
+            entering={FadeInDown.delay(300).duration(500)}
+            style={[
+              styles.bentoCard,
+              { backgroundColor: colors.card, borderColor: colors.border },
+            ]}
           >
-            {product.description}
-          </Animated.Text>
+            <Text style={[styles.cardHeaderTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+              {isRTL ? "نظرات و امتیازات خریداران" : "Ratings & Reviews"}
+            </Text>
 
-          <View style={styles.divider} />
-
-          {/* Ratings & Reviews aggregate distributions */}
-          <Animated.View entering={FadeInDown.duration(600).delay(600)} style={styles.reviewsSection}>
-            <View style={[styles.sectionHeader, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-              <Text style={[styles.sectionTitle, { color: colors.text, marginBottom: 0 }]}>
-                {isRTL ? "امتیازات خریداران" : "Ratings & Reviews"}
-              </Text>
-            </View>
-
-            <View style={[styles.writeReviewCard, { backgroundColor: colors.surfaceStrong }]}>
+            {/* Write Review Form */}
+            <View style={[styles.reviewInputBox, { backgroundColor: colors.surface, borderColor: colors.border }]}>
               <Text style={[styles.writeTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
-                {isRTL ? "ثبت نظر خریداران" : "Write a Verified Review"}
+                {isRTL ? "ثبت نظر برای این محصول" : "Write a Review"}
               </Text>
 
               <TextInput
                 style={[
-                  styles.commentInput,
-                  { color: colors.text, borderColor: colors.border, textAlign: isRTL ? "right" : "left", height: 40 },
+                  styles.textInput,
+                  { color: colors.text, borderColor: colors.border, textAlign: isRTL ? "right" : "left" },
                 ]}
-                placeholder={isRTL ? "کد سفارش خرید شده را وارد نمایید..." : "Enter your order ID..."}
+                placeholder={isRTL ? "کد سفارش (اختیاری)..." : "Order ID (optional)..."}
                 placeholderTextColor={colors.textSecondary}
                 value={reviewOrderId}
                 onChangeText={setReviewOrderId}
@@ -289,65 +417,85 @@ export default function ProductDetailScreen() {
 
               <View style={[styles.starsRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <TouchableOpacity key={s} onPress={() => setRating(s)}>
-                    <Iconify icon={s <= rating ? "solar:star-bold" : "solar:star-broken"} size={28} color="#fbbf24" />
+                  <TouchableOpacity key={s} onPress={() => setRating(s)} activeOpacity={0.7}>
+                    <Iconify icon={s <= rating ? "solar:star-bold" : "solar:star-broken"} size={26} color="#fbbf24" />
                   </TouchableOpacity>
                 ))}
               </View>
 
               <TextInput
                 style={[
-                  styles.commentInput,
-                  { color: colors.text, borderColor: colors.border, textAlign: isRTL ? "right" : "left" },
+                  styles.textInput,
+                  { color: colors.text, borderColor: colors.border, textAlign: isRTL ? "right" : "left", height: 70 },
                 ]}
-                placeholder={isRTL ? "دیدگاه خود را بنویسید..." : "Share your experience..."}
+                placeholder={isRTL ? "تجربه و نظر خود را بنویسید..." : "Write your review..."}
                 placeholderTextColor={colors.textSecondary}
                 multiline
                 value={comment}
                 onChangeText={setComment}
               />
+
               <TouchableOpacity
                 onPress={() => submitReviewMutation.mutate()}
-                style={[styles.submitBtn, { backgroundColor: colors.tint }]}
+                disabled={submitReviewMutation.isPending || !comment.trim()}
+                style={[
+                  styles.submitBtn,
+                  { backgroundColor: comment.trim() ? colors.tint : colors.border },
+                ]}
+                activeOpacity={0.8}
               >
                 <Text style={styles.submitBtnText}>
                   {submitReviewMutation.isPending
                     ? isRTL
-                      ? "در حال ثبت..."
+                      ? "در حال ارسال..."
                       : "Submitting..."
                     : isRTL
-                      ? "ثبت دیدگاه"
+                      ? "ثبت و تایید نظر"
                       : "Submit Review"}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            {/* Render reviews */}
-            <View style={styles.commentsList}>
+            {/* Existing Customer Reviews List with Seller Reply */}
+            <View style={{ marginTop: 18, gap: 14 }}>
               {reviews.length === 0 ? (
                 <Text style={{ color: colors.textSecondary, fontSize: 13, textAlign: isRTL ? "right" : "left" }}>
-                  {isRTL ? "هیچ دیدگاهی هنوز ثبت نشده است." : "No reviews registered yet."}
+                  {isRTL ? "هنوز دیدگاهی ثبت نشده است. اولین نفری باشید که نظر می‌دهید!" : "No reviews yet. Be the first to leave a review!"}
                 </Text>
               ) : (
                 reviews.map((rev: any) => (
-                  <View key={rev.id} style={styles.commentItem}>
-                    <View style={[styles.commentHeader, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-                      <View
-                        style={{ flex: 1, [isRTL ? "marginRight" : "marginLeft"]: 12, alignItems: isRTL ? "flex-end" : "flex-start" }}
-                      >
+                  <View key={rev.id} style={[styles.reviewItemCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    <View style={[styles.reviewItemHeader, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                      <View style={{ alignItems: isRTL ? "flex-end" : "flex-start" }}>
                         <Text style={[styles.reviewerName, { color: colors.text }]}>
-                          {isRTL ? "خریدار محصول" : "Verified Buyer"}
+                          {rev.user_name || (isRTL ? "خریدار تایید شده" : "Verified Customer")}
                         </Text>
-                        <View style={[styles.starsSmall, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-                          {Array.from({ length: rev.rating }).map((_, s) => (
-                            <Iconify key={s} icon="solar:star-bold" size={10} color="#fbbf24" />
+                        <View style={[styles.starsSmallRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                          {Array.from({ length: rev.rating || 5 }).map((_, s) => (
+                            <Iconify key={s} icon="solar:star-bold" size={12} color="#fbbf24" />
                           ))}
                         </View>
                       </View>
                     </View>
-                    <Text style={[styles.commentText, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+
+                    <Text style={[styles.reviewCommentText, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
                       {rev.comment}
                     </Text>
+
+                    {/* Seller Reply Section if available */}
+                    {rev.seller_reply ? (
+                      <View style={[styles.sellerReplyBox, { backgroundColor: colors.card, borderColor: colors.tint + "40" }]}>
+                        <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6, marginBottom: 4 }}>
+                          <Iconify icon="solar:chat-round-line-bold" size={14} color={colors.tint} />
+                          <Text style={[styles.sellerReplyTitle, { color: colors.tint }]}>
+                            {isRTL ? "پاسخ فروشنده:" : "Seller Response:"}
+                          </Text>
+                        </View>
+                        <Text style={[styles.sellerReplyText, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+                          {rev.seller_reply}
+                        </Text>
+                      </View>
+                    ) : null}
                   </View>
                 ))
               )}
@@ -356,34 +504,46 @@ export default function ProductDetailScreen() {
         </View>
       </Animated.ScrollView>
 
-      {/* Footer buy button */}
-      <View
+      {/* Floating Bottom Action Bar Bento */}
+      <Animated.View
+        entering={FadeInDown.duration(400)}
         style={[
-          styles.footer,
-          { paddingBottom: insets.bottom + 10, backgroundColor: colors.surface, borderTopColor: colors.border },
+          styles.bottomFloatingBar,
+          {
+            paddingBottom: Math.max(insets.bottom, 12),
+            backgroundColor: colors.card,
+            borderTopColor: colors.border,
+          },
         ]}
       >
-        <View style={[styles.footerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-          <TouchableOpacity onPress={() => addToCartMutation.mutate()} style={styles.buyButtonWrapper}>
-            <View style={[styles.buyButton, { backgroundColor: colors.tint }]}>
-              <Text style={[styles.buyButtonText, { color: "#fff" }]}>
-                {addToCartMutation.isPending ? (isRTL ? "در حال افزودن..." : "Adding...") : t.addToCart}
-              </Text>
-            </View>
-          </TouchableOpacity>
+        <View style={[styles.floatingBarContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+          {/* Quick Chat Icon Button */}
           <TouchableOpacity
-            onPress={() => router.push("/cart")}
-            style={[
-              styles.cartIconBtn,
-              { borderWidth: 1.2, borderColor: colors.border, backgroundColor: colors.card, overflow: "hidden" },
-            ]}
+            onPress={handleStartChatWithSeller}
+            style={[styles.floatingIconBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            activeOpacity={0.7}
           >
-            <View style={styles.blur}>
-              <Iconify icon="solar:cart-large-broken" size={24} color={colors.text} />
-            </View>
+            <Iconify icon="solar:chat-line-broken" size={22} color={colors.tint} />
+          </TouchableOpacity>
+
+          {/* Add to Cart Button */}
+          <TouchableOpacity
+            onPress={() => addToCartMutation.mutate()}
+            disabled={addToCartMutation.isPending}
+            style={[styles.addToCartBtn, { backgroundColor: colors.tint }]}
+            activeOpacity={0.85}
+          >
+            <Iconify icon="solar:bag-2-broken" size={20} color="#fff" />
+            <Text style={styles.addToCartText}>
+              {addToCartMutation.isPending
+                ? isRTL
+                  ? "در حال افزوده شدن..."
+                  : "Adding..."
+                : t.addToCart}
+            </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -391,46 +551,160 @@ export default function ProductDetailScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  headerButtons: { position: "absolute", zIndex: 10, left: 20, right: 20, justifyContent: "space-between", alignItems: "center" },
-  circleButton: { width: 44, height: 44, borderRadius: 22, overflow: "hidden" },
-  blur: { flex: 1, alignItems: "center", justifyContent: "center" },
-  imageContainer: { width: width, height: IMG_HEIGHT },
-  image: { width: "100%", height: "100%" },
-  content: { marginTop: -30, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingHorizontal: 20, paddingTop: 10, minHeight: 500 },
-  indicator: { width: 40, height: 4, backgroundColor: "#ccc", borderRadius: 2, alignSelf: "center", marginBottom: 20 },
+  headerButtons: {
+    position: "absolute",
+    zIndex: 20,
+    left: 16,
+    right: 16,
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  circleButton: { width: 42, height: 42, borderRadius: 21, overflow: "hidden" },
+  blurOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.35)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  imageContainer: { width: width, height: GALLERY_HEIGHT, position: "relative" },
+  image: { width: width, height: GALLERY_HEIGHT },
+  dotsContainer: {
+    position: "absolute",
+    bottom: 24,
+    alignSelf: "center",
+    flexDirection: "row",
+    gap: 6,
+  },
+  dot: { height: 6, width: 6, borderRadius: 3 },
+  bentoWrapper: {
+    marginTop: -20,
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    gap: 14,
+  },
+  statusCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  statusMsgText: { fontSize: 13, fontWeight: "700", flex: 1 },
+  bentoCard: {
+    padding: 18,
+    borderRadius: 24,
+    borderWidth: 1,
+  },
   titleRow: { justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 },
-  title: { fontSize: 24, fontWeight: "800", flex: 1 },
-  price: { fontSize: 24, fontWeight: "800", marginLeft: 12 },
-  metaRow: { alignItems: "center", gap: 12, marginBottom: 20 },
-  ratingBox: { paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignItems: "center", gap: 6 },
-  ratingText: { fontWeight: "700", fontSize: 14 },
-  reviewsText: { fontSize: 12 },
-  tag: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  tagText: { fontSize: 12, fontWeight: "700" },
-  divider: { height: 1, backgroundColor: "rgba(0,0,0,0.05)", marginVertical: 20 },
-  infoSection: { marginBottom: 10 },
-  infoItem: { alignItems: "center" },
-  infoItemText: { fontSize: 14, fontWeight: "500" },
-  sectionTitle: { fontSize: 18, fontWeight: "700", marginBottom: 12 },
-  description: { fontSize: 15, lineHeight: 24 },
-  footer: { position: "absolute", bottom: 0, left: 0, right: 0, paddingHorizontal: 20, paddingTop: 16, borderTopWidth: 1, borderTopColor: "rgba(0,0,0,0.05)" },
-  footerContent: { alignItems: "center", gap: 12 },
-  buyButtonWrapper: { flex: 1, height: 54, borderRadius: 18, overflow: "hidden" },
-  buyButton: { flex: 1, height: 54, alignItems: "center", justifyContent: "center" },
-  buyButtonText: { fontSize: 16, fontWeight: "800" },
-  reviewsSection: { paddingBottom: 20 },
-  sectionHeader: { justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  starsRow: { justifyContent: "center", gap: 12, marginBottom: 20 },
-  commentInput: { height: 100, borderRadius: 16, borderWidth: 1, padding: 12, fontSize: 14, fontWeight: "500", marginBottom: 16 },
-  submitBtn: { height: 48, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  submitBtnText: { color: "#fff", fontWeight: "700" },
-  commentsList: { gap: 24 },
-  commentItem: { gap: 12 },
-  commentHeader: { alignItems: "center" },
-  reviewerName: { fontSize: 15, fontWeight: "700" },
-  starsSmall: { gap: 2 },
-  commentText: { fontSize: 14, lineHeight: 22, fontWeight: "500" },
-  cartIconBtn: { width: 54, height: 54, borderRadius: 18, alignItems: "center", justifyContent: "center" },
-  writeReviewCard: { padding: 20, borderRadius: 24, marginBottom: 32 },
-  writeTitle: { fontSize: 16, fontWeight: "800", marginBottom: 16 },
+  title: { fontSize: 20, fontWeight: "800", flex: 1, lineHeight: 28 },
+  priceTagRow: { justifyContent: "space-between", alignItems: "center", marginTop: 4 },
+  priceContainer: {},
+  priceValue: { fontSize: 24, fontWeight: "900" },
+  priceSub: { fontSize: 11, fontWeight: "600", marginTop: 2 },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+  },
+  badgeText: { fontWeight: "800", fontSize: 14 },
+  badgeSub: { fontSize: 12 },
+  bentoRow: { flexDirection: "row", gap: 12 },
+  bentoColCard: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 22,
+    borderWidth: 1,
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+  colTitle: { fontSize: 14, fontWeight: "800", marginBottom: 2 },
+  colSub: { fontSize: 11, fontWeight: "600" },
+  sellerRow: { alignItems: "center", gap: 12 },
+  sellerAvatarCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sellerName: { fontSize: 15, fontWeight: "800" },
+  sellerStatus: { fontSize: 12, fontWeight: "700", marginTop: 2 },
+  chatBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 14,
+    height: 38,
+    borderRadius: 19,
+    borderWidth: 1,
+  },
+  chatBtnText: { fontSize: 12, fontWeight: "800" },
+  cardHeaderTitle: { fontSize: 16, fontWeight: "800", marginBottom: 10 },
+  descriptionText: { fontSize: 14, lineHeight: 22, fontWeight: "500" },
+  reviewInputBox: { padding: 14, borderRadius: 18, borderWidth: 1, marginTop: 8 },
+  writeTitle: { fontSize: 14, fontWeight: "800", marginBottom: 10 },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    fontSize: 13,
+    marginBottom: 10,
+  },
+  starsRow: { justifyContent: "center", gap: 10, marginBottom: 10 },
+  submitBtn: {
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  submitBtnText: { color: "#fff", fontWeight: "800", fontSize: 13 },
+  reviewItemCard: { padding: 12, borderRadius: 16, borderWidth: 1 },
+  reviewItemHeader: { justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
+  reviewerName: { fontSize: 13, fontWeight: "800" },
+  starsSmallRow: { gap: 2, marginTop: 2 },
+  reviewCommentText: { fontSize: 13, lineHeight: 18, fontWeight: "500" },
+  sellerReplyBox: { padding: 10, borderRadius: 12, borderWidth: 1, marginTop: 8 },
+  sellerReplyTitle: { fontSize: 12, fontWeight: "800" },
+  sellerReplyText: { fontSize: 12, lineHeight: 17 },
+  bottomFloatingBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  floatingBarContent: { alignItems: "center", gap: 12 },
+  floatingIconBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  addToCartBtn: {
+    flex: 1,
+    height: 48,
+    borderRadius: 24,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+  addToCartText: { color: "#fff", fontSize: 15, fontWeight: "800" },
 });
