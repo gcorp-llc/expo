@@ -1,0 +1,36 @@
+import React from 'react';
+import Svg, { Path, G } from 'react-native-svg';
+import { StyleProp, ViewStyle } from 'react-native';
+
+export interface IconProps {
+  size?: number;
+  width?: number;
+  height?: number;
+  color?: string;
+  style?: StyleProp<ViewStyle>;
+}
+
+export const GhostBrokenIcon: React.FC<IconProps> = ({
+  size = 24,
+  width,
+  height,
+  color = 'currentColor',
+  style,
+}) => {
+  const w = size ?? width ?? 24;
+  const h = size ?? height ?? 24;
+
+  return (
+    <Svg
+      width={w}
+      height={h}
+      viewBox="0 0 24 24"
+      fill="none"
+      style={style}
+    >
+      <G fill="none" stroke={color} strokeLinecap="round"><Path strokeWidth="1.5" d="M22 12.3006C22 6.61173 17.5228 2 12 2C6.47715 2 2 6.61173 2 12.3006V19.723C2 21.0453 3.35098 21.9054 4.4992 21.314C5.42726 20.836 6.5328 20.9069 7.39614 21.4998C8.36736 22.1667 9.63264 22.1667 10.6039 21.4998L10.9565 21.2576C11.5884 20.8237 12.4116 20.8237 13.0435 21.2576L13.3961 21.4998C14.3674 22.1667 15.6326 22.1667 16.6039 21.4998C17.4672 20.9069 18.5727 20.836 19.5008 21.314C20.649 21.9054 22 21.0453 22 19.723V16.0118"/><Path d="M15.5 10.5C15.5 11.0523 15.2761 11.5 15 11.5C14.7239 11.5 14.5 11.0523 14.5 10.5C14.5 9.94772 14.7239 9.5 15 9.5C15.2761 9.5 15.5 9.94772 15.5 10.5Z"/><ellipse cx="9" cy="10.5" rx=".5" ry="1"/></G>
+    </Svg>
+  );
+};
+
+export default GhostBrokenIcon;

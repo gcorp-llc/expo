@@ -1,13 +1,46 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  ActivityIndicator,
+  TextInput,
+  Dimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
-import { Colors } from "@/constants/theme";
+import { Colors, Spacing } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Iconify } from "@/components/ui/Iconify";
+import { Image } from "expo-image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { mobileCartService, mobileOrderService } from "@/services/api";
+import { mobileCartService, mobileOrderService, productService } from "@/services/api";
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeOut,
+  Layout,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
+import {
+  AltArrowLeftBrokenIcon,
+  AltArrowRightBrokenIcon,
+  CartLargeMinimalisticBrokenIcon,
+  MinusSquareBrokenIcon,
+  AddSquareBrokenIcon,
+  TrashBinTrashBrokenIcon,
+  TagBoldIcon,
+  Bag2BrokenIcon,
+  DeliveryBrokenIcon,
+  ShieldCheckBoldIcon,
+  Shop2BrokenIcon,
+} from "@/components/icons";
+
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function CartScreen() {
   const router = useRouter();
@@ -19,14 +52,47 @@ export default function CartScreen() {
   const isRTL = language === "fa";
 
   const [statusMsg, setStatusMsg] = useState("");
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedDiscount, setAppliedDiscount] = useState(0); // e.g. 10% or fixed amount
+  const [discountError, setDiscountError] = useState("");
 
-  // 1. Query Persistent Cart Items
+  // 1. Fetch Cart
   const { data: cartItems = [], isLoading: isCartLoading } = useQuery({
     queryKey: ["cart"],
     queryFn: mobileCartService.getCart,
   });
 
-  // 2. Quantity updates mutation
+  // 2. Fetch Products to display rich product info (title, image, price)
+  const { data: allProducts = [] } = useQuery({
+    queryKey: ["products"],
+    queryFn: productService.getProducts,
+  });
+
+  // Map product details onto cart items
+  const productsMap = new Map(allProducts.map((p: any) => [p.id, p]));
+
+  const enrichedCartItems = cartItems.map((item: any) => {
+    const product = productsMap.get(item.product_id);
+    return {
+      ...item,
+      title: product?.name || (isRTL ? `محصول ${item.product_id.substring(0, 6)}` : `Product ${item.product_id.substring(0, 6)}`),
+      image: product?.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
+      unitPrice: product?.price || 120, // fallback sample price
+    };
+  });
+
+  // Calculations
+  const subtotal = enrichedCartItems.reduce(
+    (acc: number, item: any) => acc + item.unitPrice * item.quantity,
+    0
+  );
+  const discountAmount = (subtotal * appliedDiscount) / 100;
+  const shippingFee = subtotal > 300 || subtotal === 0 ? 0 : 15;
+  const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+  const freeShippingThreshold = 300;
+  const freeShippingProgress = Math.min(1, subtotal / freeShippingThreshold);
+
+  // Mutations
   const updateQtyMutation = useMutation({
     mutationFn: ({ itemId, qty }: { itemId: string; qty: number }) => {
       if (qty <= 0) {
@@ -42,147 +108,409 @@ export default function CartScreen() {
     },
   });
 
-  // 3. Checkout mutation
+  const clearCartMutation = useMutation({
+    mutationFn: async () => {
+      for (const item of cartItems) {
+        await mobileCartService.removeCartItem(item.item_id);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+  });
+
   const checkoutMutation = useMutation({
     mutationFn: () => mobileOrderService.checkout(undefined, undefined),
     onSuccess: () => {
-      setStatusMsg(isRTL ? "پیش‌سفارش ثبت شد و موجودی رزرو گردید!" : "Pre-order created & inventory reserved!");
+      setStatusMsg(
+        isRTL
+          ? "پیش‌سفارش شما با موفقیت ثبت و موجودی انبار رزرو شد!"
+          : "Pre-order created & inventory reserved successfully!"
+      );
       queryClient.invalidateQueries({ queryKey: ["cart"] });
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       setTimeout(() => {
-        router.push("/(tabs)/favorites"); // Let's route to orders tab (favorites tab acts as placeholder or we can navigate settings/profile)
-      }, 1000);
+        router.push("/(tabs)/favorites");
+      }, 1500);
     },
     onError: (err: any) => {
       setStatusMsg(err.message);
     },
   });
 
+  const handleApplyPromo = () => {
+    if (!promoCode.trim()) return;
+    if (promoCode.trim().toUpperCase() === "KUTIK20" || promoCode.trim().toUpperCase() === "CARDIANI") {
+      setAppliedDiscount(20);
+      setDiscountError("");
+    } else {
+      setDiscountError(isRTL ? "کد تخفیف نامعتبر است" : "Invalid coupon code");
+    }
+  };
+
   if (isCartLoading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.tint} />
+        <Text style={{ marginTop: 12, color: colors.textSecondary, fontWeight: "600" }}>
+          {isRTL ? "در حال بارگذاری سبد خرید..." : "Loading cart..."}
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top, borderBottomColor: colors.border }]}>
+      {/* Header */}
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: Math.max(insets.top, 12),
+            backgroundColor: colors.background,
+            borderBottomColor: colors.border,
+          },
+        ]}
+      >
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Iconify
-              icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
-              size={24}
-              color={colors.text}
-            />
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={[styles.iconBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            activeOpacity={0.7}
+          >
+            {isRTL ? (
+              <AltArrowRightBrokenIcon size={22} color={colors.text} />
+            ) : (
+              <AltArrowLeftBrokenIcon size={22} color={colors.text} />
+            )}
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {isRTL ? "سبد خرید" : "Shopping Cart"}
-          </Text>
-          <View style={{ width: 40 }} />
+
+          <View style={{ alignItems: "center" }}>
+            <Text style={[styles.headerTitle, { color: colors.text }]}>
+              {isRTL ? "سبد خرید" : "Shopping Cart"}
+            </Text>
+            {cartItems.length > 0 && (
+              <Text style={{ fontSize: 12, color: colors.textSecondary, fontWeight: "600" }}>
+                {cartItems.reduce((acc: number, curr: any) => acc + curr.quantity, 0)}{" "}
+                {isRTL ? "کالا در سبد شما" : "items in your cart"}
+              </Text>
+            )}
+          </View>
+
+          {cartItems.length > 0 ? (
+            <TouchableOpacity
+              onPress={() => clearCartMutation.mutate()}
+              style={[styles.iconBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+              activeOpacity={0.7}
+            >
+              <TrashBinTrashBrokenIcon size={20} color={colors.destructive} />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 42 }} />
+          )}
         </View>
       </View>
 
+      {/* Notification status banner */}
       {statusMsg ? (
-        <View style={{ backgroundColor: colors.surfaceStrong, padding: 12, margin: 16, borderRadius: 12 }}>
-          <Text style={{ color: colors.tint, fontSize: 13, fontWeight: "bold", textAlign: "center" }}>
-            {statusMsg}
-          </Text>
-        </View>
+        <Animated.View
+          entering={FadeInDown}
+          style={[styles.statusBanner, { backgroundColor: colors.tint + "20", borderColor: colors.tint }]}
+        >
+          <ShieldCheckBoldIcon size={20} color={colors.tint} />
+          <Text style={[styles.statusText, { color: colors.tint }]}>{statusMsg}</Text>
+        </Animated.View>
       ) : null}
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {cartItems.length === 0 ? (
-          <View style={{ paddingVertical: 60, alignItems: "center" }}>
-            <Iconify icon="solar:cart-large-minimalistic-broken" size={64} color={colors.textSecondary} />
-            <Text style={{ color: colors.text, marginTop: 12, fontWeight: "bold" }}>
-              {isRTL ? "سبد خرید شما خالی است." : "Your shopping cart is empty."}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: enrichedCartItems.length > 0 ? 180 : 40 },
+        ]}
+      >
+        {enrichedCartItems.length === 0 ? (
+          <Animated.View entering={FadeInUp.duration(600)} style={styles.emptyContainer}>
+            <View style={[styles.emptyIconCircle, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <CartLargeMinimalisticBrokenIcon size={80} color={colors.tint} />
+            </View>
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              {isRTL ? "سبد خرید شما خالی است" : "Your cart is empty"}
             </Text>
-          </View>
+            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+              {isRTL
+                ? "محصولات مورد علاقه خود را پیدا کنید و به سبد اضافه کنید."
+                : "Explore our collection and add your favorite products."}
+            </Text>
+            <TouchableOpacity
+              onPress={() => router.push("/(tabs)")}
+              style={[styles.shopNowBtn, { backgroundColor: colors.tint }]}
+              activeOpacity={0.8}
+            >
+              <Shop2BrokenIcon size={22} color="#fff" />
+              <Text style={styles.shopNowText}>{isRTL ? "مشاهده محصولات" : "Browse Products"}</Text>
+            </TouchableOpacity>
+          </Animated.View>
         ) : (
-          cartItems.map((item: any) => (
+          <>
+            {/* Free Shipping Bar */}
             <View
-              key={item.item_id}
               style={[
-                styles.cartItem,
-                {
-                  flexDirection: isRTL ? "row-reverse" : "row",
-                  backgroundColor: colors.surfaceStrong,
-                  borderColor: colors.border,
-                },
+                styles.shippingCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
               ]}
             >
-              <View style={[styles.itemInfo, { alignItems: isRTL ? "flex-end" : "flex-start" }]}>
-                <Text style={[styles.itemName, { color: colors.text }]} numberOfLines={1}>
-                  {isRTL ? "شناسه محصول:" : "Product ID:"} {item.product_id.substring(0, 8)}...
+              <View style={[styles.shippingHeader, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                <DeliveryBrokenIcon size={22} color={colors.tint} />
+                <Text style={[styles.shippingTitle, { color: colors.text }]}>
+                  {subtotal >= freeShippingThreshold
+                    ? isRTL
+                      ? "ارسال رایگان به شما تعلق گرفت! 🎉"
+                      : "You unlocked Free Shipping! 🎉"
+                    : isRTL
+                      ? `فقط $${(freeShippingThreshold - subtotal).toFixed(0)} دیگر تا ارسال رایگان`
+                      : `$${(freeShippingThreshold - subtotal).toFixed(0)} away from Free Shipping`}
                 </Text>
-                <Text style={[styles.itemPrice, { color: colors.tint }]}>
-                  {isRTL ? "تعداد:" : "Qty:"} {item.quantity}
-                </Text>
-                <View style={[styles.quantityRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-                  <TouchableOpacity
-                    onPress={() => updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity - 1 })}
-                    style={[
-                      styles.qtyBtn,
-                      { borderWidth: 1.2, borderColor: colors.border, backgroundColor: colors.surface },
-                    ]}
-                  >
-                    <Iconify icon="solar:minus-square-broken" size={20} color={colors.text} />
-                  </TouchableOpacity>
-                  <Text style={[styles.qtyText, { color: colors.text }]}>{item.quantity}</Text>
-                  <TouchableOpacity
-                    onPress={() => updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity + 1 })}
-                    style={[
-                      styles.qtyBtn,
-                      { borderWidth: 1.2, borderColor: colors.border, backgroundColor: colors.surface },
-                    ]}
-                  >
-                    <Iconify icon="solar:add-square-broken" size={20} color={colors.text} />
-                  </TouchableOpacity>
-                </View>
               </View>
-              <TouchableOpacity
-                onPress={() => updateQtyMutation.mutate({ itemId: item.item_id, qty: 0 })}
-                style={styles.removeBtn}
-              >
-                <Iconify icon="solar:trash-bin-trash-broken" size={20} color={colors.destructive} />
-              </TouchableOpacity>
+              <View style={[styles.progressTrack, { backgroundColor: colors.border }]}>
+                <View
+                  style={[
+                    styles.progressBar,
+                    {
+                      width: `${freeShippingProgress * 100}%`,
+                      backgroundColor: colors.tint,
+                    },
+                  ]}
+                />
+              </View>
             </View>
-          ))
+
+            {/* Cart Items List */}
+            <View style={styles.itemsSection}>
+              {enrichedCartItems.map((item: any, index: number) => (
+                <Animated.View
+                  key={item.item_id}
+                  entering={FadeInDown.delay(index * 80).duration(400)}
+                  exiting={FadeOut}
+                  layout={Layout.springify()}
+                  style={[
+                    styles.cartCard,
+                    {
+                      flexDirection: isRTL ? "row-reverse" : "row",
+                      backgroundColor: colors.card,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Image source={{ uri: item.image }} style={styles.itemImage} contentFit="cover" transition={300} />
+
+                  <View style={[styles.itemDetails, { alignItems: isRTL ? "flex-end" : "flex-start" }]}>
+                    <Text style={[styles.itemTitle, { color: colors.text }]} numberOfLines={2}>
+                      {item.title}
+                    </Text>
+
+                    <Text style={[styles.unitPrice, { color: colors.tint }]}>
+                      ${item.unitPrice}
+                    </Text>
+
+                    <View style={[styles.itemFooter, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                      {/* Quantity Controller */}
+                      <View
+                        style={[
+                          styles.qtyContainer,
+                          {
+                            flexDirection: isRTL ? "row-reverse" : "row",
+                            backgroundColor: colors.surface,
+                            borderColor: colors.border,
+                          },
+                        ]}
+                      >
+                        <TouchableOpacity
+                          onPress={() =>
+                            updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity - 1 })
+                          }
+                          style={styles.qtyActionBtn}
+                          activeOpacity={0.6}
+                        >
+                          <MinusSquareBrokenIcon size={18} color={colors.text} />
+                        </TouchableOpacity>
+
+                        <Text style={[styles.qtyNumber, { color: colors.text }]}>{item.quantity}</Text>
+
+                        <TouchableOpacity
+                          onPress={() =>
+                            updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity + 1 })
+                          }
+                          style={styles.qtyActionBtn}
+                          activeOpacity={0.6}
+                        >
+                          <AddSquareBrokenIcon size={18} color={colors.text} />
+                        </TouchableOpacity>
+                      </View>
+
+                      {/* Total for item */}
+                      <Text style={[styles.itemTotalPrice, { color: colors.text }]}>
+                        ${(item.unitPrice * item.quantity).toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    onPress={() => updateQtyMutation.mutate({ itemId: item.item_id, qty: 0 })}
+                    style={styles.deleteBtn}
+                    activeOpacity={0.6}
+                  >
+                    <TrashBinTrashBrokenIcon size={18} color={colors.destructive} />
+                  </TouchableOpacity>
+                </Animated.View>
+              ))}
+            </View>
+
+            {/* Promo Code Input */}
+            <View
+              style={[
+                styles.promoCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
+            >
+              <View style={[styles.promoRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                <View style={[styles.inputWrapper, { flexDirection: isRTL ? "row-reverse" : "row", borderColor: colors.border, backgroundColor: colors.surface }]}>
+                  <TagBoldIcon size={20} color={colors.textSecondary} />
+                  <TextInput
+                    style={[
+                      styles.promoInput,
+                      { color: colors.text, textAlign: isRTL ? "right" : "left" },
+                    ]}
+                    placeholder={isRTL ? "کد تخفیف (مثال: KUTIK20)" : "Promo code (e.g. KUTIK20)"}
+                    placeholderTextColor={colors.textSecondary}
+                    value={promoCode}
+                    onChangeText={(val) => {
+                      setPromoCode(val);
+                      setDiscountError("");
+                    }}
+                    autoCapitalize="characters"
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={handleApplyPromo}
+                  style={[styles.applyBtn, { backgroundColor: colors.tint }]}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.applyBtnText}>{isRTL ? "اعمال" : "Apply"}</Text>
+                </TouchableOpacity>
+              </View>
+
+              {appliedDiscount > 0 ? (
+                <Text style={{ marginTop: 8, color: colors.success, fontSize: 13, fontWeight: "700", textAlign: isRTL ? "right" : "left" }}>
+                  {isRTL ? `کد تخفیف ${appliedDiscount}٪ اعمال شد!` : `${appliedDiscount}% coupon applied!`}
+                </Text>
+              ) : null}
+
+              {discountError ? (
+                <Text style={{ marginTop: 8, color: colors.destructive, fontSize: 13, fontWeight: "600", textAlign: isRTL ? "right" : "left" }}>
+                  {discountError}
+                </Text>
+              ) : null}
+            </View>
+
+            {/* Order Summary */}
+            <View
+              style={[
+                styles.summaryCard,
+                { backgroundColor: colors.card, borderColor: colors.border },
+              ]}
+            >
+              <Text style={[styles.summaryTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
+                {isRTL ? "خلاصه فاکتور" : "Order Summary"}
+              </Text>
+
+              <View style={[styles.summaryRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                  {isRTL ? "جمع کل خرید" : "Subtotal"}
+                </Text>
+                <Text style={[styles.summaryValue, { color: colors.text }]}>${subtotal.toFixed(2)}</Text>
+              </View>
+
+              {appliedDiscount > 0 && (
+                <View style={[styles.summaryRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                  <Text style={[styles.summaryLabel, { color: colors.success }]}>
+                    {isRTL ? `تخفیف (${appliedDiscount}٪)` : `Discount (${appliedDiscount}%)`}
+                  </Text>
+                  <Text style={[styles.summaryValue, { color: colors.success }]}>
+                    -${discountAmount.toFixed(2)}
+                  </Text>
+                </View>
+              )}
+
+              <View style={[styles.summaryRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
+                  {isRTL ? "هزینه ارسال" : "Shipping Fee"}
+                </Text>
+                <Text style={[styles.summaryValue, { color: shippingFee === 0 ? colors.success : colors.text }]}>
+                  {shippingFee === 0 ? (isRTL ? "رایگان" : "Free") : `$${shippingFee.toFixed(2)}`}
+                </Text>
+              </View>
+
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+
+              <View style={[styles.summaryRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+                <Text style={[styles.grandTotalLabel, { color: colors.text }]}>
+                  {isRTL ? "مبلغ قابل پرداخت" : "Total Amount"}
+                </Text>
+                <Text style={[styles.grandTotalValue, { color: colors.tint }]}>
+                  ${grandTotal.toFixed(2)}
+                </Text>
+              </View>
+            </View>
+          </>
         )}
       </ScrollView>
 
-      {cartItems.length > 0 && (
-        <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: colors.background }]}>
-          <View style={[styles.totalRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-            <Text style={[styles.totalLabel, { color: colors.textSecondary }]}>
-              {isRTL ? "کل اقلام سبد" : "Total items"}
-            </Text>
-            <Text style={[styles.totalPrice, { color: colors.text }]}>
-              {cartItems.reduce((acc: number, curr: any) => acc + curr.quantity, 0)} {isRTL ? "عدد" : "pcs"}
-            </Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => checkoutMutation.mutate()}
-            style={[
-              styles.checkoutBtn,
-              { borderColor: colors.border, borderWidth: 1.2, backgroundColor: colors.surface },
-            ]}
-          >
-            <View style={styles.checkoutBlur}>
-              <Text style={[styles.checkoutText, { color: colors.text }]}>
-                {checkoutMutation.isPending
-                  ? isRTL
-                    ? "در حال ثبت سفارش..."
-                    : "Processing..."
-                  : isRTL
-                    ? "ادامه فرآیند خرید و رزرو انبار"
-                    : "Reserve Stock & Checkout"}
+      {/* Floating Bottom Checkout Bar */}
+      {enrichedCartItems.length > 0 && (
+        <Animated.View
+          entering={FadeInUp.duration(400)}
+          style={[
+            styles.checkoutFooter,
+            {
+              paddingBottom: Math.max(insets.bottom, 16),
+              backgroundColor: colors.card,
+              borderTopColor: colors.border,
+            },
+          ]}
+        >
+          <View style={[styles.checkoutContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+            <View style={{ alignItems: isRTL ? "flex-end" : "flex-start" }}>
+              <Text style={{ fontSize: 13, color: colors.textSecondary, fontWeight: "600" }}>
+                {isRTL ? "جمع نهایی" : "Total Payment"}
+              </Text>
+              <Text style={{ fontSize: 22, fontWeight: "900", color: colors.text }}>
+                ${grandTotal.toFixed(2)}
               </Text>
             </View>
-          </TouchableOpacity>
-        </View>
+
+            <TouchableOpacity
+              onPress={() => checkoutMutation.mutate()}
+              disabled={checkoutMutation.isPending}
+              style={[
+                styles.checkoutButton,
+                { backgroundColor: colors.tint },
+              ]}
+              activeOpacity={0.85}
+            >
+              {checkoutMutation.isPending ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                  <Bag2BrokenIcon size={20} color="#fff" />
+                  <Text style={styles.checkoutButtonText}>
+                    {isRTL ? "تکمیل ثبت سفارش" : "Checkout Now"}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
       )}
     </View>
   );
@@ -192,23 +520,183 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   header: { borderBottomWidth: 1 },
-  headerContent: { height: 60, alignItems: "center", justifyContent: "space-between", paddingHorizontal: 8 },
-  backButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
-  headerTitle: { fontSize: 18, fontWeight: "700" },
-  scrollContent: { padding: 16, gap: 12 },
-  cartItem: { padding: 12, borderRadius: 14, alignItems: "center", gap: 12, borderWidth: 1 },
-  itemInfo: { flex: 1, gap: 4 },
-  itemName: { fontSize: 15, fontWeight: "700" },
-  itemPrice: { fontSize: 16, fontWeight: "800" },
-  quantityRow: { alignItems: "center", gap: 12, marginTop: 4 },
-  qtyBtn: { width: 34, height: 34, alignItems: "center", justifyContent: "center", borderRadius: 14, overflow: "hidden" },
-  qtyText: { fontSize: 15, fontWeight: "700", minWidth: 20, textAlign: "center" },
-  removeBtn: { padding: 8 },
-  footer: { padding: 20, borderTopWidth: 1, borderTopColor: "rgba(128,128,128,0.1)", gap: 16 },
-  totalRow: { justifyContent: "space-between", alignItems: "center" },
-  totalLabel: { fontSize: 16, fontWeight: "600" },
-  totalPrice: { fontSize: 20, fontWeight: "800" },
-  checkoutBtn: { height: 58, borderRadius: 24, overflow: "hidden" },
-  checkoutBlur: { flex: 1, alignItems: "center", justifyContent: "center" },
-  checkoutText: { fontSize: 17, fontWeight: "900" },
+  headerContent: {
+    height: 60,
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: Spacing.md,
+  },
+  iconBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+  },
+  headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: -0.4 },
+  statusBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginHorizontal: Spacing.md,
+    marginTop: Spacing.md,
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  statusText: { fontSize: 13, fontWeight: "700", flex: 1 },
+  scrollContent: { padding: Spacing.md, gap: Spacing.md },
+  emptyContainer: {
+    paddingVertical: 60,
+    alignItems: "center",
+    paddingHorizontal: Spacing.xl,
+  },
+  emptyIconCircle: {
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    marginBottom: Spacing.lg,
+  },
+  emptyTitle: { fontSize: 22, fontWeight: "800", textAlign: "center" },
+  emptySubtitle: {
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: Spacing.xs,
+    lineHeight: 20,
+  },
+  shopNowBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: Spacing.xl,
+    paddingHorizontal: 24,
+    height: 52,
+    borderRadius: 26,
+  },
+  shopNowText: { color: "#fff", fontSize: 16, fontWeight: "800" },
+  shippingCard: {
+    padding: Spacing.md,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 10,
+  },
+  shippingHeader: { alignItems: "center", gap: 8 },
+  shippingTitle: { fontSize: 13, fontWeight: "700", flex: 1 },
+  progressTrack: { height: 6, borderRadius: 3, width: "100%", overflow: "hidden" },
+  progressBar: { height: "100%", borderRadius: 3 },
+  itemsSection: { gap: Spacing.md },
+  cartCard: {
+    padding: Spacing.sm,
+    borderRadius: 18,
+    borderWidth: 1,
+    gap: Spacing.md,
+    position: "relative",
+  },
+  itemImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 14,
+  },
+  itemDetails: { flex: 1, justifyContent: "space-between", paddingVertical: 2 },
+  itemTitle: { fontSize: 15, fontWeight: "700", lineHeight: 20 },
+  unitPrice: { fontSize: 15, fontWeight: "800", marginTop: 2 },
+  itemFooter: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
+  qtyContainer: {
+    alignItems: "center",
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 4,
+  },
+  qtyActionBtn: {
+    width: 30,
+    height: 30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  qtyNumber: {
+    fontSize: 14,
+    fontWeight: "800",
+    paddingHorizontal: 8,
+    minWidth: 24,
+    textAlign: "center",
+  },
+  itemTotalPrice: { fontSize: 16, fontWeight: "900" },
+  deleteBtn: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    padding: 6,
+  },
+  promoCard: {
+    padding: Spacing.md,
+    borderRadius: 16,
+    borderWidth: 1,
+  },
+  promoRow: { gap: Spacing.sm, alignItems: "center" },
+  inputWrapper: {
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: "center",
+    paddingHorizontal: 12,
+    gap: 8,
+  },
+  promoInput: { flex: 1, fontSize: 14, fontWeight: "600" },
+  applyBtn: {
+    height: 48,
+    paddingHorizontal: 20,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  applyBtnText: { color: "#fff", fontWeight: "800", fontSize: 14 },
+  summaryCard: {
+    padding: Spacing.lg,
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: Spacing.sm,
+  },
+  summaryTitle: { fontSize: 16, fontWeight: "800", marginBottom: Spacing.xs },
+  summaryRow: { justifyContent: "space-between", alignItems: "center" },
+  summaryLabel: { fontSize: 14, fontWeight: "600" },
+  summaryValue: { fontSize: 15, fontWeight: "700" },
+  divider: { height: 1, marginVertical: Spacing.xs },
+  grandTotalLabel: { fontSize: 16, fontWeight: "800" },
+  grandTotalValue: { fontSize: 20, fontWeight: "900" },
+  checkoutFooter: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    borderTopWidth: 1,
+    paddingTop: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  checkoutContent: {
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  checkoutButton: {
+    height: 52,
+    paddingHorizontal: 28,
+    borderRadius: 26,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  checkoutButtonText: { color: "#fff", fontSize: 16, fontWeight: "800" },
 });
