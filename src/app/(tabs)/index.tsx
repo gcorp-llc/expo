@@ -49,16 +49,26 @@ const CategoryItem = ({ item, isSelected, isRTL, colors, colorScheme, onPress }:
     'Home': 'solar:home-broken',
     'Books': 'solar:book-broken',
     'Beauty': 'solar:magic-stick-broken',
+    'Vehicles': 'solar:wheel-broken',
+    'Real Estate': 'solar:city-broken',
+    'Sports': 'solar:basketball-broken',
+    'Gaming': 'solar:gamepad-broken',
+    'Services': 'solar:case-round-broken',
     'All': 'solar:widget-2-broken'
   };
 
   const categoryTranslations: any = {
     'All': 'همه',
     'Electronics': 'الکترونیک',
-    'Fashion': 'مد و فشن',
+    'Fashion': 'مد و پوشاک',
     'Home': 'خانه و آشپزخانه',
-    'Books': 'کتاب‌ها',
-    'Beauty': 'زیبایی و سلامت'
+    'Books': 'کتاب و هنر',
+    'Beauty': 'زیبایی و سلامت',
+    'Vehicles': 'خودرو و وسایل نقلیه',
+    'Real Estate': 'املاک و مسکن',
+    'Sports': 'ورزش و سفر',
+    'Gaming': 'بازی و سرگرمی',
+    'Services': 'خدمات و کسب‌وکار'
   };
 
   return (
@@ -111,24 +121,39 @@ export default function HomeScreen() {
   const suggestionScrollRef = useRef<ScrollView>(null);
   const suggestionIndex = useRef(0);
 
+  const categoryTranslations: any = {
+    'All': 'همه',
+    'Electronics': 'الکترونیک',
+    'Fashion': 'مد و پوشاک',
+    'Home': 'خانه و آشپزخانه',
+    'Books': 'کتاب و هنر',
+    'Beauty': 'زیبایی و سلامت',
+    'Vehicles': 'خودرو و وسایل نقلیه',
+    'Real Estate': 'املاک و مسکن',
+    'Sports': 'ورزش و سفر',
+    'Gaming': 'بازی و سرگرمی',
+    'Services': 'خدمات و کسب‌وکار'
+  };
+
+  const categoryIcons: any = {
+    'Electronics': 'solar:smartphone-broken',
+    'Fashion': 'solar:bag-heart-broken',
+    'Home': 'solar:home-broken',
+    'Books': 'solar:book-broken',
+    'Beauty': 'solar:magic-stick-broken',
+    'Vehicles': 'solar:wheel-broken',
+    'Real Estate': 'solar:city-broken',
+    'Sports': 'solar:basketball-broken',
+    'Gaming': 'solar:gamepad-broken',
+    'Services': 'solar:case-round-broken',
+  };
+
   const categoryOptions: Option[] = [
     { label: isRTL ? 'همه' : 'All', value: 'All', icon: 'solar:widget-2-broken' },
     ...CATEGORIES.map(cat => ({
-      label: isRTL ? (
-        cat.name === 'Electronics' ? 'الکترونیک' :
-        cat.name === 'Fashion' ? 'مد و فشن' :
-        cat.name === 'Home' ? 'خانه و آشپزخانه' :
-        cat.name === 'Books' ? 'کتاب‌ها' :
-        cat.name === 'Beauty' ? 'زیبایی و سلامت' : cat.name
-      ) : cat.name,
+      label: isRTL ? (categoryTranslations[cat.name] || cat.name) : cat.name,
       value: cat.name,
-      icon: (
-        cat.name === 'Electronics' ? 'solar:smartphone-broken' :
-        cat.name === 'Fashion' ? 'solar:bag-heart-broken' :
-        cat.name === 'Home' ? 'solar:home-broken' :
-        cat.name === 'Books' ? 'solar:book-broken' :
-        cat.name === 'Beauty' ? 'solar:magic-stick-broken' : 'solar:box-broken'
-      )
+      icon: categoryIcons[cat.name] || cat.icon || 'solar:box-broken'
     }))
   ];
 

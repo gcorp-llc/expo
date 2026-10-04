@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import React, { useMemo } from 'react';
 import { StyleSheet, View, Text, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStore, Language, ThemeMode } from '@/hooks/use-store';
@@ -124,7 +125,18 @@ export default function TabLayout() {
       <HapticTab {...props} android_ripple={null} activeOpacity={1} />
     ),
     tabBarBackground: () => (
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.surface, borderRadius: 32 }]} />
+      <BlurView
+        tint={colorScheme === 'dark' ? 'dark' : 'light'}
+        intensity={80}
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            borderRadius: 28,
+            overflow: 'hidden',
+            backgroundColor: colorScheme === 'dark' ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255, 255, 255, 0.82)',
+          },
+        ]}
+      />
     ),
   }), [colors, colorScheme]);
 
@@ -234,24 +246,18 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 20 : 12,
-    left: 16,
-    right: 16,
-    height: 78,
-    borderRadius: 24,
+    bottom: Platform.OS === 'ios' ? 24 : 16,
+    left: 20,
+    right: 20,
+    height: 72,
+    borderRadius: 28,
     overflow: 'hidden',
     borderWidth: 1,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 15,
-        shadowOffset: { width: 0, height: 8 },
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
   },
   tabBarItem: {
     paddingVertical: 10,
