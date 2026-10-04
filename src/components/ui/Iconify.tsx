@@ -12,42 +12,53 @@ interface IconifyProps {
   height?: number;
 }
 
-export const Iconify = React.memo(({ icon, size, color, style, width, height }: IconifyProps) => {
-  // Extract icon name from "solar:name" or just "name"
-  const name = (icon.startsWith('solar:') ? icon.replace('solar:', '') : icon) as IconName;
+const xmlCache = new Map<string, string>();
 
-  const iconData = iconsData[name];
+function getXml(name: IconName, width: number, height: number): string | null {
+  const cacheKey = `${name}:${width}:${height}`;
+  const cached = xmlCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
 
+  const iconData = (iconsData as Record<string, any>)[name];
   if (!iconData) {
-    if (__DEV__) {
-      console.warn(`[Iconify] icon "${icon}" (parsed as "${name}") not found in icons-data.ts`);
-    }
     return null;
   }
 
-  // Use size if provided, otherwise use width or height, defaulting to 24
-  const finalWidth = size ?? width ?? 24;
-  const finalHeight = size ?? height ?? 24;
-
   const { body, attributes } = iconData;
-
-  // Build SVG XML
-  // We use the attributes from iconData (like viewBox) and override width and height.
-  // We don't set fill/stroke on the <svg> tag string because it doesn't always
-  // propagate correctly to children using currentColor in react-native-svg.
-  // Instead, we pass the 'color' prop to SvgXml which handles currentColor correctly.
 
   const xmlAttributes = {
     ...attributes,
-    width: finalWidth.toString(),
-    height: finalHeight.toString(),
+    width: width.toString(),
+    height: height.toString(),
   };
 
   const attrString = Object.entries(xmlAttributes)
     .map(([key, value]) => `${key}="${value}"`)
     .join(' ');
 
-  const finalXml = `<svg ${attrString}>${body}</svg>`;
+  const xml = `<svg ${attrString}>${body}</svg>`;
+  xmlCache.set(cacheKey, xml);
+  return xml;
+}
+
+export const Iconify = React.memo(({ icon, size, color, style, width, height }: IconifyProps) => {
+  // Extract icon name from "solar:name" or just "name"
+  const name = (icon.startsWith('solar:') ? icon.replace('solar:', '') : icon) as IconName;
+
+  // Use size if provided, otherwise use width or height, defaulting to 24
+  const finalWidth = size ?? width ?? 24;
+  const finalHeight = size ?? height ?? 24;
+
+  const finalXml = getXml(name, finalWidth, finalHeight);
+
+  if (!finalXml) {
+    if (__DEV__) {
+      console.warn(`[Iconify] icon "${icon}" (parsed as "${name}") not found in icons-data.ts`);
+    }
+    return null;
+  }
 
   return (
     <SvgXml

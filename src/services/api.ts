@@ -1,6 +1,6 @@
 import { Platform } from "react-native";
 import { ApiClient } from "@cardiani/api-client";
-import { useStore } from "@/hooks/use-store";
+import { PRODUCTS } from "@/constants/mock-data";
 
 // Automatically resolve emulator host addresses
 const getBaseUrl = () => {
@@ -13,17 +13,15 @@ const getBaseUrl = () => {
 // Create a singleton instance of our API Client
 export const api = new ApiClient(getBaseUrl());
 
-import { PRODUCTS } from "@/constants/mock-data";
-
 export const productService = {
   getProducts: async () => {
     try {
       const res = await api.getProducts();
-      if (res.success && res.data && res.data.length > 0) {
+      if (res?.success && res?.data && res.data.length > 0) {
         return res.data;
       }
-    } catch (e) {
-      console.warn("[productService] API failed, falling back to mock PRODUCTS", e);
+    } catch {
+      // Offline mode fallback to mock PRODUCTS
     }
     return PRODUCTS;
   },
@@ -31,11 +29,11 @@ export const productService = {
   getProductById: async (id: string) => {
     try {
       const res = await api.getProductById(id);
-      if (res.success && res.data) {
+      if (res?.success && res?.data) {
         return res.data;
       }
-    } catch (e) {
-      console.warn("[productService] API failed, searching in mock PRODUCTS", e);
+    } catch {
+      // Offline mode fallback to searching mock PRODUCTS
     }
     return PRODUCTS.find((p) => p.id === id) || null;
   },
@@ -43,11 +41,11 @@ export const productService = {
   getRelatedProducts: async (id: string) => {
     try {
       const res = await api.getRelatedProducts(id);
-      if (res.success && res.data && res.data.length > 0) {
+      if (res?.success && res?.data && res.data.length > 0) {
         return res.data;
       }
-    } catch (e) {
-      console.warn("[productService] API failed, returning mock related products", e);
+    } catch {
+      // Offline mode fallback to mock related products
     }
     const current = PRODUCTS.find((p) => p.id === id);
     if (current) {
@@ -60,98 +58,162 @@ export const productService = {
     query: string,
     options?: { categoryId?: string; brandId?: string; minPrice?: number; maxPrice?: number; inStock?: boolean }
   ) => {
-    const res = await api.searchMarketplace(query, options);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.searchMarketplace(query, options);
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return [];
   },
 
   getProductReviews: async (id: string) => {
-    const res = await api.getProductReviews(id);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getProductReviews(id);
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return [];
   },
 
   getProductRatingSummary: async (id: string) => {
-    const res = await api.getProductRatingSummary(id);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getProductRatingSummary(id);
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return null;
   },
 
   submitReview: async (productId: string, orderId: string, rating: number, comment: string) => {
-    return await api.submitProductReview(productId, orderId, rating, comment);
+    try {
+      return await api.submitProductReview(productId, orderId, rating, comment);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   editReview: async (reviewId: string, rating: number, comment: string) => {
-    return await api.editReview(reviewId, rating, comment);
+    try {
+      return await api.editReview(reviewId, rating, comment);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   deleteReview: async (reviewId: string) => {
-    return await api.deleteReview(reviewId);
+    try {
+      return await api.deleteReview(reviewId);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   getSellerRating: async (sellerId: string) => {
-    const res = await api.getSellerRating(sellerId);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getSellerRating(sellerId);
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return null;
   },
 
   submitReport: async (targetType: "REVIEW" | "PRODUCT" | "SELLER", targetId: string, reason: string, description: string) => {
-    return await api.submitReport(targetType, targetId, reason, description);
+    try {
+      return await api.submitReport(targetType, targetId, reason, description);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 };
 
 export const mobileCartService = {
   getCart: async () => {
-    const res = await api.getCart();
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getCart();
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return [];
   },
 
   addToCart: async (productId: string, variantId?: string, quantity: number = 1) => {
-    return await api.addToCart(productId, variantId, quantity);
+    try {
+      return await api.addToCart(productId, variantId, quantity);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   updateCartItem: async (itemId: string, quantity: number) => {
-    return await api.updateCartItem(itemId, quantity);
+    try {
+      return await api.updateCartItem(itemId, quantity);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   removeCartItem: async (itemId: string) => {
-    return await api.removeCartItem(itemId);
+    try {
+      return await api.removeCartItem(itemId);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 };
 
 export const mobileOrderService = {
   checkout: async (shippingAddressId?: string, couponCode?: string) => {
-    return await api.checkout(shippingAddressId, couponCode);
+    try {
+      return await api.checkout(shippingAddressId, couponCode);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 
   getOrders: async () => {
-    const res = await api.getOrders();
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getOrders();
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return [];
   },
 
   getOrderById: async (id: string) => {
-    const res = await api.getOrderById(id);
-    if (res.success && res.data) {
-      return res.data;
+    try {
+      const res = await api.getOrderById(id);
+      if (res?.success && res?.data) {
+        return res.data;
+      }
+    } catch {
+      // Offline mode fallback
     }
     return null;
   },
 
   cancelOrder: async (id: string) => {
-    return await api.cancelOrder(id);
+    try {
+      return await api.cancelOrder(id);
+    } catch {
+      return { success: false, error: "Offline mode" };
+    }
   },
 };

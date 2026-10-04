@@ -99,7 +99,6 @@ export class RealtimeService {
 
   public send<T = any>(event: string, payload: T) {
     if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn(`[RealtimeService] Cannot send event ${event}, connection not open.`);
       return;
     }
 
@@ -193,12 +192,16 @@ export class RealtimeService {
         if (this.token) {
           console.log('[RealtimeService] App in foreground. Resuming connection...');
           this.connect(this.token);
-          this.send('presence.update', { status: 'online' });
+          if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            this.send('presence.update', { status: 'online' });
+          }
         }
       } else if (nextAppState === 'background') {
         // App is backgrounded - Update presence to offline or away to conserve battery
-        console.log('[RealtimeService] App in background. Updating presence to away...');
-        this.send('presence.update', { status: 'away' });
+        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+          console.log('[RealtimeService] App in background. Updating presence to away...');
+          this.send('presence.update', { status: 'away' });
+        }
       }
     });
   }
