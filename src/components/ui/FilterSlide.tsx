@@ -21,6 +21,11 @@ const CATEGORIES = [
   { id: '3', name_fa: 'خانه و آشپزخانه', name_en: 'Home' },
   { id: '4', name_fa: 'کتاب و هنر', name_en: 'Books' },
   { id: '5', name_fa: 'زیبایی و سلامت', name_en: 'Beauty' },
+  { id: '6', name_fa: 'خودرو و وسایل نقلیه', name_en: 'Vehicles' },
+  { id: '7', name_fa: 'املاک و مسکن', name_en: 'Real Estate' },
+  { id: '8', name_fa: 'ورزش و سفر', name_en: 'Sports' },
+  { id: '9', name_fa: 'بازی و سرگرمی', name_en: 'Gaming' },
+  { id: '10', name_fa: 'خدمات و کسب‌وکار', name_en: 'Services' },
 ];
 
 const LOCATIONS = [
@@ -41,6 +46,27 @@ export const FilterSlide = () => {
   const [selectedLoc, setSelectedLoc] = useState<string | null>(null);
   const [showCatOptions, setShowCatOptions] = useState(false);
   const [showLocOptions, setShowLocOptions] = useState(false);
+
+  // Advanced Filter state
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [selectedCondition, setSelectedCondition] = useState<'all' | 'new' | 'like_new' | 'used'>('all');
+  const [selectedSort, setSelectedSort] = useState<'newest' | 'cheapest' | 'expensive' | 'popular'>('newest');
+  const [onlyInStock, setOnlyInStock] = useState(false);
+  const [onlyDiscounted, setOnlyDiscounted] = useState(false);
+
+  const resetFilters = () => {
+    setCatSearch('');
+    setLocSearch('');
+    setSelectedCat(null);
+    setSelectedLoc(null);
+    setMinPrice('');
+    setMaxPrice('');
+    setSelectedCondition('all');
+    setSelectedSort('newest');
+    setOnlyInStock(false);
+    setOnlyDiscounted(false);
+  };
 
   const translateY = useSharedValue(SCREEN_HEIGHT);
 
@@ -111,11 +137,18 @@ export const FilterSlide = () => {
         <View style={styles.indicator} />
         <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <Text style={[styles.title, { color: colors.text }]}>
-            {isRTL ? 'فیلترها' : 'Filters'}
+            {isRTL ? 'فیلترهای پیشرفته' : 'Advanced Filters'}
           </Text>
-          <TouchableOpacity onPress={() => setFilterVisible(false)}>
-            <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 12 }}>
+            <TouchableOpacity onPress={resetFilters}>
+              <Text style={{ color: colors.tint, fontWeight: '700', fontSize: 13 }}>
+                {isRTL ? 'بازنشانی' : 'Reset'}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setFilterVisible(false)}>
+              <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -207,17 +240,120 @@ export const FilterSlide = () => {
 
             <View style={{ height: 24 }} />
 
-            <FilterSection title={isRTL ? 'محدوده قیمت' : 'Price Range'}>
-              <FilterChip label={isRTL ? 'ارزان‌ترین' : 'Cheapest'} selected />
-              <FilterChip label={isRTL ? 'متوسط' : 'Medium'} />
-              <FilterChip label={isRTL ? 'گران‌ترین' : 'Expensive'} />
-            </FilterSection>
+            {/* Price Range inputs */}
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                {isRTL ? 'محدوده قیمت ($)' : 'Price Range ($)'}
+              </Text>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 12 }}>
+                <View style={[styles.searchBox, { flex: 1, backgroundColor: colors.surface, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <TextInput
+                    placeholder={isRTL ? 'از قیمت' : 'Min Price'}
+                    keyboardType="numeric"
+                    style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
+                    placeholderTextColor={colors.textSecondary}
+                    value={minPrice}
+                    onChangeText={setMinPrice}
+                  />
+                </View>
+                <View style={[styles.searchBox, { flex: 1, backgroundColor: colors.surface, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <TextInput
+                    placeholder={isRTL ? 'تا قیمت' : 'Max Price'}
+                    keyboardType="numeric"
+                    style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
+                    placeholderTextColor={colors.textSecondary}
+                    value={maxPrice}
+                    onChangeText={setMaxPrice}
+                  />
+                </View>
+              </View>
+            </View>
 
-            <FilterSection title={isRTL ? 'نوع محصول' : 'Product Type'}>
-              <FilterChip label={isRTL ? 'نو' : 'New'} />
-              <FilterChip label={isRTL ? 'دست دوم' : 'Used'} selected />
-              <FilterChip label={isRTL ? 'در حد نو' : 'Like New'} />
-            </FilterSection>
+            {/* Condition Filters */}
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                {isRTL ? 'وضعیت کالا' : 'Condition'}
+              </Text>
+              <View style={[styles.sectionContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                {[
+                  { id: 'all', label_fa: 'همه', label_en: 'All' },
+                  { id: 'new', label_fa: 'نو / آکبند', label_en: 'Brand New' },
+                  { id: 'like_new', label_fa: 'در حد نو', label_en: 'Like New' },
+                  { id: 'used', label_fa: 'کارکرده', label_en: 'Used' },
+                ].map((cond) => (
+                  <TouchableOpacity
+                    key={cond.id}
+                    onPress={() => setSelectedCondition(cond.id as any)}
+                  >
+                    <FilterChip
+                      label={isRTL ? cond.label_fa : cond.label_en}
+                      selected={selectedCondition === cond.id}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Sorting */}
+            <View style={{ marginBottom: 20 }}>
+              <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                {isRTL ? 'مرتب‌سازی بر اساس' : 'Sort By'}
+              </Text>
+              <View style={[styles.sectionContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                {[
+                  { id: 'newest', label_fa: 'جدیدترین', label_en: 'Newest' },
+                  { id: 'cheapest', label_fa: 'ارزان‌ترین', label_en: 'Cheapest' },
+                  { id: 'expensive', label_fa: 'گران‌ترین', label_en: 'Highest Price' },
+                  { id: 'popular', label_fa: 'محبوب‌ترین', label_en: 'Most Popular' },
+                ].map((sortItem) => (
+                  <TouchableOpacity
+                    key={sortItem.id}
+                    onPress={() => setSelectedSort(sortItem.id as any)}
+                  >
+                    <FilterChip
+                      label={isRTL ? sortItem.label_fa : sortItem.label_en}
+                      selected={selectedSort === sortItem.id}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Quick Toggles */}
+            <View style={{ marginBottom: 10 }}>
+              <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                {isRTL ? 'فیلترهای سریع' : 'Quick Filters'}
+              </Text>
+              <View style={{ gap: 10 }}>
+                <TouchableOpacity
+                  style={[styles.toggleRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                  onPress={() => setOnlyInStock(!onlyInStock)}
+                >
+                  <Iconify
+                    icon={onlyInStock ? "solar:check-square-bold" : "solar:square-broken"}
+                    size={22}
+                    color={onlyInStock ? colors.tint : colors.textSecondary}
+                  />
+                  <Text style={{ color: colors.text, fontWeight: '600', fontSize: 14 }}>
+                    {isRTL ? 'فقط کالاهای موجود' : 'In Stock Only'}
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.toggleRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                  onPress={() => setOnlyDiscounted(!onlyDiscounted)}
+                >
+                  <Iconify
+                    icon={onlyDiscounted ? "solar:check-square-bold" : "solar:square-broken"}
+                    size={22}
+                    color={onlyDiscounted ? colors.tint : colors.textSecondary}
+                  />
+                  <Text style={{ color: colors.text, fontWeight: '600', fontSize: 14 }}>
+                    {isRTL ? 'فقط کالاهای تخفیف‌دار' : 'Discounted Items Only'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
 
           <TouchableOpacity style={styles.applyButtonWrapper} onPress={() => setFilterVisible(false)}>
@@ -318,6 +454,11 @@ const styles = StyleSheet.create({
   chipText: {
     fontSize: 14,
     fontWeight: '700',
+  },
+  toggleRow: {
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 6,
   },
   applyButtonWrapper: {
     height: 54,

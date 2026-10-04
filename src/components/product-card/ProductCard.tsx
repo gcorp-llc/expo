@@ -92,7 +92,10 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
         ]}
       >
         {/* Product Image Section */}
-        <ProductImage uri={product.image}>
+        <ProductImage
+          uri={product.image}
+          cardBgColor={colorScheme === 'light' ? '#FFFFFF' : colors.card}
+        >
           {/* Floating Discount Badge */}
           {hasDiscount && (
             <DiscountBadge percentage={product.discountPercentage!} isRTL={isRTL} />

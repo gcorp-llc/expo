@@ -28,11 +28,16 @@ export interface CartItem {
 }
 
 export const CATEGORIES: Category[] = [
-  { id: '1', name: 'Electronics', icon: 'Smartphone', color: '#5e81ac' },
-  { id: '2', name: 'Fashion', icon: 'ShoppingBag', color: '#bf616a' },
-  { id: '3', name: 'Home', icon: 'Home', color: '#a3be8c' },
-  { id: '4', name: 'Books', icon: 'BookOpen', color: '#d08770' },
-  { id: '5', name: 'Beauty', icon: 'Sparkles', color: '#b48ead' },
+  { id: '1', name: 'Electronics', icon: 'solar:smartphone-broken', color: '#5e81ac' },
+  { id: '2', name: 'Fashion', icon: 'solar:bag-heart-broken', color: '#bf616a' },
+  { id: '3', name: 'Home', icon: 'solar:home-broken', color: '#a3be8c' },
+  { id: '4', name: 'Books', icon: 'solar:book-broken', color: '#d08770' },
+  { id: '5', name: 'Beauty', icon: 'solar:magic-stick-broken', color: '#b48ead' },
+  { id: '6', name: 'Vehicles', icon: 'solar:wheel-broken', color: '#ebcb8b' },
+  { id: '7', name: 'Real Estate', icon: 'solar:city-broken', color: '#81a1c1' },
+  { id: '8', name: 'Sports', icon: 'solar:basketball-broken', color: '#88c0d0' },
+  { id: '9', name: 'Gaming', icon: 'solar:gamepad-broken', color: '#b48ead' },
+  { id: '10', name: 'Services', icon: 'solar:case-round-broken', color: '#a3be8c' },
 ];
 
 // Generate standard dynamic countdown end date so it doesn't expire immediately.

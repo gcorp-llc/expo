@@ -34,6 +34,40 @@ export const CoverSection = ({
 
   const isOwn = mode === 'own';
 
+  const handleImageOptions = (type: 'avatar' | 'cover') => {
+    const title = type === 'avatar'
+      ? (isRTL ? 'تصویر آواتار' : 'Avatar Image')
+      : (isRTL ? 'تصویر کاور' : 'Cover Image');
+
+    const hasCurrent = type === 'avatar' ? !!avatar : !!image;
+
+    Alert.alert(
+      title,
+      isRTL ? 'گزینه مورد نظر را انتخاب کنید' : 'Select an option',
+      [
+        {
+          text: isRTL ? 'انتخاب از گالری' : 'Choose from Gallery',
+          onPress: () => pickImage(type),
+        },
+        ...(hasCurrent ? [{
+          text: isRTL ? 'حذف تصویر' : 'Remove Image',
+          style: 'destructive' as const,
+          onPress: () => {
+            if (type === 'avatar') {
+              updateProfile({ avatar: 'https://i.pravatar.cc/300?u=user' });
+            } else {
+              updateProfile({ coverImage: undefined });
+            }
+          }
+        }] : []),
+        {
+          text: isRTL ? 'انصراف' : 'Cancel',
+          style: 'cancel' as const,
+        }
+      ]
+    );
+  };
+
   const pickImage = async (type: 'avatar' | 'cover') => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
@@ -84,7 +118,7 @@ export const CoverSection = ({
         {isOwn && (
           <TouchableOpacity
             style={[styles.coverEditButton, { backgroundColor: colors.surface + 'CC' }]}
-            onPress={() => pickImage('cover')}
+            onPress={() => handleImageOptions('cover')}
           >
             <Iconify icon="solar:camera-broken" size={20} color={colors.text} />
           </TouchableOpacity>
@@ -98,7 +132,7 @@ export const CoverSection = ({
           {isOwn && (
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => pickImage('avatar')}
+              onPress={() => handleImageOptions('avatar')}
               style={styles.avatarOverlay}
             >
               <Iconify icon="solar:camera-broken" size={24} color="#fff" />
@@ -115,7 +149,7 @@ export const CoverSection = ({
 
         {isOwn && (
           <TouchableOpacity
-            onPress={() => pickImage('avatar')}
+            onPress={() => handleImageOptions('avatar')}
             style={[
               styles.avatarCameraButton,
               {
