@@ -75,25 +75,17 @@ export default function ProductDetailScreen() {
     enabled: !!id,
   });
 
-  const addToCartMutation = useMutation({
-    mutationFn: () => mobileCartService.addToCart(id as string, undefined, 1),
-    onSuccess: () => {
-      setStatusMsg({
-        text: isRTL ? 'با موفقیت به سبد خرید اضافه شد!' : 'Added to cart successfully!',
-        type: 'success',
-      });
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
-      if (Platform.OS !== 'web') {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-    },
-    onError: (err: any) => {
-      setStatusMsg({
-        text: isRTL ? `خطا: ${err.message}` : `Error: ${err.message}`,
-        type: 'error',
-      });
-    },
-  });
+  const handleAddToCart = useCallback(() => {
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    setStatusMsg({
+      text: isRTL ? 'با موفقیت به سبد خرید اضافه شد!' : 'Added to cart successfully!',
+      type: 'success',
+    });
+    queryClient.invalidateQueries({ queryKey: ['cart'] });
+    mobileCartService.addToCart(id as string, undefined, 1);
+  }, [id, isRTL, queryClient]);
 
   const submitReviewMutation = useMutation({
     mutationFn: () =>
@@ -644,18 +636,13 @@ export default function ProductDetailScreen() {
           style={[styles.footerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
         >
           <TouchableOpacity
-            onPress={() => addToCartMutation.mutate()}
-            disabled={addToCartMutation.isPending}
-            style={[styles.buyButton, { backgroundColor: colors.tint, opacity: addToCartMutation.isPending ? 0.75 : 1 }]}
+            onPress={handleAddToCart}
+            style={[styles.buyButton, { backgroundColor: colors.tint }]}
             activeOpacity={0.85}
           >
             <Iconify icon="solar:cart-large-2-bold" size={20} color="#fff" />
             <Text style={styles.buyButtonText}>
-              {addToCartMutation.isPending
-                ? isRTL
-                  ? 'در حال افزودن...'
-                  : 'Adding...'
-                : t.addToCart}
+              {t.addToCart}
             </Text>
           </TouchableOpacity>
 

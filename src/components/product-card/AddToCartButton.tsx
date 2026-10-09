@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { Text, Pressable, Platform, AccessibilityInfo } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Iconify } from '@/components/ui/Iconify';
 import { styles } from './ProductCard.styles';
 
@@ -11,6 +12,9 @@ interface AddToCartButtonProps {
 
 export const AddToCartButton = ({ onPress, tintColor, isRTL }: AddToCartButtonProps) => {
   const handlePress = useCallback(() => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     onPress();
     if (typeof AccessibilityInfo.announceForAccessibility === 'function') {
       AccessibilityInfo.announceForAccessibility('Added to cart');
