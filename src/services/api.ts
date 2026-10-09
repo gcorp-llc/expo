@@ -15,38 +15,29 @@ export const api = new ApiClient(getBaseUrl());
 
 export const productService = {
   getProducts: async () => {
-    try {
-      const res = await api.getProducts();
-      if (res?.success && res?.data && res.data.length > 0) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback to mock PRODUCTS
-    }
     return PRODUCTS;
   },
 
   getProductById: async (id: string) => {
-    try {
-      const res = await api.getProductById(id);
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback to searching mock PRODUCTS
-    }
-    return PRODUCTS.find((p) => p.id === id) || null;
+    const found = PRODUCTS.find((p) => p.id === id);
+    if (found) return found;
+    // Return fallback product if ID not matched
+    return {
+      id: id || "1",
+      name: "محصول نمونه کاردیانی",
+      price: 1250000,
+      oldPrice: 1500000,
+      discountPercentage: 16,
+      rating: 4.8,
+      reviews: 12,
+      category: "لوازم جانبی",
+      description: "این یک محصول نمونه با کیفیت بالا جهت نمایش دمو در اپلیکیشن کاردیانی است.",
+      image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
+      seller: "فروشگاه مرکزی کاردیانی",
+    };
   },
 
   getRelatedProducts: async (id: string) => {
-    try {
-      const res = await api.getRelatedProducts(id);
-      if (res?.success && res?.data && res.data.length > 0) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback to mock related products
-    }
     const current = PRODUCTS.find((p) => p.id === id);
     if (current) {
       return PRODUCTS.filter((p) => p.category === current.category && p.id !== id);
@@ -58,121 +49,72 @@ export const productService = {
     query: string,
     options?: { categoryId?: string; brandId?: string; minPrice?: number; maxPrice?: number; inStock?: boolean }
   ) => {
-    try {
-      const res = await api.searchMarketplace(query, options);
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback
-    }
-    return [];
+    const q = query.toLowerCase();
+    return PRODUCTS.filter((p) => p.name.toLowerCase().includes(q));
   },
 
   getProductReviews: async (id: string) => {
-    try {
-      const res = await api.getProductReviews(id);
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback
-    }
-    return [];
+    return [
+      {
+        id: "rev-1",
+        rating: 5,
+        comment: "کیفیت عالی و ارسال بسیار سریع. کاملاً راضی هستم.",
+        userName: "کاربر خریدار",
+        createdAt: "1403/01/15",
+      },
+      {
+        id: "rev-2",
+        rating: 4,
+        comment: "بسته‌بندی مناسب و با کیفیت، دقیقا مطابق با توضیحات.",
+        userName: "رضا محمدی",
+        createdAt: "1403/01/10",
+      },
+    ];
   },
 
   getProductRatingSummary: async (id: string) => {
-    try {
-      const res = await api.getProductRatingSummary(id);
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback
-    }
-    return null;
+    return {
+      rating_average: 4.8,
+      rating_count: 12,
+    };
   },
 
   submitReview: async (productId: string, orderId: string, rating: number, comment: string) => {
-    try {
-      return await api.submitProductReview(productId, orderId, rating, comment);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true, message: "Review submitted successfully" };
   },
 
   editReview: async (reviewId: string, rating: number, comment: string) => {
-    try {
-      return await api.editReview(reviewId, rating, comment);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true };
   },
 
   deleteReview: async (reviewId: string) => {
-    try {
-      return await api.deleteReview(reviewId);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true };
   },
 
   getSellerRating: async (sellerId: string) => {
-    try {
-      const res = await api.getSellerRating(sellerId);
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback
-    }
-    return null;
+    return { rating_average: 4.9, rating_count: 45 };
   },
 
   submitReport: async (targetType: "REVIEW" | "PRODUCT" | "SELLER", targetId: string, reason: string, description: string) => {
-    try {
-      return await api.submitReport(targetType, targetId, reason, description);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true };
   },
 };
 
 export const mobileCartService = {
-  getCart: async () => {
-    try {
-      const res = await api.getCart();
-      if (res?.success && res?.data) {
-        return res.data;
-      }
-    } catch {
-      // Offline mode fallback
-    }
+  getCart: async (): Promise<any[]> => {
     return [];
   },
 
   addToCart: async (productId: string, variantId?: string, quantity: number = 1) => {
-    try {
-      return await api.addToCart(productId, variantId, quantity);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true, message: "Added to cart" };
   },
 
   updateCartItem: async (itemId: string, quantity: number) => {
-    try {
-      return await api.updateCartItem(itemId, quantity);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true };
   },
 
   removeCartItem: async (itemId: string) => {
-    try {
-      return await api.removeCartItem(itemId);
-    } catch {
-      return { success: false, error: "Offline mode" };
-    }
+    return { success: true };
   },
 };
 

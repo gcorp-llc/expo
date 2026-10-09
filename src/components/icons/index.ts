@@ -425,6 +425,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'widget-2-broken': Widget2BrokenIcon,
 };
 
+export type { IconProps };
+
 export interface DynamicIconProps extends IconProps {
   name: string;
 }
@@ -438,7 +440,7 @@ export const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
     }
     return null;
   }
-  return <IconComponent {...props} />;
+  return React.createElement(IconComponent, props);
 };
 
 export { DynamicIcon as Iconify };
