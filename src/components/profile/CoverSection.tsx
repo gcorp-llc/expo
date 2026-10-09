@@ -117,10 +117,16 @@ export const CoverSection = ({
 
         {isOwn && (
           <TouchableOpacity
-            style={[styles.coverEditButton, { backgroundColor: colors.surface + 'CC' }]}
+            style={[
+              styles.coverEditButton,
+              {
+                backgroundColor: colors.surface + 'EE',
+                [isRTL ? 'left' : 'right']: 16,
+              },
+            ]}
             onPress={() => handleImageOptions('cover')}
           >
-            <Iconify icon="solar:camera-broken" size={20} color={colors.text} />
+            <Iconify icon="solar:camera-bold" size={20} color={colors.text} />
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -150,16 +156,17 @@ export const CoverSection = ({
         {isOwn && (
           <TouchableOpacity
             onPress={() => handleImageOptions('avatar')}
+            activeOpacity={0.85}
             style={[
               styles.avatarCameraButton,
               {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
-                [isRTL ? 'left' : 'right']: -10
-              }
+                [isRTL ? 'left' : 'right']: 2,
+              },
             ]}
           >
-            <Iconify icon="solar:camera-broken" size={18} color={colors.text} />
+            <Iconify icon="solar:camera-bold" size={16} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>
@@ -247,17 +254,17 @@ const styles = StyleSheet.create({
   },
   avatarCameraButton: {
     position: 'absolute',
-    bottom: 0,
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    bottom: 2,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
 });
