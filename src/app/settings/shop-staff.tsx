@@ -94,16 +94,16 @@ export default function StaffManagementScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 10, paddingBottom: 10, borderBottomColor: colors.border }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
             <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={24} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {isRTL ? 'کارکنان فروشگاه' : 'Shop Staff'}
+            {isRTL ? 'مدیریت کارکنان' : 'Shop Staff'}
           </Text>
           <TouchableOpacity onPress={() => setIsAdding(true)} style={[styles.addBtn, { backgroundColor: colors.tint }]}>
-            <Iconify icon="solar:user-broken" size={20} color="#fff" />
+            <Iconify icon="solar:user-plus-broken" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>

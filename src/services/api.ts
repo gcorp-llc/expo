@@ -24,16 +24,16 @@ export const productService = {
     // Return fallback product if ID not matched
     return {
       id: id || "1",
-      name: "محصول نمونه کاردیانی",
+      name: "محصول نمونه کوتیک",
       price: 1250000,
       oldPrice: 1500000,
       discountPercentage: 16,
       rating: 4.8,
       reviews: 12,
       category: "لوازم جانبی",
-      description: "این یک محصول نمونه با کیفیت بالا جهت نمایش دمو در اپلیکیشن کاردیانی است.",
+      description: "این یک محصول نمونه با کیفیت بالا جهت نمایش دمو در اپلیکیشن کوتیک است.",
       image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70",
-      seller: "فروشگاه مرکزی کاردیانی",
+      seller: "فروشگاه مرکزی کوتیک",
     };
   },
 

@@ -1,6 +1,6 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useState } from 'react';
 import { PageBackground } from '@/components/ui/PageBackground';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -10,7 +10,9 @@ import { useStore } from '@/hooks/use-store';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Iconify } from '@/components/ui/Iconify'; // ایمپورت کامپوننت شما
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - 48) / 2;
@@ -23,10 +25,38 @@ export default function FavoritesScreen() {
   const { language, favorites: favoriteIds, clearFavorites } = useStore();
   const isRTL = language === 'fa';
 
+  const scrollY = useSharedValue(0);
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
   const favorites = useMemo(() => PRODUCTS.filter(p => favoriteIds.includes(p.id)), [favoriteIds]);
   const specialOffers = useMemo(() => PRODUCTS.slice(4, 9), []);
 
   const handleNavigate = useCallback((id: string) => router.push(`/product/${id}`), [router]);
+
+  const handleClearAll = () => {
+    Alert.alert(
+      isRTL ? 'حذف همه علاقه‌مندی‌ها' : 'Clear All Favorites',
+      isRTL ? 'آیا از حذف تمام محصولات از لیست علاقه‌مندی‌ها اطمینان دارید؟' : 'Are you sure you want to remove all items from favorites?',
+      [
+        { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
+        { text: isRTL ? 'حذف' : 'Remove All', style: 'destructive', onPress: clearFavorites },
+      ]
+    );
+  };
+
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(scrollY.value, [0, 60], [1, 0], Extrapolate.CLAMP),
+      transform: [
+        { translateY: interpolate(scrollY.value, [0, 60], [0, -40], Extrapolate.CLAMP) }
+      ],
+      height: interpolate(scrollY.value, [0, 60], [60, 0], Extrapolate.CLAMP),
+    };
+  });
 
   const renderItem = useCallback(
     ({ item }: { item: any }) => (
@@ -80,27 +110,28 @@ export default function FavoritesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
-      <View style={[styles.header, { paddingTop: insets.top + 20, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+      <Animated.View style={[styles.header, headerAnimatedStyle, { paddingTop: insets.top + 10, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <Text style={[styles.title, { color: colors.text }]}>{isRTL ? 'علاقه‌مندی‌ها' : 'Favorites'}</Text>
         {favorites.length > 0 && (
-          <TouchableOpacity style={[styles.clearButton, { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }]} onPress={clearFavorites} activeOpacity={0.8}>
-            <View style={styles.clearButtonBlur}>
-              <Iconify icon="solar:trash-bin-trash-bold" width={18} height={18} color={colors.destructive} />
-              <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
-                {isRTL ? 'حذف همه' : 'Clear All'}
-              </Text>
-            </View>
+          <TouchableOpacity style={styles.clearButtonFloating} onPress={handleClearAll} activeOpacity={0.8}>
+            <Iconify icon="solar:trash-bin-trash-broken" width={22} height={22} color={colors.destructive} />
+            <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
+              {isRTL ? 'حذف همه' : 'Clear All'}
+            </Text>
           </TouchableOpacity>
         )}
-      </View>
-      <FlatList
+      </Animated.View>
+
+      <AnimatedFlatList
         data={favorites}
-        keyExtractor={item => item.id}
+        keyExtractor={(item: any) => item.id}
         renderItem={renderItem}
         numColumns={2}
         columnWrapperStyle={[styles.productRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 70 }]}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -109,11 +140,20 @@ export default function FavoritesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { paddingHorizontal: 24, paddingBottom: 16, justifyContent: 'space-between', alignItems: 'center' },
-  title: { fontSize: 28, fontWeight: '900', letterSpacing: -1 },
-  clearButton: { borderRadius: 14, overflow: 'hidden' },
-  clearButtonBlur: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 8, gap: 6 },
-  clearButtonText: { fontSize: 12, fontWeight: '700' },
+  header: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    paddingHorizontal: 24,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    overflow: 'hidden',
+  },
+  title: { fontSize: 26, fontWeight: '900', letterSpacing: -1 },
+  clearButtonFloating: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 8 },
+  clearButtonText: { fontSize: 13, fontWeight: '700' },
   listHeader: { marginBottom: 12, gap: 20 },
   section: {
     borderRadius: 28,

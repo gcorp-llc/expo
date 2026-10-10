@@ -146,7 +146,7 @@ export default function ProductDetailScreen() {
     description: isRTL ? 'توضیحات محصول' : 'Description',
     seller: isRTL ? 'فروشنده' : 'Seller',
     warranty: isRTL ? 'گارانتی اصالت و سلامت فیزیکی' : 'Authenticity & Condition Warranty',
-    shipping: isRTL ? 'ارسال سریع کاردیانی' : 'Fast Cardiani Shipping',
+    shipping: isRTL ? 'ارسال سریع کوتیک' : 'Fast Kutik Shipping',
     loading: isRTL ? 'در حال دریافت اطلاعات...' : 'Loading product details...',
     notFound: isRTL ? 'محصول یافت نشد.' : 'Product not found.',
     goBack: isRTL ? 'بازگشت' : 'Go Back',
@@ -200,7 +200,7 @@ export default function ProductDetailScreen() {
   const discount = productAny.discountPercentage;
   const avgRating = ratingSummary?.rating_average?.toFixed(1) || productAny.rating?.toFixed?.(1) || '5.0';
   const reviewCount = ratingSummary?.rating_count || productAny.reviews || reviews.length || 0;
-  const sellerName = productAny.seller || productAny.shop_name || 'Cardiani';
+  const sellerName = productAny.seller || productAny.shop_name || 'Kutik';
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -425,11 +425,24 @@ export default function ProductDetailScreen() {
                 {sellerName}
               </Text>
             </View>
-            <Iconify
-              icon={isRTL ? 'solar:alt-arrow-left-linear' : 'solar:alt-arrow-right-linear'}
-              size={18}
-              color={colors.textSecondary}
-            />
+            <TouchableOpacity
+              style={[styles.sellerChatBtn, { backgroundColor: colors.tint + '15', borderColor: colors.tint + '30' }]}
+              onPress={() => router.push({
+                pathname: `/chat/1`,
+                params: {
+                  productId: id,
+                  productTitle: productAny.name,
+                  productPrice: price,
+                  productImage: imageUri,
+                  sellerName
+                }
+              })}
+            >
+              <Iconify icon="solar:chat-round-line-bold" size={16} color={colors.tint} />
+              <Text style={[styles.sellerChatText, { color: colors.tint }]}>
+                {isRTL ? 'گفتگو با فروشنده' : 'Chat with Seller'}
+              </Text>
+            </TouchableOpacity>
           </Animated.View>
 
           {/* AI Review & Summary Section */}
@@ -446,7 +459,7 @@ export default function ProductDetailScreen() {
               </View>
               <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
                 <Text style={[styles.aiTitle, { color: colors.text }]}>
-                  {isRTL ? 'نقد و بررسی هوش مصنوعی Cardiani AI' : 'Cardiani AI Analysis & Review'}
+                  {isRTL ? 'نقد و بررسی هوش مصنوعی Kutik AI' : 'Kutik AI Analysis & Review'}
                 </Text>
                 <Text style={{ fontSize: 11, color: colors.tint, fontWeight: '700' }}>
                   {isRTL ? 'تحلیل هوشمند بر اساس مشخصات و نظرات کاربران' : 'Smart analysis based on specs and user reviews'}
@@ -914,6 +927,19 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     marginBottom: 20,
+  },
+  sellerChatBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  sellerChatText: {
+    fontSize: 12,
+    fontWeight: '800',
   },
   sellerAvatar: {
     width: 44,

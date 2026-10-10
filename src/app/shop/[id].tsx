@@ -45,7 +45,7 @@ export default function PublicShopScreen() {
         <View style={[styles.shopCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
            <Image source={{ uri: 'https://picsum.photos/200/200?random=10' }} style={styles.shopLogo} />
            <View style={styles.shopInfo}>
-              <Text style={[styles.shopName, { color: colors.text }]}>{isRTL ? 'فروشگاه کاردانی' : 'Cardiani Shop'}</Text>
+              <Text style={[styles.shopName, { color: colors.text }]}>{isRTL ? 'فروشگاه کوتیک' : 'Kutik Shop'}</Text>
               <View style={[styles.statsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                  <View style={styles.stat}>
                     <Text style={[styles.statValue, { color: colors.text }]}>4.9</Text>

@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   ibanValue: { fontSize: 16, fontWeight: '700', letterSpacing: 0.5 },
   transSection: { marginTop: 32 },
   transaction: { padding: 16, borderRadius: 20, alignItems: 'center', gap: 12, marginBottom: 12, borderWidth: 1 },
-  transIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  transIcon: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: 'rgba(128,128,128,0.1)' },
   transInfo: { flex: 1, gap: 2 },
   transTitle: { fontSize: 15, fontWeight: '700' },
   transDate: { fontSize: 12 },

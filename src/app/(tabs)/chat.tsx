@@ -110,7 +110,7 @@ export default function ChatScreen() {
         <View style={styles.floatingBtnWrapper}>
           <FloatingIconButton
             icon="solar:settings-minimalistic-broken"
-            onPress={() => setIsFilterModalVisible(true)}
+            onPress={() => router.push('/settings/message-settings')}
             size={46}
           />
         </View>

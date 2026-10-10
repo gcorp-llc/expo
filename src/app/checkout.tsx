@@ -117,7 +117,7 @@ export default function CheckoutScreen() {
         total: grandTotal,
         itemCount: enrichedItems.reduce((acc, i) => acc + i.quantity, 0),
         address: DEFAULT_ADDRESSES.find((a) => a.id === selectedAddressId)?.fullAddress,
-        payment: paymentMethod === "card" ? (isRTL ? "درگاه آنلاین کارت بانکی" : "Online Card") : (isRTL ? "کیف پول کاردیانی" : "Cardiani Wallet"),
+        payment: paymentMethod === "card" ? (isRTL ? "درگاه آنلاین کارت بانکی" : "Online Card") : (isRTL ? "کیف پول کوتیک" : "Kutik Wallet"),
       };
       clearCart();
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -323,7 +323,7 @@ export default function CheckoutScreen() {
 
             <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
               <Text style={[styles.optionTitle, { color: colors.text }]}>
-                {isRTL ? "اعتبار کیف پول کاردیانی" : "Cardiani Wallet Balance"}
+                {isRTL ? "اعتبار کیف پول کوتیک" : "Kutik Wallet Balance"}
               </Text>
               <Text style={[styles.optionSub, { color: colors.textSecondary }]}>
                 {isRTL ? "موجودی فعلی: ۴۵۰,۰۰۰ تومان" : "Available Balance: $450.00"}
