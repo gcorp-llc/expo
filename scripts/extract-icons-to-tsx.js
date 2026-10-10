@@ -34,6 +34,13 @@ const extraMappings = [
   'plain-bold',
   'code-bold',
   'alt-arrow-right-bold',
+  'alt-arrow-left-linear',
+  'delivery-bold',
+  'delivery-broken',
+  'shop-2-bold',
+  'cart-large-2-bold',
+  'bag-3-broken',
+  'box-minimalistic-broken',
   'heart-bold',
   'star-bold',
   'add-square-bold',
@@ -72,6 +79,8 @@ function parseSvgBodyToJsx(body) {
     .replace(/<\/path>/g, '</Path>')
     .replace(/<circle/g, '<Circle')
     .replace(/<\/circle>/g, '</Circle>')
+    .replace(/<ellipse/g, '<Ellipse')
+    .replace(/<\/ellipse>/g, '</Ellipse>')
     .replace(/<rect/g, '<Rect')
     .replace(/<\/rect>/g, '</Rect>')
     .replace(/<g/g, '<G')
@@ -114,6 +123,7 @@ for (const name of Array.from(foundIcons).sort()) {
 
   const hasPath = jsxBody.includes('<Path');
   const hasCircle = jsxBody.includes('<Circle');
+  const hasEllipse = jsxBody.includes('<Ellipse');
   const hasRect = jsxBody.includes('<Rect');
   const hasG = jsxBody.includes('<G');
   const hasDefs = jsxBody.includes('<Defs');
@@ -122,6 +132,7 @@ for (const name of Array.from(foundIcons).sort()) {
   const svgImports = ['Svg'];
   if (hasPath) svgImports.push('Path');
   if (hasCircle) svgImports.push('Circle');
+  if (hasEllipse) svgImports.push('Ellipse');
   if (hasRect) svgImports.push('Rect');
   if (hasG) svgImports.push('G');
   if (hasDefs) svgImports.push('Defs');
@@ -180,6 +191,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
 ${exportedIcons.map(item => `  '${item.iconName}': ${item.compName},`).join('\n')}
 };
 
+export type { IconProps };
+
 export interface DynamicIconProps extends IconProps {
   name: string;
 }
@@ -193,7 +206,7 @@ export const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
     }
     return null;
   }
-  return <IconComponent {...props} />;
+  return React.createElement(IconComponent, props);
 };
 
 export { DynamicIcon as Iconify };

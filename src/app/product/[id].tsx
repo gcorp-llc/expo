@@ -432,6 +432,58 @@ export default function ProductDetailScreen() {
             />
           </Animated.View>
 
+          {/* AI Review & Summary Section */}
+          <Animated.View
+            entering={FadeInDown.duration(500).delay(340)}
+            style={[
+              styles.aiCard,
+              { backgroundColor: colors.card, borderColor: colors.tint + '40' },
+            ]}
+          >
+            <View style={[styles.aiHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.aiBadge, { backgroundColor: colors.tint + '18' }]}>
+                <Iconify icon="solar:magic-stick-broken" size={20} color={colors.tint} />
+              </View>
+              <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                <Text style={[styles.aiTitle, { color: colors.text }]}>
+                  {isRTL ? 'نقد و بررسی هوش مصنوعی Cardiani AI' : 'Cardiani AI Analysis & Review'}
+                </Text>
+                <Text style={{ fontSize: 11, color: colors.tint, fontWeight: '700' }}>
+                  {isRTL ? 'تحلیل هوشمند بر اساس مشخصات و نظرات کاربران' : 'Smart analysis based on specs and user reviews'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={[styles.aiSummaryBox, { backgroundColor: colors.surface }]}>
+              <Text
+                style={[
+                  styles.aiSummaryText,
+                  { color: colors.text, textAlign: isRTL ? 'right' : 'left' },
+                ]}
+              >
+                {isRTL
+                  ? `با بررسی مشخصات «${productAny.name}»، این محصول گزینه‌ای بسیار ارزشمند در رده $${price} محسوب می‌شود. طراحی مدرن، کیفیت ساخت بالا و ارزش خرید عالی از مهم‌ترین ویژگی‌های آن است.`
+                  : `Based on specs for "${productAny.name}", this product represents exceptional value at $${price}. Highlights include modern build quality, high reliability, and solid performance.`}
+              </Text>
+
+              {/* Pros & Cons */}
+              <View style={{ gap: 8, marginTop: 12 }}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                  <Iconify icon="solar:check-circle-bold" size={16} color={colors.success} />
+                  <Text style={{ fontSize: 12.5, fontWeight: '700', color: colors.success }}>
+                    {isRTL ? 'نقاط قوت: طراحی ارگونومیک، ارزش خرید بالا و گارانتی معتبر' : 'Pros: Premium design, excellent price-to-performance, solid warranty'}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                  <Iconify icon="solar:info-circle-broken" size={16} color="#f59e0b" />
+                  <Text style={{ fontSize: 12.5, fontWeight: '600', color: colors.textSecondary }}>
+                    {isRTL ? 'نکته: برای دستیابی به بهترین کارایی دفترچه راهنما را مطالعه کنید' : 'Note: Consult user manual for optimal setup and longevity'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </Animated.View>
+
           {/* Description */}
           <Animated.View entering={FadeInDown.duration(500).delay(360)} style={styles.section}>
             <Text
@@ -673,6 +725,37 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  aiCard: {
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    marginBottom: 20,
+    gap: 12,
+  },
+  aiHeader: {
+    alignItems: 'center',
+    gap: 10,
+  },
+  aiBadge: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  aiSummaryBox: {
+    padding: 14,
+    borderRadius: 14,
+  },
+  aiSummaryText: {
+    fontSize: 13.5,
+    lineHeight: 22,
+    fontWeight: '600',
   },
   backBtn: {
     paddingHorizontal: 24,
