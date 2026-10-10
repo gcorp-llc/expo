@@ -49,12 +49,10 @@ export default function FavoritesScreen() {
   };
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
+    const shadowOpacity = interpolate(scrollY.value, [0, 30], [0, 0.08], Extrapolate.CLAMP);
     return {
-      opacity: interpolate(scrollY.value, [0, 60], [1, 0], Extrapolate.CLAMP),
-      transform: [
-        { translateY: interpolate(scrollY.value, [0, 60], [0, -40], Extrapolate.CLAMP) }
-      ],
-      height: interpolate(scrollY.value, [0, 60], [60, 0], Extrapolate.CLAMP),
+      shadowOpacity,
+      elevation: scrollY.value > 10 ? 4 : 0,
     };
   });
 
@@ -110,11 +108,35 @@ export default function FavoritesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
-      <Animated.View style={[styles.header, headerAnimatedStyle, { paddingTop: insets.top + 10, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <Text style={[styles.title, { color: colors.text }]}>{isRTL ? 'علاقه‌مندی‌ها' : 'Favorites'}</Text>
+      <Animated.View
+        style={[
+          styles.header,
+          headerAnimatedStyle,
+          {
+            paddingTop: insets.top + 12,
+            backgroundColor: colors.background + 'EE',
+            borderBottomColor: colors.border,
+            flexDirection: isRTL ? 'row-reverse' : 'row',
+          },
+        ]}
+      >
+        <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+          {isRTL ? 'علاقه‌مندی‌ها' : 'Favorites'}
+        </Text>
         {favorites.length > 0 && (
-          <TouchableOpacity style={styles.clearButtonFloating} onPress={handleClearAll} activeOpacity={0.8}>
-            <Iconify icon="solar:trash-bin-trash-broken" width={22} height={22} color={colors.destructive} />
+          <TouchableOpacity
+            style={[
+              styles.clearButtonFloating,
+              {
+                backgroundColor: colors.destructive + '15',
+                borderColor: colors.destructive + '30',
+                flexDirection: isRTL ? 'row-reverse' : 'row',
+              },
+            ]}
+            onPress={handleClearAll}
+            activeOpacity={0.8}
+          >
+            <Iconify icon="solar:trash-bin-trash-broken" width={18} height={18} color={colors.destructive} />
             <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
               {isRTL ? 'حذف همه' : 'Clear All'}
             </Text>
@@ -129,7 +151,7 @@ export default function FavoritesScreen() {
         numColumns={2}
         columnWrapperStyle={[styles.productRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 70 }]}
+        contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 75 }]}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
@@ -146,14 +168,26 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
-    paddingHorizontal: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 12,
     justifyContent: 'space-between',
     alignItems: 'center',
-    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  title: { fontSize: 26, fontWeight: '900', letterSpacing: -1 },
-  clearButtonFloating: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 8 },
-  clearButtonText: { fontSize: 13, fontWeight: '700' },
+  title: { fontSize: 24, fontWeight: '900', letterSpacing: -0.8 },
+  clearButtonFloating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+  },
+  clearButtonText: { fontSize: 13, fontWeight: '800' },
   listHeader: { marginBottom: 12, gap: 20 },
   section: {
     borderRadius: 28,

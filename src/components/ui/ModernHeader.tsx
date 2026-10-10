@@ -131,10 +131,10 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
           </View>
 
           <View style={[styles.userInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
+            <Text style={[styles.greeting, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
               {isRTL ? 'خوش آمدید' : 'Welcome back'}
             </Text>
-            <Text style={[styles.username, { color: colors.text }]}>
+            <Text style={[styles.username, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
               {isRTL ? 'کاربر کوتیک' : 'KuTik User'}
             </Text>
           </View>

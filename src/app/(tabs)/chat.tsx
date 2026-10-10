@@ -88,14 +88,6 @@ export default function ChatScreen() {
         headerStyle,
         { top: insets.top + 10, flexDirection: isRTL ? 'row-reverse' : 'row' }
       ]}>
-        <View style={styles.floatingBtnWrapper}>
-          <FloatingIconButton
-            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
-            onPress={() => router.back()}
-            size={46}
-          />
-        </View>
-
         <View style={[styles.searchContainer, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           <Iconify icon="solar:magnifer-broken" size={20} color={colors.textSecondary} />
           <TextInput

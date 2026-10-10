@@ -8,10 +8,12 @@ interface AddToCartButtonProps {
   onPress: () => void;
   tintColor: string;
   isRTL: boolean;
+  isInCart?: boolean;
 }
 
-export const AddToCartButton = ({ onPress, tintColor, isRTL }: AddToCartButtonProps) => {
+export const AddToCartButton = ({ onPress, tintColor, isRTL, isInCart = false }: AddToCartButtonProps) => {
   const handlePress = useCallback(() => {
+    if (isInCart) return;
     if (Platform.OS !== 'web') {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
@@ -19,27 +21,38 @@ export const AddToCartButton = ({ onPress, tintColor, isRTL }: AddToCartButtonPr
     if (typeof AccessibilityInfo.announceForAccessibility === 'function') {
       AccessibilityInfo.announceForAccessibility('Added to cart');
     }
-  }, [onPress]);
+  }, [onPress, isInCart]);
 
   return (
     <Pressable
       onPress={handlePress}
+      disabled={isInCart}
       style={({ pressed }: { pressed: boolean }) => [
         styles.cartButton,
         {
-          backgroundColor: tintColor,
+          backgroundColor: isInCart ? '#10B981' : tintColor,
           flexDirection: isRTL ? 'row-reverse' : 'row',
-          opacity: pressed && Platform.OS === 'ios' ? 0.85 : 1,
+          opacity: isInCart ? 0.85 : (pressed && Platform.OS === 'ios' ? 0.85 : 1),
         },
       ]}
-      android_ripple={{ color: 'rgba(255, 255, 255, 0.25)', borderless: false }}
+      android_ripple={isInCart ? null : { color: 'rgba(255, 255, 255, 0.25)', borderless: false }}
       accessible={true}
-      accessibilityLabel={isRTL ? "افزودن به سبد خرید" : "Add to Cart"}
+      accessibilityLabel={
+        isInCart
+          ? (isRTL ? "در سبد خرید قرار دارد" : "In Cart")
+          : (isRTL ? "افزودن به سبد خرید" : "Add to Cart")
+      }
       accessibilityRole="button"
     >
-      <Iconify icon="solar:cart-large-minimalistic-broken" size={20} color="#FFFFFF" />
+      <Iconify
+        icon={isInCart ? "solar:check-circle-bold" : "solar:cart-large-minimalistic-broken"}
+        size={20}
+        color="#FFFFFF"
+      />
       <Text style={styles.cartButtonText}>
-        {isRTL ? "افزودن به سبد خرید" : "Add to Cart"}
+        {isInCart
+          ? (isRTL ? "در سبد خرید" : "In Cart")
+          : (isRTL ? "افزودن به سبد خرید" : "Add to Cart")}
       </Text>
     </Pressable>
   );
