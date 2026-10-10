@@ -1,6 +1,8 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
+import { Iconify } from '@/components/ui/Iconify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -32,7 +34,16 @@ import { useMessagingStore } from '@/hooks/use-messaging-store';
 import MessagingService from '@/services/MessagingService';
 
 export default function ChatDetailScreen() {
-  const { id: chatId } = useLocalSearchParams<{ id: string }>();
+  const searchParams = useLocalSearchParams<{
+    id: string;
+    productId?: string;
+    productTitle?: string;
+    productPrice?: string;
+    productImage?: string;
+    sellerName?: string;
+  }>();
+  const chatId = searchParams.id;
+  const { productId, productTitle, productPrice, productImage } = searchParams;
   const router = useRouter();
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
@@ -185,11 +196,35 @@ export default function ChatDetailScreen() {
 
       {showPinned && !searchQuery && (
         <View style={[styles.pinnedContainer, { top: insets.top + 70 }]}>
-          <PinnedMessage
-            message={pinnedMsg}
-            isRTL={isRTL}
-            onClose={() => setShowPinned(false)}
-          />
+          {productTitle ? (
+            <View style={[styles.productContextCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              {productImage ? (
+                <Image source={{ uri: productImage }} style={styles.productContextImage} contentFit="cover" />
+              ) : null}
+              <View style={[styles.productContextInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+                <Text style={[styles.productContextLabel, { color: colors.tint }]}>
+                  {isRTL ? 'گفتگو درباره محصول:' : 'Inquiry about product:'}
+                </Text>
+                <Text style={[styles.productContextTitle, { color: colors.text }]} numberOfLines={1}>
+                  {productTitle}
+                </Text>
+                {productPrice ? (
+                  <Text style={[styles.productContextPrice, { color: colors.textSecondary }]}>
+                    ${Number(productPrice).toLocaleString()}
+                  </Text>
+                ) : null}
+              </View>
+              <TouchableOpacity onPress={() => setShowPinned(false)} style={{ padding: 4 }}>
+                <Iconify icon="solar:close-circle-broken" size={20} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <PinnedMessage
+              message={pinnedMsg}
+              isRTL={isRTL}
+              onClose={() => setShowPinned(false)}
+            />
+          )}
         </View>
       )}
 
@@ -271,6 +306,41 @@ const styles = StyleSheet.create({
     left: 20,
     right: 20,
     zIndex: 90,
+  },
+  productContextCard: {
+    borderRadius: 18,
+    borderWidth: 1,
+    padding: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  productContextImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+  },
+  productContextInfo: {
+    flex: 1,
+  },
+  productContextLabel: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  productContextTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+    marginTop: 2,
+  },
+  productContextPrice: {
+    fontSize: 12,
+    fontWeight: '700',
+    marginTop: 1,
   },
   headerContainer: {
     zIndex: 100,

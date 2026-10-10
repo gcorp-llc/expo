@@ -120,24 +120,15 @@ export default function CartScreen() {
     },
   });
 
-  const checkoutMutation = useMutation({
-    mutationFn: () => mobileOrderService.checkout(undefined, undefined),
-    onSuccess: () => {
-      setStatusMsg(
-        isRTL
-          ? "پیش‌سفارش شما با موفقیت ثبت و موجودی انبار رزرو شد!"
-          : "Pre-order created & inventory reserved successfully!"
-      );
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-      queryClient.invalidateQueries({ queryKey: ["orders"] });
-      setTimeout(() => {
-        router.push("/(tabs)/favorites");
-      }, 1500);
-    },
-    onError: (err: any) => {
-      setStatusMsg(err.message);
-    },
-  });
+  const handleProceedToCheckout = () => {
+    router.push({
+      pathname: "/checkout",
+      params: {
+        discountPercent: appliedDiscount.toString(),
+        promoCode: promoCode,
+      },
+    });
+  };
 
   const handleApplyPromo = () => {
     if (!promoCode.trim()) return;
@@ -484,24 +475,19 @@ export default function CartScreen() {
             </View>
 
             <TouchableOpacity
-              onPress={() => checkoutMutation.mutate()}
-              disabled={checkoutMutation.isPending}
+              onPress={handleProceedToCheckout}
               style={[
                 styles.checkoutButton,
                 { backgroundColor: colors.tint },
               ]}
               activeOpacity={0.85}
             >
-              {checkoutMutation.isPending ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : (
-                <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
-                  <Bag2BrokenIcon size={20} color="#fff" />
-                  <Text style={styles.checkoutButtonText}>
-                    {isRTL ? "تکمیل ثبت سفارش" : "Checkout Now"}
-                  </Text>
-                </View>
-              )}
+              <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
+                <Bag2BrokenIcon size={20} color="#fff" />
+                <Text style={styles.checkoutButtonText}>
+                  {isRTL ? "ادامه و تکمیل ثبت خرید" : "Proceed to Checkout"}
+                </Text>
+              </View>
             </TouchableOpacity>
           </View>
         </Animated.View>

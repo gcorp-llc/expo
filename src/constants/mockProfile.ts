@@ -5,7 +5,7 @@ export const MOCK_PROFILE: ProfileData = {
   name: 'جول بارکر',
   headline: 'توسعه‌دهنده ارشد React Native و طراح محصول',
   role: 'مدیر فروشگاه',
-  businessName: 'کاردانی دیزاین',
+  businessName: 'کوتیک دیزاین',
   bio: 'علاقه‌مند به ساخت تجربه‌های کاربری منحصر به فرد با استفاده از تکنولوژی‌های روز. بیش از ۵ سال سابقه در طراحی و توسعه اپلیکیشن‌های موبایل.',
   location: 'تهران',
   region: 'شمیرانات',
@@ -55,7 +55,7 @@ export const MOCK_PROFILE: ProfileData = {
     { id: 'p3', title: 'دوره جامع React Native', price: '۸۹۰,۰۰۰ تومان', rating: 5.0, image: 'https://picsum.photos/400/400?random=3', isFavorite: true },
   ],
   timeline: [
-    { id: 't1', title: 'به کاردانی پیوست', date: 'دی ۱۴۰۲', icon: 'solar:user-plus-broken' },
+    { id: 't1', title: 'به کوتیک پیوست', date: 'دی ۱۴۰۲', icon: 'solar:user-plus-broken' },
     { id: 't2', title: 'اولین محصول را منتشر کرد', date: 'بهمن ۱۴۰۲', icon: 'solar:box-broken' },
   ],
   socialLinks: [

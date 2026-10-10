@@ -113,11 +113,11 @@ export default function MyShopManageScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 10, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 12, paddingBottom: 12, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <TouchableOpacity onPress={() => router.back()} style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>{isRTL ? "مدیریت فروشگاه" : "Shop Management"}</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{isRTL ? "فروشگاه من" : "My Shop"}</Text>
         <TouchableOpacity
           style={[styles.iconButton, { backgroundColor: colors.card, borderColor: colors.border }]}
           onPress={() => router.push('/settings/shop-management')}
@@ -161,7 +161,7 @@ export default function MyShopManageScreen() {
                 style={[styles.primaryButton, { backgroundColor: colors.tint }]}
                 onPress={() => router.push('/settings/shop-management')}
                 >
-                    <Text style={styles.primaryButtonText}>{isRTL ? "ویرایش فروشگاه" : "Edit Shop"}</Text>
+                    <Text style={styles.primaryButtonText}>{isRTL ? "تنظیمات فروشگاه" : "Shop Settings"}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <Iconify icon="solar:share-broken" size={20} color={colors.text} />

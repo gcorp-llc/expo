@@ -43,8 +43,8 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
     try {
       await Share.share({
         message: isRTL
-          ? 'سلام! بیا در اپلیکیشن کاردیانی با من همراه شو. لینک دانلود: https://cardiani.app/invite'
-          : 'Hey! Join me on Cardiani app. Download here: https://cardiani.app/invite',
+          ? 'سلام! بیا در اپلیکیشن کوتیک با من همراه شو. لینک دانلود: https://kutik.app/invite'
+          : 'Hey! Join me on Kutik app. Download here: https://kutik.app/invite',
       });
     } catch (error) {
       console.error(error);
@@ -175,11 +175,11 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
             {isOwn ? (
               <>
                 <TouchableOpacity
-                  onPress={() => router.push('/settings')}
-                  style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                  onPress={() => router.push('/settings/addresses' as any)}
+                  style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.tint + '40' }]}
                 >
-                  <Iconify icon="solar:settings-broken" size={20} color={colors.text} style={{ marginRight: 8 }} />
-                  <Text style={[styles.secondaryActionText, { color: colors.text }]}>{isRTL ? 'تنظیمات' : 'Settings'}</Text>
+                  <Iconify icon="solar:map-point-broken" size={20} color={colors.tint} style={{ marginRight: 6 }} />
+                  <Text style={[styles.secondaryActionText, { color: colors.tint }]}>{isRTL ? 'نشانی‌ها' : 'Addresses'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => router.push(`/shop/${profile.businessName || '1'}` as any)}

@@ -37,7 +37,7 @@ export const FloatingIconButton = ({
         {
           width: size,
           height: size,
-          borderRadius: size / 2,
+          borderRadius: 14,
           backgroundColor: backgroundColor || colors.card,
           borderColor: colors.border,
           shadowColor: colors.shadow,

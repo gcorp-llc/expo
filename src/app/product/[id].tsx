@@ -26,7 +26,10 @@ import Animated, {
   interpolate,
   FadeIn,
   FadeInDown,
-} from "react-native-reanimated";
+  Extrapolation,
+} from 'react-native-reanimated';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 
 const { width } = Dimensions.get("window");
 const GALLERY_HEIGHT = 360;
@@ -35,11 +38,11 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const colorScheme = useColorScheme() ?? "light";
+  const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { language } = useStore();
-  const isRTL = language === "fa";
+  const { language, favorites, toggleFavorite } = useStore();
+  const isRTL = language === 'fa';
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
@@ -48,42 +51,44 @@ export default function ProductDetailScreen() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const scrollY = useSharedValue(0);
+  const isFavorite = favorites.includes(id as string);
 
-  // 1. Fetch Real Product Detail from API
-  const { data: product, isLoading: isProductLoading, error: productError } = useQuery({
-    queryKey: ["product", id],
+  const {
+    data: product,
+    isLoading: isProductLoading,
+    error: productError,
+  } = useQuery({
+    queryKey: ['product', id],
     queryFn: () => productService.getProductById(id as string),
   });
 
-  // 2. Fetch Real Product Reviews
   const { data: reviews = [] } = useQuery({
-    queryKey: ["product-reviews", id],
+    queryKey: ['product-reviews', id],
     queryFn: () => productService.getProductReviews(id as string),
     enabled: !!id,
   });
 
-  // 3. Fetch Real Product Rating Summary
   const { data: ratingSummary } = useQuery({
-    queryKey: ["product-rating-summary", id],
+    queryKey: ['product-rating-summary', id],
     queryFn: () => productService.getProductRatingSummary(id as string),
     enabled: !!id,
   });
 
-  // 4. Cart Add Mutation
-  const addToCartMutation = useMutation({
-    mutationFn: () => mobileCartService.addToCart(id as string, undefined, 1),
-    onSuccess: () => {
-      setStatusMsg(isRTL ? "با موفقیت به سبد خرید اضافه شد!" : "Added to cart successfully!");
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-    onError: (err: any) => {
-      setStatusMsg(isRTL ? `خطا: ${err.message}` : `Error: ${err.message}`);
-    },
-  });
+  const handleAddToCart = useCallback(() => {
+    if (Platform.OS !== 'web') {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    }
+    setStatusMsg({
+      text: isRTL ? 'با موفقیت به سبد خرید اضافه شد!' : 'Added to cart successfully!',
+      type: 'success',
+    });
+    queryClient.invalidateQueries({ queryKey: ['cart'] });
+    mobileCartService.addToCart(id as string, undefined, 1);
+  }, [id, isRTL, queryClient]);
 
-  // 5. Review Submit Mutation
   const submitReviewMutation = useMutation({
-    mutationFn: () => productService.submitReview(id as string, reviewOrderId, rating, comment),
+    mutationFn: () =>
+      productService.submitReview(id as string, reviewOrderId, rating, comment),
     onSuccess: () => {
       setStatusMsg(isRTL ? "دیدگاه شما با موفقیت ثبت گردید!" : "Review submitted successfully!");
       setComment("");
@@ -92,7 +97,10 @@ export default function ProductDetailScreen() {
       queryClient.invalidateQueries({ queryKey: ["product-rating-summary", id] });
     },
     onError: (err: any) => {
-      setStatusMsg(isRTL ? `خطا: ${err.message}` : `Error: ${err.message}`);
+      setStatusMsg({
+        text: isRTL ? `خطا: ${err.message}` : `Error: ${err.message}`,
+        type: 'error',
+      });
     },
   });
 
@@ -176,6 +184,18 @@ export default function ProductDetailScreen() {
       </View>
     );
   }
+
+  const productAny = product as any;
+  const imageUri =
+    productAny.thumbnail ||
+    productAny.image ||
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70';
+  const price = Number(productAny.price) || 0;
+  const oldPrice = productAny.oldPrice ? Number(productAny.oldPrice) : null;
+  const discount = productAny.discountPercentage;
+  const avgRating = ratingSummary?.rating_average?.toFixed(1) || productAny.rating?.toFixed?.(1) || '5.0';
+  const reviewCount = ratingSummary?.rating_count || productAny.reviews || reviews.length || 0;
+  const sellerName = productAny.seller || productAny.shop_name || 'Kutik';
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -415,7 +435,9 @@ export default function ProductDetailScreen() {
                 onChangeText={setReviewOrderId}
               />
 
-              <View style={[styles.starsRow, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
+              <View
+                style={[styles.starsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+              >
                 {[1, 2, 3, 4, 5].map((s) => (
                   <TouchableOpacity key={s} onPress={() => setRating(s)} activeOpacity={0.7}>
                     <Iconify icon={s <= rating ? "solar:star-bold" : "solar:star-broken"} size={26} color="#fbbf24" />

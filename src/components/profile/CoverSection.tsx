@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,7 @@ import { Iconify } from '@/components/ui/Iconify';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfileStore } from '@/hooks/use-profile-store';
+import { CulturalImagePickerModal } from './CulturalImagePickerModal';
 
 interface CoverSectionProps {
   image?: string;
@@ -28,6 +29,8 @@ export const CoverSection = ({
   isRTL,
   mode = 'own'
 }: CoverSectionProps) => {
+  const [culturalModalVisible, setCulturalModalVisible] = useState(false);
+  const [pickerType, setPickerType] = useState<'avatar' | 'cover'>('cover');
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const updateProfile = useProfileStore((state) => state.updateProfile);
@@ -46,7 +49,14 @@ export const CoverSection = ({
       isRTL ? 'گزینه مورد نظر را انتخاب کنید' : 'Select an option',
       [
         {
-          text: isRTL ? 'انتخاب از گالری' : 'Choose from Gallery',
+          text: isRTL ? 'تصاویر آماده با ریشه فرهنگ ایرانی 🏛️' : 'Persian Cultural Gallery 🏛️',
+          onPress: () => {
+            setPickerType(type);
+            setCulturalModalVisible(true);
+          },
+        },
+        {
+          text: isRTL ? 'انتخاب از گالری گوشی' : 'Choose from Gallery',
           onPress: () => pickImage(type),
         },
         ...(hasCurrent ? [{
@@ -54,7 +64,7 @@ export const CoverSection = ({
           style: 'destructive' as const,
           onPress: () => {
             if (type === 'avatar') {
-              updateProfile({ avatar: 'https://i.pravatar.cc/300?u=user' });
+              updateProfile({ avatar: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=80' });
             } else {
               updateProfile({ coverImage: undefined });
             }
@@ -117,10 +127,16 @@ export const CoverSection = ({
 
         {isOwn && (
           <TouchableOpacity
-            style={[styles.coverEditButton, { backgroundColor: colors.surface + 'CC' }]}
+            style={[
+              styles.coverEditButton,
+              {
+                backgroundColor: colors.surface + 'EE',
+                left: 16,
+              },
+            ]}
             onPress={() => handleImageOptions('cover')}
           >
-            <Iconify icon="solar:camera-broken" size={20} color={colors.text} />
+            <Iconify icon="solar:camera-bold" size={20} color={colors.text} />
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -150,19 +166,34 @@ export const CoverSection = ({
         {isOwn && (
           <TouchableOpacity
             onPress={() => handleImageOptions('avatar')}
+            activeOpacity={0.85}
             style={[
               styles.avatarCameraButton,
               {
                 backgroundColor: colors.surface,
                 borderColor: colors.border,
-                [isRTL ? 'left' : 'right']: -10
-              }
+                [isRTL ? 'left' : 'right']: 2,
+              },
             ]}
           >
-            <Iconify icon="solar:camera-broken" size={18} color={colors.text} />
+            <Iconify icon="solar:camera-bold" size={16} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>
+
+      <CulturalImagePickerModal
+        isVisible={culturalModalVisible}
+        onClose={() => setCulturalModalVisible(false)}
+        type={pickerType}
+        isRTL={isRTL}
+        onSelectImage={(uri) => {
+          if (pickerType === 'avatar') {
+            updateProfile({ avatar: uri });
+          } else {
+            updateProfile({ coverImage: uri });
+          }
+        }}
+      />
     </View>
   );
 };
@@ -247,17 +278,17 @@ const styles = StyleSheet.create({
   },
   avatarCameraButton: {
     position: 'absolute',
-    bottom: 0,
-    width: 36,
-    height: 36,
-    borderRadius: 12,
+    bottom: 2,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
+    borderWidth: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 2,
+    elevation: 3,
   },
 });
