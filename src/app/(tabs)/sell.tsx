@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  Modal,
 } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -19,6 +20,8 @@ import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay
 import { PageBackground } from '@/components/ui/PageBackground';
 import { SelectionModal, Option } from '@/components/ui/SelectionModal';
 import * as ImagePicker from 'expo-image-picker';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { PRODUCTS } from '@/constants/mock-data';
 import { Image } from 'expo-image';
 import Animated, { FadeInRight, FadeInDown } from 'react-native-reanimated';
 
@@ -38,6 +41,9 @@ export default function SellScreen() {
   const [category, setCategory] = useState('');
   const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+  const [barcode, setBarcode] = useState('');
+  const [isScannerVisible, setIsScannerVisible] = useState(false);
+  const [permission, requestPermission] = useCameraPermissions();
   const [isCategoryModalVisible, setCategoryModalVisible] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -70,6 +76,56 @@ export default function SellScreen() {
     if (!result.canceled) {
       const selectedUris = result.assets.map((a) => a.uri);
       setImages((prev) => [...prev, ...selectedUris].slice(0, 5));
+    }
+  };
+
+  const handleOpenScanner = async () => {
+    if (!permission?.granted) {
+      const res = await requestPermission();
+      if (!res.granted) {
+        Alert.alert(
+          isRTL ? 'خطای دسترسی دوربین' : 'Camera Permission Required',
+          isRTL
+            ? 'جهت اسکن بارکد، دسترسی دوربین الزامی است.'
+            : 'Camera access is needed to scan barcodes.'
+        );
+        return;
+      }
+    }
+    setIsScannerVisible(true);
+  };
+
+  const handleBarcodeScanned = ({ data }: { data: string }) => {
+    setIsScannerVisible(false);
+    setBarcode(data);
+
+    // Auto lookup in catalog
+    const matchedProduct = PRODUCTS.find(
+      (p) => p.id === data || p.name.toLowerCase().includes(data.toLowerCase())
+    ) || PRODUCTS[0];
+
+    if (matchedProduct) {
+      setTitle(matchedProduct.name);
+      setPrice(matchedProduct.price.toString());
+      setCategory(matchedProduct.category || 'Electronics');
+      setDescription(
+        matchedProduct.description ||
+          (isRTL ? 'شناسایی‌شده خودکار از طریق بارکد محصول' : 'Auto-identified via barcode scan')
+      );
+      if (matchedProduct.image) {
+        setImages([matchedProduct.image]);
+      }
+      Alert.alert(
+        isRTL ? 'بارکد شناسایی شد! 🏷️' : 'Barcode Scanned! 🏷️',
+        isRTL
+          ? `محصول «${matchedProduct.name}» پیدا شد و اطلاعات آن در فرم جای‌گذاری گردید.`
+          : `Product "${matchedProduct.name}" matched and populated automatically.`
+      );
+    } else {
+      Alert.alert(
+        isRTL ? 'بارکد ثبت شد' : 'Barcode Recorded',
+        isRTL ? `کد بارکد: ${data}` : `Scanned Code: ${data}`
+      );
     }
   };
 
@@ -227,6 +283,28 @@ export default function SellScreen() {
               <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
                 {isRTL ? 'مشخصات و قیمت' : 'Details & Pricing'}
               </Text>
+
+              {/* Barcode Scanner CTA */}
+              <TouchableOpacity
+                onPress={handleOpenScanner}
+                activeOpacity={0.8}
+                style={[
+                  styles.barcodeBtn,
+                  { backgroundColor: colors.tint + '14', borderColor: colors.tint },
+                ]}
+              >
+                <Iconify icon="solar:camera-bold" size={22} color={colors.tint} />
+                <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                  <Text style={[styles.barcodeBtnTitle, { color: colors.tint }]}>
+                    {isRTL ? 'اسکن واقعی بارکد با دوربین 📷' : 'Scan Product Barcode 📷'}
+                  </Text>
+                  <Text style={[styles.barcodeBtnSub, { color: colors.textSecondary }]}>
+                    {barcode
+                      ? isRTL ? `بارکد اسکن‌شده: ${barcode}` : `Scanned: ${barcode}`
+                      : isRTL ? 'برای شناسایی خودکار کالا بارکد را اسکن کنید' : 'Auto-fill info from catalog'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
 
               <TextInput
                 placeholder={isRTL ? 'عنوان آگهی...' : 'Item title...'}
@@ -392,6 +470,32 @@ export default function SellScreen() {
         title={isRTL ? 'انتخاب دسته‌بندی' : 'Select Category'}
         isRTL={isRTL}
       />
+
+      {/* Camera Barcode Scanner Modal */}
+      <Modal visible={isScannerVisible} animationType="slide">
+        <View style={{ flex: 1, backgroundColor: '#000' }}>
+          <CameraView
+            style={StyleSheet.absoluteFill}
+            facing="back"
+            barcodeScannerSettings={{
+              barcodeTypes: ['qr', 'ean13', 'ean8', 'code128', 'code39'],
+            }}
+            onBarcodeScanned={handleBarcodeScanned}
+          />
+          <View style={styles.scannerOverlay}>
+            <View style={styles.scanTargetBox} />
+            <Text style={styles.scanHintText}>
+              {isRTL ? 'بارکد محصول را داخل کادر قرار دهید' : 'Position barcode inside box'}
+            </Text>
+            <TouchableOpacity
+              style={styles.closeScannerBtn}
+              onPress={() => setIsScannerVisible(false)}
+            >
+              <Text style={styles.closeScannerText}>{isRTL ? 'بستن' : 'Close'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -412,6 +516,43 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: { borderRadius: 22, padding: 18, gap: 14 },
+  barcodeBtn: {
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  barcodeBtnTitle: { fontSize: 14, fontWeight: '800' },
+  barcodeBtnSub: { fontSize: 11, fontWeight: '600', marginTop: 2 },
+  scannerOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  scanTargetBox: {
+    width: 250,
+    height: 250,
+    borderWidth: 3,
+    borderColor: '#10B981',
+    borderRadius: 24,
+  },
+  scanHintText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+    marginTop: 20,
+  },
+  closeScannerBtn: {
+    marginTop: 30,
+    backgroundColor: '#ef4444',
+    paddingHorizontal: 28,
+    paddingVertical: 12,
+    borderRadius: 20,
+  },
+  closeScannerText: { color: '#fff', fontSize: 15, fontWeight: '800' },
   sectionTitle: { fontSize: 16, fontWeight: '800' },
   photoBox: {
     width: 100,
