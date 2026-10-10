@@ -10,7 +10,8 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, Platform, StatusBar as RNStatusBar } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import "react-native-reanimated";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -38,7 +39,9 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? "light";
+  const colors = Colors[colorScheme];
+  const insets = useSafeAreaInsets();
   const { language } = useStore();
   const [hasHydrated, setHasHydrated] = useState(
     useStore.persist.hasHydrated(),
@@ -62,6 +65,12 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [hasHydrated]);
+
+  useEffect(() => {
+    if (Platform.OS === "android") {
+      RNStatusBar.setBackgroundColor(colors.statusBarBackground);
+    }
+  }, [colors.statusBarBackground]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -101,6 +110,18 @@ export default function RootLayout() {
               </>
             )}
 
+            <View
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: insets.top,
+                backgroundColor: colors.statusBarBackground,
+                zIndex: 9999,
+              }}
+              pointerEvents="none"
+            />
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
           </View>
         </ErrorBoundary>

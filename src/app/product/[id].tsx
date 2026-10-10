@@ -6,10 +6,10 @@ import {
   TouchableOpacity,
   Dimensions,
   TextInput,
-  ActivityIndicator,
   Pressable,
   Platform,
 } from 'react-native';
+import { PageLoader } from '@/components/ui/Loading';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -163,10 +163,7 @@ export default function ProductDetailScreen() {
   if (isProductLoading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.tint} />
-        <Text style={{ color: colors.textSecondary, marginTop: 14, fontSize: 14 }}>
-          {t.loading}
-        </Text>
+        <PageLoader text={t.loading} />
       </View>
     );
   }
@@ -428,8 +425,9 @@ export default function ProductDetailScreen() {
             <TouchableOpacity
               style={[styles.sellerChatBtn, { backgroundColor: colors.tint + '15', borderColor: colors.tint + '30' }]}
               onPress={() => router.push({
-                pathname: `/chat/1`,
+                pathname: `/chat/[id]`,
                 params: {
+                  id: '1',
                   productId: id,
                   productTitle: productAny.name,
                   productPrice: price,

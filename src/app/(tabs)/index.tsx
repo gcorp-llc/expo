@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Pressable,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing } from '@/constants/theme';
@@ -68,6 +69,49 @@ const CATEGORY_TRANSLATIONS: Record<string, string> = {
   Gaming: 'بازی و سرگرمی',
   Services: 'خدمات و کسب‌وکار',
 };
+
+const FloatingCategoryChip = React.memo(function FloatingCategoryChip({
+  item,
+  isSelected,
+  isRTL,
+  colors,
+  onPress,
+}: {
+  item: { id: string; name: string };
+  isSelected: boolean;
+  isRTL: boolean;
+  colors: (typeof Colors)['light'];
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.8}
+      style={[
+        styles.floatingChip,
+        {
+          backgroundColor: isSelected ? colors.tint : colors.card,
+          borderColor: isSelected ? colors.tint : colors.border,
+          flexDirection: isRTL ? 'row-reverse' : 'row',
+        },
+      ]}
+    >
+      <Iconify
+        icon={CATEGORY_ICONS[item.name] || 'solar:box-broken'}
+        size={18}
+        color={isSelected ? '#fff' : colors.text}
+      />
+      <Text
+        style={[
+          styles.floatingChipText,
+          { color: isSelected ? '#fff' : colors.text },
+        ]}
+      >
+        {isRTL ? CATEGORY_TRANSLATIONS[item.name] || item.name : item.name}
+      </Text>
+    </TouchableOpacity>
+  );
+});
 
 const CategoryItem = React.memo(function CategoryItem({
   item,
@@ -264,7 +308,7 @@ export default function HomeScreen() {
           numColumns={2}
           contentContainerStyle={{
             paddingTop: insets.top + 145,
-            paddingBottom: 120,
+            paddingBottom: 175,
             paddingHorizontal: Spacing.sm,
             flexGrow: 1,
           }}
@@ -524,6 +568,54 @@ export default function HomeScreen() {
         />
       </View>
 
+      {/* Floating Category Bar displayed above Footer Bar */}
+      <Animated.View
+        entering={FadeInDown.duration(400)}
+        style={[
+          styles.floatingCategoriesBar,
+          {
+            bottom: Platform.OS === 'ios' ? 102 : 92,
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+            flexDirection: isRTL ? 'row-reverse' : 'row',
+          },
+        ]}
+      >
+        <TouchableOpacity
+          onPress={() => setCategoryModalVisible(true)}
+          style={[styles.floatingCategoryMenuBtn, { backgroundColor: colors.tint + '18' }]}
+        >
+          <Iconify icon="solar:widget-2-broken" size={20} color={colors.tint} />
+        </TouchableOpacity>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={[
+            styles.floatingCategoriesScroll,
+            { flexDirection: isRTL ? 'row-reverse' : 'row' },
+          ]}
+        >
+          <FloatingCategoryChip
+            item={{ id: 'all', name: 'All' }}
+            isSelected={selectedCategory === 'All'}
+            isRTL={isRTL}
+            colors={colors}
+            onPress={() => handleCategorySelect('All')}
+          />
+          {CATEGORIES.map((cat) => (
+            <FloatingCategoryChip
+              key={cat.id}
+              item={cat}
+              isSelected={selectedCategory === cat.name}
+              isRTL={isRTL}
+              colors={colors}
+              onPress={() => handleCategorySelect(cat.name)}
+            />
+          ))}
+        </ScrollView>
+      </Animated.View>
+
       <SelectionModal
         isVisible={isCategoryModalVisible}
         onClose={() => setCategoryModalVisible(false)}
@@ -682,5 +774,46 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '700',
     fontSize: 14,
+  },
+  floatingCategoriesBar: {
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    height: 52,
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
+    zIndex: 90,
+  },
+  floatingCategoryMenuBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  floatingCategoriesScroll: {
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    gap: 8,
+  },
+  floatingChip: {
+    height: 36,
+    paddingHorizontal: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  floatingChipText: {
+    fontSize: 12.5,
+    fontWeight: '700',
   },
 });

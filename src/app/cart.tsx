@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   TextInput,
   Dimensions,
 } from "react-native";
@@ -17,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { mobileCartService, mobileOrderService, productService } from "@/services/api";
+import { PageLoader } from "@/components/ui/Loading";
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -142,10 +142,7 @@ export default function CartScreen() {
   if (isCartLoading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.tint} />
-        <Text style={{ marginTop: 12, color: colors.textSecondary, fontWeight: "600" }}>
-          {isRTL ? "در حال بارگذاری سبد خرید..." : "Loading cart..."}
-        </Text>
+        <PageLoader text={isRTL ? "در حال بارگذاری سبد خرید..." : "Loading cart..."} />
       </View>
     );
   }
