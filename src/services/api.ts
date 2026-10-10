@@ -100,20 +100,30 @@ export const productService = {
   },
 };
 
+import { useStore } from "@/hooks/use-store";
+
 export const mobileCartService = {
   getCart: async (): Promise<any[]> => {
-    return [];
+    const { cartItems } = useStore.getState();
+    return cartItems.map((ci) => ({
+      item_id: ci.id,
+      product_id: ci.id,
+      quantity: ci.quantity,
+    }));
   },
 
   addToCart: async (productId: string, variantId?: string, quantity: number = 1) => {
+    useStore.getState().addToCart(productId, quantity);
     return { success: true, message: "Added to cart" };
   },
 
   updateCartItem: async (itemId: string, quantity: number) => {
+    useStore.getState().updateCartQuantity(itemId, quantity);
     return { success: true };
   },
 
   removeCartItem: async (itemId: string) => {
+    useStore.getState().removeFromCart(itemId);
     return { success: true };
   },
 };

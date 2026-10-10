@@ -8,12 +8,21 @@ export type Language = "en" | "fa";
 export type ThemeMode = "light" | "dark" | "system";
 export type PrivacyValue = "everyone" | "friends" | "nobody";
 
+export interface CartItem {
+  id: string;
+  quantity: number;
+}
+
 interface AppState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  cart: string[]; // array of product ids
-  addToCart: (id: string) => void;
+  cartItems: CartItem[];
+  cart: string[]; // legacy getter array of product ids for backward compatibility
+  addToCart: (id: string, quantity?: number) => void;
+  updateCartQuantity: (id: string, quantity: number) => void;
   removeFromCart: (id: string) => void;
+  clearCart: () => void;
+  getCartTotalCount: () => number;
   favorites: string[];
   toggleFavorite: (id: string) => void;
   clearFavorites: () => void;
@@ -122,10 +131,59 @@ export const useStore = create<AppState>()(
     (set) => ({
       searchQuery: "",
       setSearchQuery: (query) => set({ searchQuery: query }),
-      cart: [],
-      addToCart: (id) => set((state) => ({ cart: [...state.cart, id] })),
+      cartItems: [
+        { id: "p1", quantity: 2 },
+        { id: "p2", quantity: 1 },
+      ],
+      get cart() {
+        return (this as AppState).cartItems.map((item) => item.id);
+      },
+      addToCart: (id, quantity = 1) =>
+        set((state) => {
+          const existingIndex = state.cartItems.findIndex((item) => item.id === id);
+          let newCartItems: CartItem[];
+          if (existingIndex >= 0) {
+            newCartItems = state.cartItems.map((item, index) =>
+              index === existingIndex
+                ? { ...item, quantity: item.quantity + quantity }
+                : item
+            );
+          } else {
+            newCartItems = [...state.cartItems, { id, quantity }];
+          }
+          return {
+            cartItems: newCartItems,
+            cart: newCartItems.map((item) => item.id),
+          };
+        }),
+      updateCartQuantity: (id, quantity) =>
+        set((state) => {
+          let newCartItems: CartItem[];
+          if (quantity <= 0) {
+            newCartItems = state.cartItems.filter((item) => item.id !== id);
+          } else {
+            newCartItems = state.cartItems.map((item) =>
+              item.id === id ? { ...item, quantity } : item
+            );
+          }
+          return {
+            cartItems: newCartItems,
+            cart: newCartItems.map((item) => item.id),
+          };
+        }),
       removeFromCart: (id) =>
-        set((state) => ({ cart: state.cart.filter((item) => item !== id) })),
+        set((state) => {
+          const newCartItems = state.cartItems.filter((item) => item.id !== id);
+          return {
+            cartItems: newCartItems,
+            cart: newCartItems.map((item) => item.id),
+          };
+        }),
+      clearCart: () => set({ cartItems: [], cart: [] }),
+      getCartTotalCount: () => {
+        // Handled via getter helper outside
+        return 0;
+      },
       favorites: ["p1", "p2", "p3"], // Initial mock favorites
       toggleFavorite: (id) =>
         set((state) => ({
@@ -298,7 +356,8 @@ export const useStore = create<AppState>()(
         hasEnteredDemoMode: state.hasEnteredDemoMode,
         user: state.user,
         favorites: state.favorites,
-        cart: state.cart,
+        cartItems: state.cartItems,
+        cart: state.cartItems.map((item) => item.id),
         recentSearches: state.recentSearches,
       }),
     },

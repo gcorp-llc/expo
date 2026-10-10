@@ -88,6 +88,7 @@ export const SelectionModal = ({
         {
           backgroundColor: colors.card,
           borderColor: colors.border,
+          maxHeight: SCREEN_HEIGHT * 0.5,
           paddingBottom: Math.max(insets.bottom, 16),
         }
       ]}>
@@ -100,7 +101,10 @@ export const SelectionModal = ({
           </TouchableOpacity>
         </View>
 
-        <View style={styles.content}>
+        <Animated.ScrollView
+          showsVerticalScrollIndicator={true}
+          contentContainerStyle={styles.scrollContent}
+        >
           {options.map((option) => {
             const isSelected = option.value === selectedValue;
             return (
@@ -123,7 +127,7 @@ export const SelectionModal = ({
                 <View style={[styles.optionLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                   {option.icon && (
                     <View style={[styles.iconChip, { backgroundColor: isSelected ? colors.tint + '22' : colors.card }]}>
-                      <Iconify icon={option.icon} size={19} color={isSelected ? colors.tint : colors.textSecondary} />
+                      <Iconify icon={option.icon} size={22} color={isSelected ? colors.tint : colors.textSecondary} />
                     </View>
                   )}
                   <Text style={[
@@ -137,7 +141,7 @@ export const SelectionModal = ({
               </TouchableOpacity>
             );
           })}
-        </View>
+        </Animated.ScrollView>
       </Animated.View>
     </View>
   );
@@ -182,9 +186,9 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
   },
-  content: {
+  scrollContent: {
     paddingHorizontal: 16,
-    paddingBottom: 8,
+    paddingBottom: 16,
     gap: 10,
   },
   optionItem: {

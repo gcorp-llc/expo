@@ -108,17 +108,10 @@ const CategoryItem = React.memo(function CategoryItem({
           animatedStyle,
         ]}
       >
-        <View
-          style={[
-            styles.categoryIconWrap,
-            {
-              backgroundColor: isSelected ? 'rgba(255,255,255,0.2)' : colors.secondaryBackground,
-            },
-          ]}
-        >
+        <View style={styles.categoryIconWrap}>
           <Iconify
             icon={CATEGORY_ICONS[item.name] || 'solar:box-broken'}
-            size={22}
+            size={28}
             color={isSelected ? '#fff' : colors.text}
           />
         </View>
@@ -570,13 +563,13 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
   },
   categoryCard: {
-    width: 88,
-    height: 96,
-    borderRadius: 18,
+    width: 90,
+    height: 98,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    gap: 6,
+    gap: 8,
     paddingVertical: 8,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
@@ -585,6 +578,8 @@ const styles = StyleSheet.create({
   categoryIconWrap: {
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 0,
+    backgroundColor: 'transparent',
   },
   categoryName: {
     fontSize: 12,

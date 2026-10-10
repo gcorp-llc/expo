@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -8,6 +8,7 @@ import { Iconify } from '@/components/ui/Iconify';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfileStore } from '@/hooks/use-profile-store';
+import { CulturalImagePickerModal } from './CulturalImagePickerModal';
 
 interface CoverSectionProps {
   image?: string;
@@ -28,6 +29,8 @@ export const CoverSection = ({
   isRTL,
   mode = 'own'
 }: CoverSectionProps) => {
+  const [culturalModalVisible, setCulturalModalVisible] = useState(false);
+  const [pickerType, setPickerType] = useState<'avatar' | 'cover'>('cover');
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const updateProfile = useProfileStore((state) => state.updateProfile);
@@ -46,7 +49,14 @@ export const CoverSection = ({
       isRTL ? 'گزینه مورد نظر را انتخاب کنید' : 'Select an option',
       [
         {
-          text: isRTL ? 'انتخاب از گالری' : 'Choose from Gallery',
+          text: isRTL ? 'تصاویر آماده با ریشه فرهنگ ایرانی 🏛️' : 'Persian Cultural Gallery 🏛️',
+          onPress: () => {
+            setPickerType(type);
+            setCulturalModalVisible(true);
+          },
+        },
+        {
+          text: isRTL ? 'انتخاب از گالری گوشی' : 'Choose from Gallery',
           onPress: () => pickImage(type),
         },
         ...(hasCurrent ? [{
@@ -54,7 +64,7 @@ export const CoverSection = ({
           style: 'destructive' as const,
           onPress: () => {
             if (type === 'avatar') {
-              updateProfile({ avatar: 'https://i.pravatar.cc/300?u=user' });
+              updateProfile({ avatar: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=80' });
             } else {
               updateProfile({ coverImage: undefined });
             }
@@ -121,7 +131,7 @@ export const CoverSection = ({
               styles.coverEditButton,
               {
                 backgroundColor: colors.surface + 'EE',
-                [isRTL ? 'left' : 'right']: 16,
+                left: 16,
               },
             ]}
             onPress={() => handleImageOptions('cover')}
@@ -170,6 +180,20 @@ export const CoverSection = ({
           </TouchableOpacity>
         )}
       </View>
+
+      <CulturalImagePickerModal
+        isVisible={culturalModalVisible}
+        onClose={() => setCulturalModalVisible(false)}
+        type={pickerType}
+        isRTL={isRTL}
+        onSelectImage={(uri) => {
+          if (pickerType === 'avatar') {
+            updateProfile({ avatar: uri });
+          } else {
+            updateProfile({ coverImage: uri });
+          }
+        }}
+      />
     </View>
   );
 };

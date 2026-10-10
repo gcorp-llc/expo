@@ -73,10 +73,12 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
     searchQuery,
     setSearchQuery,
     language,
-    cart,
+    cartItems,
     addRecentSearch
   } = useStore();
   
+  const totalCartCount = (cartItems || []).reduce((acc, item) => acc + (item.quantity || 1), 0);
+
   const isRTL = language === 'fa';
   const [isDropdownVisible, setDropdownVisible] = React.useState(false);
 
@@ -142,7 +144,7 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
           <IconButton icon="solar:bell-broken" badge="3" onPress={() => router.push('/notifications')} colors={colors} pressedScale={pressedScale} handlePressIn={handlePressIn} handlePressOut={handlePressOut} />
           <IconButton
             icon="solar:cart-large-broken"
-            badge={cart.length > 0 ? cart.length.toString() : undefined}
+            badge={totalCartCount > 0 ? totalCartCount.toString() : undefined}
             onPress={() => router.push('/cart')}
             colors={colors}
             pressedScale={pressedScale}
