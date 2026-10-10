@@ -44,15 +44,11 @@ export const MessagingHeader = ({
   };
 
   return (
-    <View style={[styles.outerContainer, { top: insets.top + 10 }]}>
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 80 : 100}
-        tint={colorScheme}
+    <View style={[styles.outerContainer, { top: insets.top + 6 }]}>
+      <View
         style={[
           styles.container,
           {
-            backgroundColor: colorScheme === 'dark' ? 'rgba(44, 44, 46, 0.8)' : 'rgba(241, 242, 244, 0.8)',
-            borderColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
             flexDirection: isRTL ? 'row-reverse' : 'row'
           }
         ]}
@@ -62,7 +58,14 @@ export const MessagingHeader = ({
             entering={FadeIn}
             exiting={FadeOut}
             layout={Layout.springify()}
-            style={[styles.searchContainer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+            style={[
+              styles.searchBarFloating,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+                flexDirection: isRTL ? 'row-reverse' : 'row'
+              }
+            ]}
           >
             <FloatingIconButton
               icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
@@ -71,7 +74,7 @@ export const MessagingHeader = ({
             />
             <TextInput
               autoFocus
-              placeholder={isRTL ? 'جستجو...' : 'Search...'}
+              placeholder={isRTL ? 'جستجو در گفتگو...' : 'Search in chat...'}
               placeholderTextColor={colors.textSecondary}
               style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
               value={searchQuery}
@@ -88,7 +91,7 @@ export const MessagingHeader = ({
                 <FloatingIconButton
                   icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
                   onPress={onBack}
-                  size={42}
+                  size={44}
                 />
               )}
               <Animated.View
@@ -112,18 +115,18 @@ export const MessagingHeader = ({
                 icon="solar:magnifer-broken"
                 onPress={handleToggleSearch}
                 iconSize={20}
-                size={42}
+                size={44}
               />
               <FloatingIconButton
                 icon="solar:menu-dots-broken"
                 onPress={onMore}
                 iconSize={20}
-                size={42}
+                size={44}
               />
             </View>
           </>
         )}
-      </BlurView>
+      </View>
     </View>
   );
 };
@@ -131,27 +134,23 @@ export const MessagingHeader = ({
 const createStyles = (colors: any, isRTL: boolean) => StyleSheet.create({
   outerContainer: {
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: 16,
+    right: 16,
     zIndex: 100,
   },
   container: {
-    height: 56,
-    borderRadius: 28,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    overflow: 'hidden',
   },
   leftGroup: {
     flex: 1,
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   rightGroup: {
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
   },
   titleContainer: {
     flex: 1,
@@ -159,22 +158,30 @@ const createStyles = (colors: any, isRTL: boolean) => StyleSheet.create({
   },
   title: {
     fontSize: 17,
-    fontWeight: '900',
+    fontWeight: '800',
   },
   subtitle: {
     fontSize: 12,
-    fontWeight: '700',
-    marginTop: -2,
+    fontWeight: '600',
+    marginTop: 1,
   },
-  searchContainer: {
+  searchBarFloating: {
     flex: 1,
+    height: 48,
+    borderRadius: 24,
+    borderWidth: 1,
     alignItems: 'center',
+    paddingHorizontal: 6,
     gap: 8,
-    paddingHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   searchInput: {
     flex: 1,
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     height: '100%',
   },

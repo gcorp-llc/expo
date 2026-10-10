@@ -41,8 +41,9 @@ export default function ProductDetailScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { language, favorites, toggleFavorite } = useStore();
+  const { language, favorites, toggleFavorite, cartItems, addToCart } = useStore();
   const isRTL = language === 'fa';
+  const isInCart = cartItems.some((item) => item.id === (id as string));
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
@@ -76,16 +77,18 @@ export default function ProductDetailScreen() {
   });
 
   const handleAddToCart = useCallback(() => {
+    if (isInCart) return;
     if (Platform.OS !== 'web') {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
+    addToCart(id as string);
     setStatusMsg({
       text: isRTL ? 'با موفقیت به سبد خرید اضافه شد!' : 'Added to cart successfully!',
       type: 'success',
     });
     queryClient.invalidateQueries({ queryKey: ['cart'] });
     mobileCartService.addToCart(id as string, undefined, 1);
-  }, [id, isRTL, queryClient]);
+  }, [id, isRTL, queryClient, addToCart, isInCart]);
 
   const submitReviewMutation = useMutation({
     mutationFn: () =>
@@ -700,12 +703,18 @@ export default function ProductDetailScreen() {
         >
           <TouchableOpacity
             onPress={handleAddToCart}
-            style={[styles.buyButton, { backgroundColor: colors.tint }]}
+            disabled={isInCart}
+            style={[
+              styles.buyButton,
+              { backgroundColor: isInCart ? '#10B981' : colors.tint, opacity: isInCart ? 0.85 : 1 }
+            ]}
             activeOpacity={0.85}
           >
-            <Iconify icon="solar:cart-large-2-bold" size={20} color="#fff" />
+            <Iconify icon={isInCart ? "solar:check-circle-bold" : "solar:cart-large-2-bold"} size={20} color="#fff" />
             <Text style={styles.buyButtonText}>
-              {t.addToCart}
+              {isInCart
+                ? (isRTL ? 'در سبد خرید شما قرار دارد' : 'In Your Cart')
+                : t.addToCart}
             </Text>
           </TouchableOpacity>
 

@@ -5,7 +5,7 @@ import Animated, {
   useAnimatedStyle,
   withRepeat,
   withTiming,
-  easing,
+  Easing,
 } from "react-native-reanimated";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -34,7 +34,7 @@ export const BentoSkeletonBox: React.FC<SkeletonBoxProps> = ({
 
   useEffect(() => {
     opacity.value = withRepeat(
-      withTiming(0.9, { duration: 900, easing: easing.inOut(easing.ease) }),
+      withTiming(0.9, { duration: 900, easing: Easing.inOut(Easing.ease) }),
       -1,
       true
     );

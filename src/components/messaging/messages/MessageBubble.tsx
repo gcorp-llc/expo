@@ -64,14 +64,26 @@ const MessageBubbleComponent = ({
       case 'sent': return 'solar:check-circle-bold';
       case 'delivered': return 'solar:check-read-broken';
       case 'read': return 'solar:check-read-bold';
-      default: return 'solar:check-circle-bold';
+      default: return 'solar:check-read-bold';
     }
   };
 
   const getStatusColor = () => {
-    if (message.status === 'read') return '#7DD3FC';
-    return 'rgba(255,255,255,0.75)';
+    if (colorScheme === 'dark') {
+      return '#61B752';
+    }
+    return '#4FA800';
   };
+
+  const isDark = colorScheme === 'dark';
+
+  // Telegram signature colors:
+  // Outgoing: #EFFDDE (light mode) / #2B5278 (dark mode)
+  // Incoming: #FFFFFF (light mode) / #182533 (dark mode)
+  const outgoingBg = isDark ? '#2B5278' : '#EFFDDE';
+  const incomingBg = isDark ? '#182533' : '#FFFFFF';
+  const outgoingTextColor = isDark ? '#FFFFFF' : '#000000';
+  const incomingTextColor = isDark ? '#F5F5F5' : '#000000';
 
   const renderContent = () => {
     switch (message.type) {
@@ -87,7 +99,15 @@ const MessageBubbleComponent = ({
         return <PollMessage message={message} isMe={isMe} />;
       default:
         return (
-          <Text style={[styles.text, { color: isMe ? '#FFF' : colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+          <Text
+            style={[
+              styles.text,
+              {
+                color: isMe ? outgoingTextColor : incomingTextColor,
+                textAlign: isRTL ? 'right' : 'left',
+              },
+            ]}
+          >
             {message.content}
           </Text>
         );
@@ -97,14 +117,14 @@ const MessageBubbleComponent = ({
   const bubbleStyle = [
     styles.bubble,
     {
-      backgroundColor: isMe ? 'transparent' : colors.card,
+      backgroundColor: isMe ? outgoingBg : incomingBg,
       alignSelf: isMe ? (isRTL ? 'flex-start' : 'flex-end') : (isRTL ? 'flex-end' : 'flex-start'),
-      borderBottomRightRadius: isMe ? (isRTL ? 20 : 4) : 20,
-      borderBottomLeftRadius: isMe ? (isRTL ? 4 : 20) : 4,
-      borderWidth: 1,
-      borderColor: isMe ? 'transparent' : colors.border,
-      shadowColor: isMe ? colors.tint : '#000',
-      overflow: 'hidden',
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      borderBottomLeftRadius: isMe ? 16 : (isRTL ? 16 : 4),
+      borderBottomRightRadius: isMe ? (isRTL ? 4 : 16) : 16,
+      borderWidth: isDark ? 0 : 0.5,
+      borderColor: isDark ? 'transparent' : 'rgba(0,0,0,0.08)',
     }
   ];
 
@@ -135,13 +155,18 @@ const MessageBubbleComponent = ({
         {renderContent()}
 
         <View style={[styles.infoRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <Text style={[styles.time, { color: isMe ? 'rgba(255,255,255,0.8)' : colors.textSecondary }]}>
+          <Text
+            style={[
+              styles.time,
+              { color: isMe ? (isDark ? 'rgba(255,255,255,0.7)' : '#538250') : colors.textSecondary },
+            ]}
+          >
             {getTime()}
           </Text>
           {isMe && (
             <Iconify
               icon={getStatusIcon() || ''}
-              size={14}
+              size={15}
               color={getStatusColor()}
             />
           )}

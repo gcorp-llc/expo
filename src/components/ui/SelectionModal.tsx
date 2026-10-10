@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Platform, Pressable } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Platform, Pressable, Modal } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
@@ -77,73 +77,81 @@ export const SelectionModal = ({
   if (!isVisible) return null;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <Animated.View style={[styles.backdrop, backdropStyle]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-      </Animated.View>
+    <Modal
+      transparent
+      visible={isVisible}
+      onRequestClose={onClose}
+      animationType="none"
+      statusBarTranslucent
+    >
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        <Animated.View style={[styles.backdrop, backdropStyle]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        </Animated.View>
 
-      <Animated.View style={[
-        styles.sheet,
-        sheetStyle,
-        {
-          backgroundColor: colors.card,
-          borderColor: colors.border,
-          maxHeight: SCREEN_HEIGHT * 0.5,
-          paddingBottom: Math.max(insets.bottom, 16),
-        }
-      ]}>
-        <View style={[styles.grabber, { backgroundColor: colors.border }]} />
+        <Animated.View style={[
+          styles.sheet,
+          sheetStyle,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+            maxHeight: SCREEN_HEIGHT * 0.55,
+            paddingBottom: Math.max(insets.bottom, 16),
+          }
+        ]}>
+          <View style={[styles.grabber, { backgroundColor: colors.border }]} />
 
-        <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
-          <TouchableOpacity onPress={onClose} hitSlop={10}>
-            <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </View>
+          <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
+            <TouchableOpacity onPress={onClose} hitSlop={10}>
+              <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
 
-        <Animated.ScrollView
-          showsVerticalScrollIndicator={true}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {options.map((option) => {
-            const isSelected = option.value === selectedValue;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.optionItem,
-                  {
-                    flexDirection: isRTL ? 'row-reverse' : 'row',
-                    backgroundColor: isSelected ? colors.tint + '14' : colors.surface,
-                    borderColor: isSelected ? colors.tint : colors.border,
-                  }
-                ]}
-                onPress={() => {
-                  onSelect(option.value);
-                  onClose();
-                }}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.optionLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                  {option.icon && (
-                    <View style={[styles.iconChip, { backgroundColor: isSelected ? colors.tint + '22' : colors.card }]}>
-                      <Iconify icon={option.icon} size={22} color={isSelected ? colors.tint : colors.textSecondary} />
-                    </View>
-                  )}
-                  <Text style={[
-                    styles.optionLabel,
-                    { color: isSelected ? colors.tint : colors.text, fontWeight: isSelected ? '800' : '600' }
-                  ]}>
-                    {option.label}
-                  </Text>
-                </View>
-                {isSelected && <Iconify icon="solar:check-circle-bold" size={20} color={colors.tint} />}
-              </TouchableOpacity>
-            );
-          })}
-        </Animated.ScrollView>
-      </Animated.View>
-    </View>
+          <Animated.ScrollView
+            showsVerticalScrollIndicator={true}
+            contentContainerStyle={styles.scrollContent}
+          >
+            {options.map((option) => {
+              const isSelected = option.value === selectedValue;
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.optionItem,
+                    {
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                      backgroundColor: isSelected ? colors.tint + '14' : colors.surface,
+                      borderColor: isSelected ? colors.tint : colors.border,
+                    }
+                  ]}
+                  onPress={() => {
+                    onSelect(option.value);
+                    onClose();
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <View style={[styles.optionLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                    {option.icon && (
+                      <View style={[styles.iconChip, { backgroundColor: isSelected ? colors.tint + '22' : colors.card }]}>
+                        <Iconify icon={option.icon} size={22} color={isSelected ? colors.tint : colors.textSecondary} />
+                      </View>
+                    )}
+                    <Text style={[
+                      styles.optionLabel,
+                      { color: isSelected ? colors.tint : colors.text, fontWeight: isSelected ? '800' : '600' }
+                    ]}>
+                      {option.label}
+                    </Text>
+                  </View>
+                  {isSelected && <Iconify icon="solar:check-circle-bold" size={20} color={colors.tint} />}
+                </TouchableOpacity>
+              );
+            })}
+          </Animated.ScrollView>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 };
 

@@ -100,12 +100,19 @@ export const ChatInput = ({
 
         <TouchableOpacity
           onPress={text.trim().length > 0 ? handleSend : undefined}
-          style={[styles.sendButton, { backgroundColor: colors.card, borderColor: colors.border }]}
+          activeOpacity={0.8}
+          style={[
+            styles.sendButton,
+            {
+              backgroundColor: text.trim().length > 0 ? colors.tint : colors.card,
+              borderColor: text.trim().length > 0 ? colors.tint : colors.border,
+            },
+          ]}
         >
           <Iconify
             icon={text.trim().length > 0 ? "solar:plain-bold" : "solar:microphone-broken"}
-            size={24}
-            color={text.trim().length > 0 ? colors.tint : colors.textSecondary}
+            size={22}
+            color={text.trim().length > 0 ? "#FFFFFF" : colors.textSecondary}
           />
         </TouchableOpacity>
       </View>

@@ -26,9 +26,10 @@ export interface ProductCardProps {
 export const ProductCard = ({ product, onPress, flat = false, testID, style: styleOverride }: ProductCardProps) => {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
-  const { language, favorites, toggleFavorite, addToCart } = useStore();
+  const { language, favorites, toggleFavorite, addToCart, cartItems } = useStore();
   const isRTL = language === 'fa';
   const isFavorite = favorites.includes(product.id);
+  const isInCart = cartItems.some((item) => item.id === product.id);
 
   // Dynamic state to support countdown expiry seamlessly in the UI
   const [saleExpired, setSaleExpired] = useState(false);
@@ -153,6 +154,7 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
             onPress={handleAddToCart}
             tintColor={colors.tint}
             isRTL={isRTL}
+            isInCart={isInCart}
           />
         </View>
       </TouchableOpacity>

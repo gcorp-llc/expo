@@ -102,62 +102,72 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={FadeInDown.duration(600).delay(100)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Animated.View entering={FadeInDown.duration(600).delay(100)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'حساب کاربری' : 'Account'}
           </Text>
-          <SettingItem
-            icon="solar:user-broken"
-            label={isRTL ? 'ویرایش پروفایل' : 'Edit Profile'}
-            onPress={() => router.push({ pathname: '/profile', params: { autoEdit: 'true' } })}
-          />
-          <SettingItem
-            icon="solar:map-point-broken"
-            label={isRTL ? 'نشانی‌ها' : 'Addresses'}
-            onPress={() => router.push('/settings/addresses')}
-          />
-          <SettingItem icon="solar:lock-password-broken" label={isRTL ? 'امنیت' : 'Security'} onPress={() => router.push('/settings/privacy')} />
-          <SettingItem icon="solar:bell-broken" label={isRTL ? 'اعلان‌ها' : 'Notifications'} onPress={() => router.push('/settings/notification-settings')} />
-          <SettingItem icon="solar:chat-line-broken" label={isRTL ? 'تنظیمات پیام‌ها' : 'Message Settings'} onPress={() => router.push('/settings/message-settings')} />
+          <View style={styles.itemsGroup}>
+            <SettingItem
+              icon="solar:user-broken"
+              label={isRTL ? 'ویرایش پروفایل' : 'Edit Profile'}
+              onPress={() => router.push({ pathname: '/profile', params: { autoEdit: 'true' } })}
+            />
+            <SettingItem
+              icon="solar:map-point-broken"
+              label={isRTL ? 'نشانی‌ها' : 'Addresses'}
+              onPress={() => router.push('/settings/addresses')}
+            />
+            <SettingItem icon="solar:lock-password-broken" label={isRTL ? 'امنیت' : 'Security'} onPress={() => router.push('/settings/privacy')} />
+            <SettingItem icon="solar:bell-broken" label={isRTL ? 'اعلان‌ها' : 'Notifications'} onPress={() => router.push('/settings/notification-settings')} />
+            <SettingItem icon="solar:chat-line-broken" label={isRTL ? 'تنظیمات پیام‌ها' : 'Message Settings'} onPress={() => router.push('/settings/message-settings')} />
+          </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(200)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Animated.View entering={FadeInDown.duration(600).delay(200)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'کسب و کار' : 'Business'}
           </Text>
-          <SettingItem icon="solar:shop-2-broken" label={isRTL ? 'فروشگاه من' : 'My Shop'} onPress={() => router.push('/shop/manage')} />
-          <SettingItem icon="solar:wallet-money-broken" label={isRTL ? 'امور مالی' : 'Finance'} onPress={() => router.push('/settings/finance')} />
-          <SettingItem icon="solar:settings-minimalistic-broken" label={isRTL ? 'تنظیمات فروشگاه' : 'Shop Settings'} onPress={() => router.push('/settings/shop-management')} />
+          <View style={styles.itemsGroup}>
+            <SettingItem icon="solar:shop-2-broken" label={isRTL ? 'فروشگاه من' : 'My Shop'} onPress={() => router.push('/shop/manage')} />
+            <SettingItem icon="solar:wallet-money-broken" label={isRTL ? 'امور مالی' : 'Finance'} onPress={() => router.push('/settings/finance')} />
+            <SettingItem icon="solar:settings-minimalistic-broken" label={isRTL ? 'تنظیمات فروشگاه' : 'Shop Settings'} onPress={() => router.push('/settings/shop-management')} />
+          </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(300)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Animated.View entering={FadeInDown.duration(600).delay(300)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'تنظیمات ظاهری' : 'Appearance'}
           </Text>
-          <SettingItem
-            icon="solar:globus-broken"
-            label={isRTL ? 'زبان' : 'Language'}
-            value={getLangLabel(language)}
-            onPress={() => router.push('/settings/language')}
-          />
-          <SettingItem
-            icon="solar:moon-broken"
-            label={isRTL ? 'حالت نمایش' : 'Theme'}
-            value={getThemeLabel(themeMode)}
-            onPress={() => router.push('/settings/theme')}
-          />
+          <View style={styles.itemsGroup}>
+            <SettingItem
+              icon="solar:globus-broken"
+              label={isRTL ? 'زبان' : 'Language'}
+              value={getLangLabel(language)}
+              onPress={() => router.push('/settings/language')}
+            />
+            <SettingItem
+              icon="solar:moon-broken"
+              label={isRTL ? 'حالت نمایش' : 'Theme'}
+              value={getThemeLabel(themeMode)}
+              onPress={() => router.push('/settings/theme')}
+            />
+          </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(400)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Animated.View entering={FadeInDown.duration(600).delay(400)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'پشتیبانی' : 'Support'}
           </Text>
-          <SettingItem icon="solar:help-broken" label={isRTL ? 'راهنما' : 'Help Center'} onPress={() => router.push('/settings/help')} />
-          <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کوتیک' : 'About Kutik'} />
+          <View style={styles.itemsGroup}>
+            <SettingItem icon="solar:help-broken" label={isRTL ? 'راهنما' : 'Help Center'} onPress={() => router.push('/settings/help')} />
+            <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کوتیک' : 'About Kutik'} />
+          </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(500)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 12 }]}>
-          <SettingItem icon="solar:logout-broken" label={isRTL ? 'خروج' : 'Logout'} destructive onPress={handleLogout} />
+        <Animated.View entering={FadeInDown.duration(600).delay(500)} style={[styles.section, { marginTop: 8 }]}>
+          <View style={styles.itemsGroup}>
+            <SettingItem icon="solar:logout-broken" label={isRTL ? 'خروج' : 'Logout'} destructive onPress={handleLogout} />
+          </View>
         </Animated.View>
       </ScrollView>
 
@@ -234,29 +244,25 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 120,
-    gap: 20,
+    paddingBottom: 140,
+    gap: 24,
   },
   section: {
-    borderRadius: 28,
-    padding: 16,
-    borderWidth: 1,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.03,
-    shadowRadius: 12,
-    elevation: 2,
+    paddingHorizontal: 4,
   },
   sectionTitle: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '800',
-    marginBottom: 16,
+    marginBottom: 10,
     paddingHorizontal: 4,
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
+  },
+  itemsGroup: {
+    gap: 12,
   },
   item: {
-    height: 56,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 4,
@@ -265,8 +271,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconContainer: {
-    width: 42,
-    height: 42,
+    width: 40,
+    height: 40,
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
