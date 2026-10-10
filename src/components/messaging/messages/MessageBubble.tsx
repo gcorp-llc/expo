@@ -1,11 +1,10 @@
 import React from 'react';
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Message } from '@/types/messaging';
 import { format } from 'date-fns';
 import { Iconify } from '@/components/ui/Iconify';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 
 // Sub-components
@@ -13,16 +12,6 @@ import { ImageMessage } from './ImageMessage';
 import { VoiceMessage } from './VoiceMessage';
 import { PollMessage } from './PollMessage';
 import { SystemMessage } from './SystemMessage';
-
-function shadeColor(hex: string, percent: number) {
-  if (!hex || hex[0] !== '#') return hex;
-  const num = parseInt(hex.slice(1), 16);
-  const amt = Math.round(2.55 * percent);
-  const r = Math.min(255, Math.max(0, (num >> 16) + amt));
-  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + amt));
-  const b = Math.min(255, Math.max(0, (num & 0x0000ff) + amt));
-  return `#${(0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1)}`;
-}
 
 interface MessageBubbleProps {
   message: Message;
@@ -42,7 +31,7 @@ const MessageBubbleComponent = ({
   onLongPress,
   onPressMedia
 }: MessageBubbleProps) => {
-  const colorScheme = ((useColorScheme() ?? 'light') as 'light' | 'dark') as 'light' | 'dark';
+  const colorScheme = ((useColorScheme() ?? 'dark') as 'light' | 'dark');
   const colors = Colors[colorScheme];
 
   if (message.type === 'system') {
@@ -51,9 +40,9 @@ const MessageBubbleComponent = ({
 
   const getTime = () => {
     try {
-      return format(new Date(message.timestamp), 'HH:mm');
+      return format(new Date(message.timestamp), 'h:mm a');
     } catch (e) {
-      return '00:00';
+      return '12:00 PM';
     }
   };
 
@@ -61,29 +50,21 @@ const MessageBubbleComponent = ({
     if (!isMe) return null;
     switch (message.status) {
       case 'sending': return 'solar:clock-circle-broken';
-      case 'sent': return 'solar:check-circle-bold';
+      case 'sent': return 'solar:check-read-broken';
       case 'delivered': return 'solar:check-read-broken';
       case 'read': return 'solar:check-read-bold';
-      default: return 'solar:check-read-bold';
+      default: return 'solar:check-read-broken';
     }
-  };
-
-  const getStatusColor = () => {
-    if (colorScheme === 'dark') {
-      return '#61B752';
-    }
-    return '#4FA800';
   };
 
   const isDark = colorScheme === 'dark';
 
-  // Telegram signature colors:
-  // Outgoing: #EFFDDE (light mode) / #2B5278 (dark mode)
-  // Incoming: #FFFFFF (light mode) / #182533 (dark mode)
-  const outgoingBg = isDark ? '#2B5278' : '#EFFDDE';
-  const incomingBg = isDark ? '#182533' : '#FFFFFF';
-  const outgoingTextColor = isDark ? '#FFFFFF' : '#000000';
-  const incomingTextColor = isDark ? '#F5F5F5' : '#000000';
+  // Telegram / Reference UI Bubble Colors
+  // Outgoing: Violet/Purple theme (#614D8F)
+  // Incoming: Dark Slate (#2B2839)
+  const outgoingBg = '#614D8F';
+  const incomingBg = isDark ? '#2B2839' : '#332F45';
+  const textColor = '#FFFFFF';
 
   const renderContent = () => {
     switch (message.type) {
@@ -103,7 +84,7 @@ const MessageBubbleComponent = ({
             style={[
               styles.text,
               {
-                color: isMe ? outgoingTextColor : incomingTextColor,
+                color: textColor,
                 textAlign: isRTL ? 'right' : 'left',
               },
             ]}
@@ -119,55 +100,40 @@ const MessageBubbleComponent = ({
     {
       backgroundColor: isMe ? outgoingBg : incomingBg,
       alignSelf: isMe ? (isRTL ? 'flex-start' : 'flex-end') : (isRTL ? 'flex-end' : 'flex-start'),
-      borderTopLeftRadius: 16,
-      borderTopRightRadius: 16,
-      borderBottomLeftRadius: isMe ? 16 : (isRTL ? 16 : 4),
-      borderBottomRightRadius: isMe ? (isRTL ? 4 : 16) : 16,
-      borderWidth: isDark ? 0 : 0.5,
-      borderColor: isDark ? 'transparent' : 'rgba(0,0,0,0.08)',
+      borderTopLeftRadius: 18,
+      borderTopRightRadius: 18,
+      borderBottomLeftRadius: isMe ? 18 : (isRTL ? 18 : 4),
+      borderBottomRightRadius: isMe ? (isRTL ? 4 : 18) : 18,
     }
   ];
 
   return (
     <Animated.View
-      entering={isMe ? FadeInUp.duration(300) : FadeInDown.duration(300)}
+      entering={isMe ? FadeInUp.duration(250) : FadeInDown.duration(250)}
       style={[styles.container, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
     >
       {!isMe && (
         <View style={styles.avatarSpace}>
-          {showAvatar && <View style={[styles.avatarPlaceholder, { backgroundColor: colors.surface }]} />}
+          {showAvatar && <View style={[styles.avatarPlaceholder, { backgroundColor: '#3A364E' }]} />}
         </View>
       )}
 
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.85}
         onLongPress={onLongPress}
         style={bubbleStyle as any}
       >
-        {isMe && (
-          <LinearGradient
-            colors={[colors.tint, shadeColor(colors.tint, -18)]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
-          />
-        )}
         {renderContent()}
 
         <View style={[styles.infoRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <Text
-            style={[
-              styles.time,
-              { color: isMe ? (isDark ? 'rgba(255,255,255,0.7)' : '#538250') : colors.textSecondary },
-            ]}
-          >
+          <Text style={styles.time}>
             {getTime()}
           </Text>
           {isMe && (
             <Iconify
               icon={getStatusIcon() || ''}
-              size={15}
-              color={getStatusColor()}
+              size={14}
+              color="#B3A6DC"
             />
           )}
         </View>
@@ -181,43 +147,46 @@ MessageBubble.displayName = 'MessageBubble';
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 4,
+    marginVertical: 3,
     paddingHorizontal: 12,
     width: '100%',
   },
   bubble: {
-    maxWidth: '80%',
+    maxWidth: '82%',
     paddingHorizontal: 14,
     paddingVertical: 10,
-    borderRadius: 20,
-    minWidth: 85,
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 2,
+    borderRadius: 18,
+    minWidth: 90,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   text: {
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: 15.5,
+    lineHeight: 23,
+    fontWeight: '400',
   },
   infoRow: {
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 4,
-    marginTop: 6,
+    marginTop: 4,
   },
   time: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '500',
+    color: 'rgba(255, 255, 255, 0.65)',
   },
   avatarSpace: {
-    width: 32,
-    marginRight: 8,
+    width: 30,
+    marginRight: 6,
     justifyContent: 'flex-end',
   },
   avatarPlaceholder: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 30,
+    height: 30,
+    borderRadius: 15,
   }
 });

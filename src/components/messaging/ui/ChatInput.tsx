@@ -1,7 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
 import { ReplyPreview } from '../messages/ReplyPreview';
 import { EmojiPanel } from './EmojiPanel';
@@ -11,7 +9,7 @@ interface ChatInputProps {
   isRTL: boolean;
   placeholder?: string;
   onTyping?: () => void;
-  replyTo?: { name: string, message: string } | null;
+  replyTo?: { name: string; message: string } | null;
   onCancelReply?: () => void;
 }
 
@@ -21,15 +19,11 @@ export const ChatInput = ({
   placeholder,
   onTyping,
   replyTo,
-  onCancelReply
+  onCancelReply,
 }: ChatInputProps) => {
-  const colorScheme = ((useColorScheme() ?? 'light') as 'light' | 'dark') as 'light' | 'dark';
-  const colors = Colors[colorScheme];
   const [text, setText] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const inputRef = useRef<TextInput>(null);
-
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const handleSend = () => {
     if (text.trim()) {
@@ -55,7 +49,7 @@ export const ChatInput = ({
   };
 
   const handleEmojiSelect = (emoji: string) => {
-    setText(prev => prev + emoji);
+    setText((prev) => prev + emoji);
   };
 
   return (
@@ -72,20 +66,25 @@ export const ChatInput = ({
       )}
 
       <View style={[styles.inner, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity style={styles.iconButton} onPress={toggleEmoji}>
+        <View
+          style={[
+            styles.inputContainer,
+            { flexDirection: isRTL ? 'row-reverse' : 'row' },
+          ]}
+        >
+          <TouchableOpacity style={styles.iconButton} onPress={toggleEmoji} activeOpacity={0.7}>
             <Iconify
-              icon={showEmoji ? "solar:keyboard-broken" : "solar:smile-circle-broken"}
+              icon={showEmoji ? 'solar:keyboard-broken' : 'solar:smile-circle-broken'}
               size={24}
-              color={colors.textSecondary}
+              color="#A09CBA"
             />
           </TouchableOpacity>
 
           <TextInput
             ref={inputRef}
-            style={[styles.input, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
-            placeholder={placeholder || (isRTL ? 'پیام...' : 'Message...')}
-            placeholderTextColor={colors.textSecondary}
+            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            placeholder={placeholder || (isRTL ? 'پیام' : 'Message')}
+            placeholderTextColor="#8C88A6"
             multiline
             value={text}
             onChangeText={handleChangeText}
@@ -93,95 +92,90 @@ export const ChatInput = ({
             maxLength={1000}
           />
 
-          <TouchableOpacity style={styles.iconButton}>
-            <Iconify icon="solar:paperclip-broken" size={24} color={colors.textSecondary} />
+          <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
+            <Iconify icon="solar:paperclip-broken" size={24} color="#A09CBA" />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
           onPress={text.trim().length > 0 ? handleSend : undefined}
           activeOpacity={0.8}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: text.trim().length > 0 ? colors.tint : colors.card,
-              borderColor: text.trim().length > 0 ? colors.tint : colors.border,
-            },
-          ]}
+          style={styles.actionButton}
         >
           <Iconify
-            icon={text.trim().length > 0 ? "solar:plain-bold" : "solar:microphone-broken"}
+            icon={text.trim().length > 0 ? 'solar:plain-bold' : 'solar:camera-broken'}
             size={22}
-            color={text.trim().length > 0 ? "#FFFFFF" : colors.textSecondary}
+            color="#FFFFFF"
           />
         </TouchableOpacity>
       </View>
 
-      {showEmoji && (
-        <EmojiPanel onSelect={handleEmojiSelect} isRTL={isRTL} />
-      )}
+      {showEmoji && <EmojiPanel onSelect={handleEmojiSelect} isRTL={isRTL} />}
     </View>
   );
 };
 
-const createStyles = (colors: any) => StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 12,
-    paddingBottom: Platform.OS === 'ios' ? 12 : 12,
+    paddingHorizontal: 10,
+    paddingBottom: Platform.OS === 'ios' ? 14 : 10,
+    paddingTop: 6,
   },
   replyWrapper: {
-    backgroundColor: colors.card,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: '#282535',
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
     borderWidth: 1,
-    borderBottomWidth: 0,
-    borderColor: colors.border,
+    borderColor: 'rgba(255,255,255,0.1)',
     marginBottom: -1,
     marginHorizontal: 4,
     overflow: 'hidden',
   },
   inner: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
     gap: 8,
   },
   inputContainer: {
     flex: 1,
-    minHeight: 52,
-    borderRadius: 26,
+    minHeight: 50,
+    borderRadius: 25,
+    backgroundColor: '#282535',
     borderWidth: 1,
-    paddingHorizontal: 6,
-    alignItems: 'flex-end',
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
+    elevation: 4,
   },
   input: {
     flex: 1,
-    fontSize: 16,
-    paddingTop: 14,
-    paddingBottom: 14,
+    fontSize: 15.5,
+    color: '#FFFFFF',
+    paddingTop: 12,
+    paddingBottom: 12,
     paddingHorizontal: 8,
-    maxHeight: 120, // Approx 5 lines
+    maxHeight: 120,
   },
   iconButton: {
-    width: 44,
-    height: 44,
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sendButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
+  actionButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#614D8F',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    shadowColor: colors.shadow,
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  }
+    elevation: 4,
+  },
 });

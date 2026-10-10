@@ -61,7 +61,6 @@ export { GamepadBrokenIcon } from './GamepadBrokenIcon';
 export { GhostBrokenIcon } from './GhostBrokenIcon';
 export { GlobusBrokenIcon } from './GlobusBrokenIcon';
 export { GraphUpBrokenIcon } from './GraphUpBrokenIcon';
-export { HandShakeBrokenIcon } from './HandShakeBrokenIcon';
 export { HeartAngleBoldIcon } from './HeartAngleBoldIcon';
 export { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 export { HeartBoldIcon } from './HeartBoldIcon';
@@ -74,6 +73,7 @@ export { HomeAngleBoldDuotoneIcon } from './HomeAngleBoldDuotoneIcon';
 export { HomeAngleBrokenIcon } from './HomeAngleBrokenIcon';
 export { HomeBoldIcon } from './HomeBoldIcon';
 export { HomeBrokenIcon } from './HomeBrokenIcon';
+export { InfoCircleBoldIcon } from './InfoCircleBoldIcon';
 export { InfoCircleBrokenIcon } from './InfoCircleBrokenIcon';
 export { KeyboardBrokenIcon } from './KeyboardBrokenIcon';
 export { LetterBrokenIcon } from './LetterBrokenIcon';
@@ -83,7 +83,6 @@ export { LogoutBrokenIcon } from './LogoutBrokenIcon';
 export { MagicStickBrokenIcon } from './MagicStickBrokenIcon';
 export { MagniferBoldIcon } from './MagniferBoldIcon';
 export { MagniferBrokenIcon } from './MagniferBrokenIcon';
-export { MapPointBoldIcon } from './MapPointBoldIcon';
 export { MapPointBrokenIcon } from './MapPointBrokenIcon';
 export { MenuDotsBoldIcon } from './MenuDotsBoldIcon';
 export { MenuDotsBrokenIcon } from './MenuDotsBrokenIcon';
@@ -128,12 +127,11 @@ export { StopBrokenIcon } from './StopBrokenIcon';
 export { SunBrokenIcon } from './SunBrokenIcon';
 export { TagBoldIcon } from './TagBoldIcon';
 export { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
-export { TrashBinTrashBoldIcon } from './TrashBinTrashBoldIcon';
 export { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
+export { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 export { UserBoldIcon } from './UserBoldIcon';
 export { UserBrokenIcon } from './UserBrokenIcon';
 export { UserCircleBoldIcon } from './UserCircleBoldIcon';
-export { UserOutlineIcon } from './UserOutlineIcon';
 export { UserPlusBoldIcon } from './UserPlusBoldIcon';
 export { UserPlusBrokenIcon } from './UserPlusBrokenIcon';
 export { UsersGroupRoundedBoldIcon } from './UsersGroupRoundedBoldIcon';
@@ -212,7 +210,6 @@ import { GamepadBrokenIcon } from './GamepadBrokenIcon';
 import { GhostBrokenIcon } from './GhostBrokenIcon';
 import { GlobusBrokenIcon } from './GlobusBrokenIcon';
 import { GraphUpBrokenIcon } from './GraphUpBrokenIcon';
-import { HandShakeBrokenIcon } from './HandShakeBrokenIcon';
 import { HeartAngleBoldIcon } from './HeartAngleBoldIcon';
 import { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 import { HeartBoldIcon } from './HeartBoldIcon';
@@ -225,6 +222,7 @@ import { HomeAngleBoldDuotoneIcon } from './HomeAngleBoldDuotoneIcon';
 import { HomeAngleBrokenIcon } from './HomeAngleBrokenIcon';
 import { HomeBoldIcon } from './HomeBoldIcon';
 import { HomeBrokenIcon } from './HomeBrokenIcon';
+import { InfoCircleBoldIcon } from './InfoCircleBoldIcon';
 import { InfoCircleBrokenIcon } from './InfoCircleBrokenIcon';
 import { KeyboardBrokenIcon } from './KeyboardBrokenIcon';
 import { LetterBrokenIcon } from './LetterBrokenIcon';
@@ -234,7 +232,6 @@ import { LogoutBrokenIcon } from './LogoutBrokenIcon';
 import { MagicStickBrokenIcon } from './MagicStickBrokenIcon';
 import { MagniferBoldIcon } from './MagniferBoldIcon';
 import { MagniferBrokenIcon } from './MagniferBrokenIcon';
-import { MapPointBoldIcon } from './MapPointBoldIcon';
 import { MapPointBrokenIcon } from './MapPointBrokenIcon';
 import { MenuDotsBoldIcon } from './MenuDotsBoldIcon';
 import { MenuDotsBrokenIcon } from './MenuDotsBrokenIcon';
@@ -279,12 +276,11 @@ import { StopBrokenIcon } from './StopBrokenIcon';
 import { SunBrokenIcon } from './SunBrokenIcon';
 import { TagBoldIcon } from './TagBoldIcon';
 import { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
-import { TrashBinTrashBoldIcon } from './TrashBinTrashBoldIcon';
 import { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
+import { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 import { UserBoldIcon } from './UserBoldIcon';
 import { UserBrokenIcon } from './UserBrokenIcon';
 import { UserCircleBoldIcon } from './UserCircleBoldIcon';
-import { UserOutlineIcon } from './UserOutlineIcon';
 import { UserPlusBoldIcon } from './UserPlusBoldIcon';
 import { UserPlusBrokenIcon } from './UserPlusBrokenIcon';
 import { UsersGroupRoundedBoldIcon } from './UsersGroupRoundedBoldIcon';
@@ -362,7 +358,6 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'ghost-broken': GhostBrokenIcon,
   'globus-broken': GlobusBrokenIcon,
   'graph-up-broken': GraphUpBrokenIcon,
-  'hand-shake-broken': HandShakeBrokenIcon,
   'heart-angle-bold': HeartAngleBoldIcon,
   'heart-angle-bold-duotone': HeartAngleBoldDuotoneIcon,
   'heart-bold': HeartBoldIcon,
@@ -375,6 +370,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'home-angle-broken': HomeAngleBrokenIcon,
   'home-bold': HomeBoldIcon,
   'home-broken': HomeBrokenIcon,
+  'info-circle-bold': InfoCircleBoldIcon,
   'info-circle-broken': InfoCircleBrokenIcon,
   'keyboard-broken': KeyboardBrokenIcon,
   'letter-broken': LetterBrokenIcon,
@@ -384,7 +380,6 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'magic-stick-broken': MagicStickBrokenIcon,
   'magnifer-bold': MagniferBoldIcon,
   'magnifer-broken': MagniferBrokenIcon,
-  'map-point-bold': MapPointBoldIcon,
   'map-point-broken': MapPointBrokenIcon,
   'menu-dots-bold': MenuDotsBoldIcon,
   'menu-dots-broken': MenuDotsBrokenIcon,
@@ -429,12 +424,11 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'sun-broken': SunBrokenIcon,
   'tag-bold': TagBoldIcon,
   'transmission-broken': TransmissionBrokenIcon,
-  'trash-bin-trash-bold': TrashBinTrashBoldIcon,
   'trash-bin-trash-broken': TrashBinTrashBrokenIcon,
+  'user-block-broken': UserBlockBrokenIcon,
   'user-bold': UserBoldIcon,
   'user-broken': UserBrokenIcon,
   'user-circle-bold': UserCircleBoldIcon,
-  'user-outline': UserOutlineIcon,
   'user-plus-bold': UserPlusBoldIcon,
   'user-plus-broken': UserPlusBrokenIcon,
   'users-group-rounded-bold': UsersGroupRoundedBoldIcon,
@@ -457,8 +451,11 @@ export interface DynamicIconProps extends IconProps {
 
 export const DynamicIcon: React.FC<DynamicIconProps> = ({ name, ...props }) => {
   const cleanName = name.startsWith('solar:') ? name.replace('solar:', '') : name;
-  const IconComponent = ICON_MAP[cleanName] || ICON_MAP['box-broken'] || ICON_MAP['square-broken'];
+  const IconComponent = ICON_MAP[cleanName];
   if (!IconComponent) {
+    if (__DEV__) {
+      console.warn(`[Icons] Icon "${name}" (parsed as "${cleanName}") not found in local icons.`);
+    }
     return null;
   }
   return React.createElement(IconComponent, props);

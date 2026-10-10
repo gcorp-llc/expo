@@ -27,6 +27,7 @@ import { DateSeparator } from '@/components/messaging/ui/DateSeparator';
 import { PinnedMessage } from '@/components/messaging/messages/PinnedMessage';
 import { ChatWallpaper } from '@/components/messaging/layout/ChatWallpaper';
 import { MediaViewer } from '@/components/messaging/overlays/MediaViewer';
+import { FloatingDropdownMenu, DropdownOption } from '@/components/ui/FloatingDropdownMenu';
 import { SelectionModal, Option } from '@/components/ui/SelectionModal';
 
 // Logic
@@ -45,7 +46,7 @@ export default function ChatDetailScreen() {
   const chatId = searchParams.id;
   const { productId, productTitle, productPrice, productImage } = searchParams;
   const router = useRouter();
-  const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
+  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const { language } = useStore();
   const isRTL = language === 'fa';
@@ -57,18 +58,28 @@ export default function ChatDetailScreen() {
   const messages = useMemo(() => allMessages[chatId as string] || [], [allMessages, chatId]);
 
   const flashListRef = useRef<any>(null);
-  const [replyTo, setReplyTo] = useState<{ name: string, message: string } | null>(null);
+  const [replyTo, setReplyTo] = useState<{ name: string; message: string } | null>(null);
   const [showPinned, setShowPinned] = useState(true);
-  const [selectedMedia, setSelectedMedia] = useState<{ uri: string, type: 'image' | 'video' } | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<{ uri: string; type: 'image' | 'video' } | null>(null);
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [isMuteModalVisible, setIsMuteModalVisible] = useState(false);
+  const [isMuted, setIsMuted] = useState(false);
+  const [wallpaperType, setWallpaperType] = useState<'solid' | 'pattern'>('pattern');
   const [searchQuery, setSearchQuery] = useState('');
 
   const scrollY = useSharedValue(0);
   const showJumpToBottom = useSharedValue(0);
 
   const title = useMemo(() => {
-    return conversation?.metadata?.name || (isRTL ? 'گفتگو' : 'Chat');
+    return conversation?.metadata?.name || (isRTL ? 'دکتر ویدا شکیبا' : 'Dr. Vida Shakiba');
+  }, [conversation, isRTL]);
+
+  const avatarUri = useMemo(() => {
+    return conversation?.metadata?.avatar || `https://i.pravatar.cc/300?u=${chatId}`;
+  }, [conversation, chatId]);
+
+  const subtitle = useMemo(() => {
+    return (conversation?.metadata as any)?.status || (isRTL ? 'آخرین بازدید 06 اکتبر در 11:28 AM' : 'Last seen Oct 06 at 11:28 AM');
   }, [conversation, isRTL]);
 
   const pinnedMsg = useMemo(() => {
@@ -114,11 +125,12 @@ export default function ChatDetailScreen() {
     setSelectedMedia({ uri, type });
   }, []);
 
-  const menuOptions: Option[] = useMemo(() => [
-    { value: 'info', label: isRTL ? 'مشاهده پروفایل' : 'View Profile/Info', icon: 'solar:user-outline' },
-    { value: 'mute', label: isRTL ? 'بی‌صدا کردن' : 'Mute Notifications', icon: 'solar:bell-broken' },
-    { value: 'clear', label: isRTL ? 'پاک کردن گفتگو' : 'Clear History', icon: 'solar:broom-broken' },
-    { value: 'block', label: isRTL ? 'مسدود کردن' : 'Block User', icon: 'solar:hand-shake-broken' }, // Hand stop icon approximation
+  // Dropdown options matching Image 2
+  const chatDropdownOptions: DropdownOption[] = useMemo(() => [
+    { value: 'search', label: isRTL ? 'جستجو' : 'Search', icon: 'solar:magnifer-broken' },
+    { value: 'wallpaper', label: isRTL ? 'تغییر پس‌زمینه' : 'Change Background', icon: 'solar:widget-2-broken' },
+    { value: 'clear', label: isRTL ? 'پاک کردن تاریخچه' : 'Clear History', icon: 'solar:broom-broken' },
+    { value: 'delete', label: isRTL ? 'حذف گفتگو' : 'Delete Chat', icon: 'solar:trash-bin-trash-broken' },
   ], [isRTL]);
 
   const muteOptions: Option[] = useMemo(() => [
@@ -128,31 +140,61 @@ export default function ChatDetailScreen() {
     { value: 'forever', label: isRTL ? 'غیرفعال کردن صدا' : 'Disable Sound' },
   ], [isRTL]);
 
-  const handleMenuSelect = (val: string) => { if (val === "info") { router.push(`/user/${chatId}`); return; }
-    if (val === 'mute') {
-      setIsMuteModalVisible(true);
-    } else if (val === 'block') {
+  const handleMenuSelect = (val: string) => {
+    if (val === 'search') {
+      // Handled via state or header toggle
+    } else if (val === 'wallpaper') {
+      setWallpaperType(prev => (prev === 'pattern' ? 'solid' : 'pattern'));
       Alert.alert(
-        isRTL ? 'مسدود کردن کاربر' : 'Block User',
-        isRTL ? 'آیا از مسدود کردن این کاربر اطمینان دارید؟' : 'Are you sure you want to block this user?',
-        [
-          { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
-          { text: isRTL ? 'بله، مسدود کن' : 'Yes, Block', style: 'destructive' }
-        ]
+        isRTL ? 'تغییر پس‌زمینه' : 'Change Background',
+        isRTL ? 'پس‌زمینه چت تغییر یافت.' : 'Chat wallpaper has been updated.'
       );
     } else if (val === 'clear') {
-       Alert.alert(
+      Alert.alert(
         isRTL ? 'پاک کردن تاریخچه' : 'Clear History',
-        isRTL ? 'تمام پیام‌های این گفتگو پاک خواهند شد.' : 'All messages in this chat will be deleted.',
+        isRTL ? 'آیا از پاک کردن تمام پیام‌های این گفتگو اطمینان دارید؟' : 'Are you sure you want to clear all messages in this chat?',
         [
           { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
-          { text: isRTL ? 'پاک کن' : 'Clear', style: 'destructive' }
+          {
+            text: isRTL ? 'پاک کن' : 'Clear',
+            style: 'destructive',
+            onPress: () => {
+              Alert.alert(isRTL ? 'تاریخچه پاک شد' : 'History cleared');
+            }
+          }
+        ]
+      );
+    } else if (val === 'delete') {
+      Alert.alert(
+        isRTL ? 'حذف گفتگو' : 'Delete Chat',
+        isRTL ? 'آیا از حذف کامل این گفتگو اطمینان دارید؟' : 'Are you sure you want to delete this chat?',
+        [
+          { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
+          {
+            text: isRTL ? 'حذف' : 'Delete',
+            style: 'destructive',
+            onPress: () => {
+              router.back();
+            }
+          }
         ]
       );
     }
   };
 
-  const renderItem = ({ item, index }: { item: any, index: number }) => {
+  const handleMuteHeaderPress = () => {
+    setIsMuteModalVisible(true);
+  };
+
+  const handleCall = () => {
+    Alert.alert(
+      isRTL ? 'تماس صوتی' : 'Voice Call',
+      isRTL ? `در حال برقراری تماس با ${title}...` : `Calling ${title}...`,
+      [{ text: isRTL ? 'بستن' : 'Close', style: 'cancel' }]
+    );
+  };
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
     const prevMsg = messages[index - 1];
     const nextMsg = messages[index + 1];
 
@@ -160,7 +202,7 @@ export default function ChatDetailScreen() {
     const isLastInGroup = !nextMsg || nextMsg.senderId !== item.senderId || !isSameDay(new Date(item.timestamp), new Date(nextMsg.timestamp));
 
     if (searchQuery && !item.content.toLowerCase().includes(searchQuery.toLowerCase())) {
-        return null;
+      return null;
     }
 
     return (
@@ -172,7 +214,7 @@ export default function ChatDetailScreen() {
           isRTL={isRTL}
           showAvatar={item.senderId !== 'me' && isLastInGroup}
           onLongPress={() => {
-            setReplyTo({ name: conversation?.metadata?.name || 'User', message: item.content });
+            setReplyTo({ name: title, message: item.content });
           }}
           onPressMedia={handleMediaPress}
         />
@@ -181,23 +223,26 @@ export default function ChatDetailScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ChatWallpaper type="solid" />
+    <View style={[styles.container, { backgroundColor: '#1A1825' }]}>
+      <ChatWallpaper type={wallpaperType} />
 
       <MessagingHeader
         title={title}
-        subtitle={(conversation?.metadata as any)?.status || (isRTL ? 'آنلاین' : 'Online')}
+        subtitle={subtitle}
+        avatarUri={avatarUri}
         isRTL={isRTL}
         showBack
         onBack={() => router.back()}
         onMore={() => setIsMenuVisible(true)}
+        onCall={handleCall}
+        onTitlePress={() => router.push(`/user/${chatId}`)}
         onSearch={setSearchQuery}
       />
 
       {showPinned && !searchQuery && (
         <View style={[styles.pinnedContainer, { top: insets.top + 70 }]}>
           {productTitle ? (
-            <View style={[styles.productContextCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.productContextCard, { backgroundColor: '#282535', borderColor: 'rgba(255,255,255,0.1)' }]}>
               {productImage ? (
                 <Image source={{ uri: productImage }} style={styles.productContextImage} contentFit="cover" />
               ) : null}
@@ -205,17 +250,17 @@ export default function ChatDetailScreen() {
                 <Text style={[styles.productContextLabel, { color: colors.tint }]}>
                   {isRTL ? 'گفتگو درباره محصول:' : 'Inquiry about product:'}
                 </Text>
-                <Text style={[styles.productContextTitle, { color: colors.text }]} numberOfLines={1}>
+                <Text style={[styles.productContextTitle, { color: '#FFFFFF' }]} numberOfLines={1}>
                   {productTitle}
                 </Text>
                 {productPrice ? (
-                  <Text style={[styles.productContextPrice, { color: colors.textSecondary }]}>
+                  <Text style={[styles.productContextPrice, { color: '#A09CBA' }]}>
                     ${Number(productPrice).toLocaleString()}
                   </Text>
                 ) : null}
               </View>
               <TouchableOpacity onPress={() => setShowPinned(false)} style={{ padding: 4 }}>
-                <Iconify icon="solar:close-circle-broken" size={20} color={colors.textSecondary} />
+                <Iconify icon="solar:close-circle-broken" size={20} color="#A09CBA" />
               </TouchableOpacity>
             </View>
           ) : (
@@ -273,23 +318,27 @@ export default function ChatDetailScreen() {
         onClose={() => setSelectedMedia(null)}
       />
 
-      <SelectionModal
+      <FloatingDropdownMenu
         isVisible={isMenuVisible}
         onClose={() => setIsMenuVisible(false)}
-        title={title}
-        options={menuOptions}
-        onSelect={handleMenuSelect}
+        headerTitle={isRTL ? (isMuted ? 'صدا وصل شد' : 'بی‌صدا') : 'Mute'}
+        headerIcon="solar:speaker-bold-duotone"
+        onHeaderPress={handleMuteHeaderPress}
+        options={chatDropdownOptions}
+        onSelectOption={handleMenuSelect}
         isRTL={isRTL}
+        topOffset={insets.top + 54}
       />
 
       <SelectionModal
         isVisible={isMuteModalVisible}
         onClose={() => setIsMuteModalVisible(false)}
-        title={isRTL ? 'بی‌صدا کردن' : 'Mute Notifications'}
+        title={isRTL ? 'بی‌صدا کردن notifications' : 'Mute Notifications'}
         options={muteOptions}
         onSelect={(val) => {
-            console.log('Mute selected:', val);
-            setIsMuteModalVisible(false);
+          setIsMuted(true);
+          setIsMuteModalVisible(false);
+          Alert.alert(isRTL ? 'اعلانات بی‌صدا شد' : 'Notifications muted');
         }}
         isRTL={isRTL}
       />
@@ -303,8 +352,8 @@ const styles = StyleSheet.create({
   },
   pinnedContainer: {
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: 16,
+    right: 16,
     zIndex: 90,
   },
   productContextCard: {
@@ -316,7 +365,7 @@ const styles = StyleSheet.create({
     gap: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -341,9 +390,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     marginTop: 1,
-  },
-  headerContainer: {
-    zIndex: 100,
   },
   flex: {
     flex: 1,
