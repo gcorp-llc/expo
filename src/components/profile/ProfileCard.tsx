@@ -43,8 +43,8 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
     try {
       await Share.share({
         message: isRTL
-          ? 'سلام! بیا در اپلیکیشن کاردیانی با من همراه شو. لینک دانلود: https://cardiani.app/invite'
-          : 'Hey! Join me on Cardiani app. Download here: https://cardiani.app/invite',
+          ? 'سلام! بیا در اپلیکیشن کوتیک با من همراه شو. لینک دانلود: https://kutik.app/invite'
+          : 'Hey! Join me on Kutik app. Download here: https://kutik.app/invite',
       });
     } catch (error) {
       console.error(error);

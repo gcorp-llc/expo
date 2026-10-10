@@ -111,8 +111,14 @@ export default function SettingsScreen() {
             label={isRTL ? 'ویرایش پروفایل' : 'Edit Profile'}
             onPress={() => router.push({ pathname: '/profile', params: { autoEdit: 'true' } })}
           />
+          <SettingItem
+            icon="solar:map-point-broken"
+            label={isRTL ? 'نشانی‌ها' : 'Addresses'}
+            onPress={() => router.push('/settings/addresses')}
+          />
           <SettingItem icon="solar:lock-password-broken" label={isRTL ? 'امنیت' : 'Security'} onPress={() => router.push('/settings/privacy')} />
           <SettingItem icon="solar:bell-broken" label={isRTL ? 'اعلان‌ها' : 'Notifications'} onPress={() => router.push('/settings/notification-settings')} />
+          <SettingItem icon="solar:chat-line-broken" label={isRTL ? 'تنظیمات پیام‌ها' : 'Message Settings'} onPress={() => router.push('/settings/message-settings')} />
         </Animated.View>
 
         <Animated.View entering={FadeInDown.duration(600).delay(200)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -132,13 +138,13 @@ export default function SettingsScreen() {
             icon="solar:globus-broken"
             label={isRTL ? 'زبان' : 'Language'}
             value={getLangLabel(language)}
-            onPress={() => setLanguageModalVisible(true)}
+            onPress={() => router.push('/settings/language')}
           />
           <SettingItem
             icon="solar:moon-broken"
             label={isRTL ? 'حالت نمایش' : 'Theme'}
             value={getThemeLabel(themeMode)}
-            onPress={() => setThemeModalVisible(true)}
+            onPress={() => router.push('/settings/theme')}
           />
         </Animated.View>
 
@@ -147,7 +153,7 @@ export default function SettingsScreen() {
             {isRTL ? 'پشتیبانی' : 'Support'}
           </Text>
           <SettingItem icon="solar:help-broken" label={isRTL ? 'راهنما' : 'Help Center'} onPress={() => router.push('/settings/help')} />
-          <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کاردیانی' : 'About Cardiani'} />
+          <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کوتیک' : 'About Kutik'} />
         </Animated.View>
 
         <Animated.View entering={FadeInDown.duration(600).delay(500)} style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border, marginTop: 12 }]}>
