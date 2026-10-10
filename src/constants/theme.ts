@@ -30,6 +30,7 @@ export const Colors = {
     shadow: 'rgba(38, 47, 56, 0.06)',
     card: '#ffffff',
     cardTransparent: 'rgba(255, 255, 255, 0.9)',
+    statusBarBackground: '#d0dceb',
   },
 
   dark: {
@@ -57,6 +58,7 @@ export const Colors = {
     shadow: 'rgba(0, 0, 0, 0.4)',
     card: '#212730',
     cardTransparent: 'rgba(33, 39, 48, 0.9)',
+    statusBarBackground: '#121720',
   },
 };
 

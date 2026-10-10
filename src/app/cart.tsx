@@ -5,7 +5,6 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  ActivityIndicator,
   TextInput,
   Dimensions,
 } from "react-native";
@@ -17,7 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { mobileCartService, mobileOrderService, productService } from "@/services/api";
-import { BentoCartSkeleton } from "@/components/ui/BentoSkeleton";
+import { PageLoader } from "@/components/ui/Loading";
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -141,7 +140,11 @@ export default function CartScreen() {
   };
 
   if (isCartLoading) {
-    return <BentoCartSkeleton />;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <PageLoader text={isRTL ? "در حال بارگذاری سبد خرید..." : "Loading cart..."} />
+      </View>
+    );
   }
 
   return (

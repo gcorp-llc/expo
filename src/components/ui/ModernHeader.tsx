@@ -115,7 +115,7 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
   }));
 
   return (
-    <View style={[styles.wrapper, { paddingTop: insets.top, backgroundColor: colors.background }]}>
+    <View style={[styles.wrapper, { paddingTop: insets.top, backgroundColor: 'transparent' }]} pointerEvents="box-none">
       <Animated.View style={[styles.topBar, topLayerAnimatedStyle, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <Pressable 
           style={[styles.profileSection, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
@@ -207,8 +207,6 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 100,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.02)',
   },
 
   topBar: {
