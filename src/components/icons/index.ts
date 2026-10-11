@@ -1,7 +1,7 @@
 export { AddCircleBoldIcon } from './AddCircleBoldIcon';
 export { AddCircleBrokenIcon } from './AddCircleBrokenIcon';
-export { AddSquareBoldDuotoneIcon } from './AddSquareBoldDuotoneIcon';
 export { AddSquareBoldIcon } from './AddSquareBoldIcon';
+export { AddSquareBoldDuotoneIcon } from './AddSquareBoldDuotoneIcon';
 export { AddSquareBrokenIcon } from './AddSquareBrokenIcon';
 export { AltArrowDownBrokenIcon } from './AltArrowDownBrokenIcon';
 export { AltArrowLeftBoldIcon } from './AltArrowLeftBoldIcon';
@@ -28,6 +28,9 @@ export { CalendarMinimalisticBrokenIcon } from './CalendarMinimalisticBrokenIcon
 export { CameraBoldIcon } from './CameraBoldIcon';
 export { CameraBrokenIcon } from './CameraBrokenIcon';
 export { CameraMinimalisticBrokenIcon } from './CameraMinimalisticBrokenIcon';
+export { Card2BrokenIcon } from './Card2BrokenIcon';
+export { CardSendBrokenIcon } from './CardSendBrokenIcon';
+export { CardTransferBrokenIcon } from './CardTransferBrokenIcon';
 export { CartLarge2BoldIcon } from './CartLarge2BoldIcon';
 export { CartLargeBrokenIcon } from './CartLargeBrokenIcon';
 export { CartLargeMinimalisticBrokenIcon } from './CartLargeMinimalisticBrokenIcon';
@@ -39,6 +42,8 @@ export { ChatLineBrokenIcon } from './ChatLineBrokenIcon';
 export { ChatRoundLineBoldIcon } from './ChatRoundLineBoldIcon';
 export { ChatSquareBoldIcon } from './ChatSquareBoldIcon';
 export { ChatSquareBrokenIcon } from './ChatSquareBrokenIcon';
+export { ChatSquareCheckBrokenIcon } from './ChatSquareCheckBrokenIcon';
+export { ChatUnreadBrokenIcon } from './ChatUnreadBrokenIcon';
 export { CheckCircleBoldIcon } from './CheckCircleBoldIcon';
 export { CheckCircleBrokenIcon } from './CheckCircleBrokenIcon';
 export { CheckReadBoldIcon } from './CheckReadBoldIcon';
@@ -54,9 +59,11 @@ export { CopyBrokenIcon } from './CopyBrokenIcon';
 export { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
 export { DeliveryBoldIcon } from './DeliveryBoldIcon';
 export { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
+export { DocumentTextBrokenIcon } from './DocumentTextBrokenIcon';
 export { DownloadBrokenIcon } from './DownloadBrokenIcon';
 export { ExitOutlineIcon } from './ExitOutlineIcon';
 export { EyeBrokenIcon } from './EyeBrokenIcon';
+export { EyeClosedBrokenIcon } from './EyeClosedBrokenIcon';
 export { FilterBrokenIcon } from './FilterBrokenIcon';
 export { FireBrokenIcon } from './FireBrokenIcon';
 export { ForwardBrokenIcon } from './ForwardBrokenIcon';
@@ -65,13 +72,12 @@ export { GamepadBrokenIcon } from './GamepadBrokenIcon';
 export { GhostBrokenIcon } from './GhostBrokenIcon';
 export { GlobusBrokenIcon } from './GlobusBrokenIcon';
 export { GraphUpBrokenIcon } from './GraphUpBrokenIcon';
-export { HandShakeBrokenIcon } from './HandShakeBrokenIcon';
-export { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 export { HeartAngleBoldIcon } from './HeartAngleBoldIcon';
-export { HeartBoldDuotoneIcon } from './HeartBoldDuotoneIcon';
+export { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 export { HeartBoldIcon } from './HeartBoldIcon';
-export { HeartBrokenBoldIcon } from './HeartBrokenBoldIcon';
+export { HeartBoldDuotoneIcon } from './HeartBoldDuotoneIcon';
 export { HeartBrokenIcon } from './HeartBrokenIcon';
+export { HeartBrokenBoldIcon } from './HeartBrokenBoldIcon';
 export { HelpBrokenIcon } from './HelpBrokenIcon';
 export { HistoryBrokenIcon } from './HistoryBrokenIcon';
 export { HomeAngleBoldDuotoneIcon } from './HomeAngleBoldDuotoneIcon';
@@ -88,8 +94,8 @@ export { LogoutBrokenIcon } from './LogoutBrokenIcon';
 export { MagicStickBrokenIcon } from './MagicStickBrokenIcon';
 export { MagniferBoldIcon } from './MagniferBoldIcon';
 export { MagniferBrokenIcon } from './MagniferBrokenIcon';
-export { MapPointBoldIcon } from './MapPointBoldIcon';
 export { MapPointBrokenIcon } from './MapPointBrokenIcon';
+export { MapPointWaveBrokenIcon } from './MapPointWaveBrokenIcon';
 export { MenuDotsBoldIcon } from './MenuDotsBoldIcon';
 export { MenuDotsBrokenIcon } from './MenuDotsBrokenIcon';
 export { MicrophoneBrokenIcon } from './MicrophoneBrokenIcon';
@@ -111,46 +117,39 @@ export { RefreshBrokenIcon } from './RefreshBrokenIcon';
 export { ReplyBoldIcon } from './ReplyBoldIcon';
 export { SettingsBoldIcon } from './SettingsBoldIcon';
 export { SettingsBrokenIcon } from './SettingsBrokenIcon';
-export { SettingsMinimalisticBoldDuotoneIcon } from './SettingsMinimalisticBoldDuotoneIcon';
 export { SettingsMinimalisticBoldIcon } from './SettingsMinimalisticBoldIcon';
 export { SettingsMinimalisticBrokenIcon } from './SettingsMinimalisticBrokenIcon';
 export { ShareBrokenIcon } from './ShareBrokenIcon';
 export { ShieldCheckBoldIcon } from './ShieldCheckBoldIcon';
 export { ShieldCheckBrokenIcon } from './ShieldCheckBrokenIcon';
 export { ShieldWarningBrokenIcon } from './ShieldWarningBrokenIcon';
-export { Shop2BoldDuotoneIcon } from './Shop2BoldDuotoneIcon';
 export { Shop2BoldIcon } from './Shop2BoldIcon';
-export { Shop2BrokenIcon } from './Shop2BrokenIcon';
-export { ShopBoldIcon } from './ShopBoldIcon';
-export { ShopBrokenIcon } from './ShopBrokenIcon';
 export { SmartphoneBrokenIcon } from './SmartphoneBrokenIcon';
 export { SmileCircleBrokenIcon } from './SmileCircleBrokenIcon';
-export { SpeakerBoldDuotoneIcon } from './SpeakerBoldDuotoneIcon';
 export { SpeakerBoldIcon } from './SpeakerBoldIcon';
+export { SpeakerBoldDuotoneIcon } from './SpeakerBoldDuotoneIcon';
 export { SquareBrokenIcon } from './SquareBrokenIcon';
-export { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 export { StarBoldIcon } from './StarBoldIcon';
+export { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 export { StarBrokenIcon } from './StarBrokenIcon';
 export { StopBrokenIcon } from './StopBrokenIcon';
 export { SunBrokenIcon } from './SunBrokenIcon';
 export { TagBoldIcon } from './TagBoldIcon';
+export { TicketBrokenIcon } from './TicketBrokenIcon';
 export { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
-export { TrashBinTrashBoldIcon } from './TrashBinTrashBoldIcon';
 export { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
 export { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 export { UserBoldIcon } from './UserBoldIcon';
 export { UserBrokenIcon } from './UserBrokenIcon';
 export { UserCircleBoldIcon } from './UserCircleBoldIcon';
-export { UserOutlineIcon } from './UserOutlineIcon';
 export { UserPlusBoldIcon } from './UserPlusBoldIcon';
 export { UserPlusBrokenIcon } from './UserPlusBrokenIcon';
-export { UsersGroupRoundedBoldDuotoneIcon } from './UsersGroupRoundedBoldDuotoneIcon';
 export { UsersGroupRoundedBoldIcon } from './UsersGroupRoundedBoldIcon';
+export { UsersGroupRoundedBoldDuotoneIcon } from './UsersGroupRoundedBoldDuotoneIcon';
 export { UsersGroupTwoRoundedBrokenIcon } from './UsersGroupTwoRoundedBrokenIcon';
-export { VerifiedCheckBoldDuotoneIcon } from './VerifiedCheckBoldDuotoneIcon';
 export { VerifiedCheckBoldIcon } from './VerifiedCheckBoldIcon';
+export { VerifiedCheckBoldDuotoneIcon } from './VerifiedCheckBoldDuotoneIcon';
 export { VideocameraRecordBrokenIcon } from './VideocameraRecordBrokenIcon';
-export { VolumeCrossBoldDuotoneIcon } from './VolumeCrossBoldDuotoneIcon';
 export { VolumeCrossBrokenIcon } from './VolumeCrossBrokenIcon';
 export { WalletMoneyBoldIcon } from './WalletMoneyBoldIcon';
 export { WalletMoneyBrokenIcon } from './WalletMoneyBrokenIcon';
@@ -161,8 +160,8 @@ import React from 'react';
 import { IconProps } from './AddCircleBoldIcon';
 import { AddCircleBoldIcon } from './AddCircleBoldIcon';
 import { AddCircleBrokenIcon } from './AddCircleBrokenIcon';
-import { AddSquareBoldDuotoneIcon } from './AddSquareBoldDuotoneIcon';
 import { AddSquareBoldIcon } from './AddSquareBoldIcon';
+import { AddSquareBoldDuotoneIcon } from './AddSquareBoldDuotoneIcon';
 import { AddSquareBrokenIcon } from './AddSquareBrokenIcon';
 import { AltArrowDownBrokenIcon } from './AltArrowDownBrokenIcon';
 import { AltArrowLeftBoldIcon } from './AltArrowLeftBoldIcon';
@@ -189,6 +188,9 @@ import { CalendarMinimalisticBrokenIcon } from './CalendarMinimalisticBrokenIcon
 import { CameraBoldIcon } from './CameraBoldIcon';
 import { CameraBrokenIcon } from './CameraBrokenIcon';
 import { CameraMinimalisticBrokenIcon } from './CameraMinimalisticBrokenIcon';
+import { Card2BrokenIcon } from './Card2BrokenIcon';
+import { CardSendBrokenIcon } from './CardSendBrokenIcon';
+import { CardTransferBrokenIcon } from './CardTransferBrokenIcon';
 import { CartLarge2BoldIcon } from './CartLarge2BoldIcon';
 import { CartLargeBrokenIcon } from './CartLargeBrokenIcon';
 import { CartLargeMinimalisticBrokenIcon } from './CartLargeMinimalisticBrokenIcon';
@@ -200,6 +202,8 @@ import { ChatLineBrokenIcon } from './ChatLineBrokenIcon';
 import { ChatRoundLineBoldIcon } from './ChatRoundLineBoldIcon';
 import { ChatSquareBoldIcon } from './ChatSquareBoldIcon';
 import { ChatSquareBrokenIcon } from './ChatSquareBrokenIcon';
+import { ChatSquareCheckBrokenIcon } from './ChatSquareCheckBrokenIcon';
+import { ChatUnreadBrokenIcon } from './ChatUnreadBrokenIcon';
 import { CheckCircleBoldIcon } from './CheckCircleBoldIcon';
 import { CheckCircleBrokenIcon } from './CheckCircleBrokenIcon';
 import { CheckReadBoldIcon } from './CheckReadBoldIcon';
@@ -215,9 +219,11 @@ import { CopyBrokenIcon } from './CopyBrokenIcon';
 import { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
 import { DeliveryBoldIcon } from './DeliveryBoldIcon';
 import { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
+import { DocumentTextBrokenIcon } from './DocumentTextBrokenIcon';
 import { DownloadBrokenIcon } from './DownloadBrokenIcon';
 import { ExitOutlineIcon } from './ExitOutlineIcon';
 import { EyeBrokenIcon } from './EyeBrokenIcon';
+import { EyeClosedBrokenIcon } from './EyeClosedBrokenIcon';
 import { FilterBrokenIcon } from './FilterBrokenIcon';
 import { FireBrokenIcon } from './FireBrokenIcon';
 import { ForwardBrokenIcon } from './ForwardBrokenIcon';
@@ -226,13 +232,12 @@ import { GamepadBrokenIcon } from './GamepadBrokenIcon';
 import { GhostBrokenIcon } from './GhostBrokenIcon';
 import { GlobusBrokenIcon } from './GlobusBrokenIcon';
 import { GraphUpBrokenIcon } from './GraphUpBrokenIcon';
-import { HandShakeBrokenIcon } from './HandShakeBrokenIcon';
-import { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 import { HeartAngleBoldIcon } from './HeartAngleBoldIcon';
-import { HeartBoldDuotoneIcon } from './HeartBoldDuotoneIcon';
+import { HeartAngleBoldDuotoneIcon } from './HeartAngleBoldDuotoneIcon';
 import { HeartBoldIcon } from './HeartBoldIcon';
-import { HeartBrokenBoldIcon } from './HeartBrokenBoldIcon';
+import { HeartBoldDuotoneIcon } from './HeartBoldDuotoneIcon';
 import { HeartBrokenIcon } from './HeartBrokenIcon';
+import { HeartBrokenBoldIcon } from './HeartBrokenBoldIcon';
 import { HelpBrokenIcon } from './HelpBrokenIcon';
 import { HistoryBrokenIcon } from './HistoryBrokenIcon';
 import { HomeAngleBoldDuotoneIcon } from './HomeAngleBoldDuotoneIcon';
@@ -249,8 +254,8 @@ import { LogoutBrokenIcon } from './LogoutBrokenIcon';
 import { MagicStickBrokenIcon } from './MagicStickBrokenIcon';
 import { MagniferBoldIcon } from './MagniferBoldIcon';
 import { MagniferBrokenIcon } from './MagniferBrokenIcon';
-import { MapPointBoldIcon } from './MapPointBoldIcon';
 import { MapPointBrokenIcon } from './MapPointBrokenIcon';
+import { MapPointWaveBrokenIcon } from './MapPointWaveBrokenIcon';
 import { MenuDotsBoldIcon } from './MenuDotsBoldIcon';
 import { MenuDotsBrokenIcon } from './MenuDotsBrokenIcon';
 import { MicrophoneBrokenIcon } from './MicrophoneBrokenIcon';
@@ -272,46 +277,39 @@ import { RefreshBrokenIcon } from './RefreshBrokenIcon';
 import { ReplyBoldIcon } from './ReplyBoldIcon';
 import { SettingsBoldIcon } from './SettingsBoldIcon';
 import { SettingsBrokenIcon } from './SettingsBrokenIcon';
-import { SettingsMinimalisticBoldDuotoneIcon } from './SettingsMinimalisticBoldDuotoneIcon';
 import { SettingsMinimalisticBoldIcon } from './SettingsMinimalisticBoldIcon';
 import { SettingsMinimalisticBrokenIcon } from './SettingsMinimalisticBrokenIcon';
 import { ShareBrokenIcon } from './ShareBrokenIcon';
 import { ShieldCheckBoldIcon } from './ShieldCheckBoldIcon';
 import { ShieldCheckBrokenIcon } from './ShieldCheckBrokenIcon';
 import { ShieldWarningBrokenIcon } from './ShieldWarningBrokenIcon';
-import { Shop2BoldDuotoneIcon } from './Shop2BoldDuotoneIcon';
 import { Shop2BoldIcon } from './Shop2BoldIcon';
-import { Shop2BrokenIcon } from './Shop2BrokenIcon';
-import { ShopBoldIcon } from './ShopBoldIcon';
-import { ShopBrokenIcon } from './ShopBrokenIcon';
 import { SmartphoneBrokenIcon } from './SmartphoneBrokenIcon';
 import { SmileCircleBrokenIcon } from './SmileCircleBrokenIcon';
-import { SpeakerBoldDuotoneIcon } from './SpeakerBoldDuotoneIcon';
 import { SpeakerBoldIcon } from './SpeakerBoldIcon';
+import { SpeakerBoldDuotoneIcon } from './SpeakerBoldDuotoneIcon';
 import { SquareBrokenIcon } from './SquareBrokenIcon';
-import { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 import { StarBoldIcon } from './StarBoldIcon';
+import { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 import { StarBrokenIcon } from './StarBrokenIcon';
 import { StopBrokenIcon } from './StopBrokenIcon';
 import { SunBrokenIcon } from './SunBrokenIcon';
 import { TagBoldIcon } from './TagBoldIcon';
+import { TicketBrokenIcon } from './TicketBrokenIcon';
 import { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
-import { TrashBinTrashBoldIcon } from './TrashBinTrashBoldIcon';
 import { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
 import { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 import { UserBoldIcon } from './UserBoldIcon';
 import { UserBrokenIcon } from './UserBrokenIcon';
 import { UserCircleBoldIcon } from './UserCircleBoldIcon';
-import { UserOutlineIcon } from './UserOutlineIcon';
 import { UserPlusBoldIcon } from './UserPlusBoldIcon';
 import { UserPlusBrokenIcon } from './UserPlusBrokenIcon';
-import { UsersGroupRoundedBoldDuotoneIcon } from './UsersGroupRoundedBoldDuotoneIcon';
 import { UsersGroupRoundedBoldIcon } from './UsersGroupRoundedBoldIcon';
+import { UsersGroupRoundedBoldDuotoneIcon } from './UsersGroupRoundedBoldDuotoneIcon';
 import { UsersGroupTwoRoundedBrokenIcon } from './UsersGroupTwoRoundedBrokenIcon';
-import { VerifiedCheckBoldDuotoneIcon } from './VerifiedCheckBoldDuotoneIcon';
 import { VerifiedCheckBoldIcon } from './VerifiedCheckBoldIcon';
+import { VerifiedCheckBoldDuotoneIcon } from './VerifiedCheckBoldDuotoneIcon';
 import { VideocameraRecordBrokenIcon } from './VideocameraRecordBrokenIcon';
-import { VolumeCrossBoldDuotoneIcon } from './VolumeCrossBoldDuotoneIcon';
 import { VolumeCrossBrokenIcon } from './VolumeCrossBrokenIcon';
 import { WalletMoneyBoldIcon } from './WalletMoneyBoldIcon';
 import { WalletMoneyBrokenIcon } from './WalletMoneyBrokenIcon';
@@ -321,8 +319,8 @@ import { Widget2BrokenIcon } from './Widget2BrokenIcon';
 export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'add-circle-bold': AddCircleBoldIcon,
   'add-circle-broken': AddCircleBrokenIcon,
-  'add-square-bold-duotone': AddSquareBoldDuotoneIcon,
   'add-square-bold': AddSquareBoldIcon,
+  'add-square-bold-duotone': AddSquareBoldDuotoneIcon,
   'add-square-broken': AddSquareBrokenIcon,
   'alt-arrow-down-broken': AltArrowDownBrokenIcon,
   'alt-arrow-left-bold': AltArrowLeftBoldIcon,
@@ -349,6 +347,9 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'camera-bold': CameraBoldIcon,
   'camera-broken': CameraBrokenIcon,
   'camera-minimalistic-broken': CameraMinimalisticBrokenIcon,
+  'card-2-broken': Card2BrokenIcon,
+  'card-send-broken': CardSendBrokenIcon,
+  'card-transfer-broken': CardTransferBrokenIcon,
   'cart-large-2-bold': CartLarge2BoldIcon,
   'cart-large-broken': CartLargeBrokenIcon,
   'cart-large-minimalistic-broken': CartLargeMinimalisticBrokenIcon,
@@ -360,6 +361,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'chat-round-line-bold': ChatRoundLineBoldIcon,
   'chat-square-bold': ChatSquareBoldIcon,
   'chat-square-broken': ChatSquareBrokenIcon,
+  'chat-square-check-broken': ChatSquareCheckBrokenIcon,
+  'chat-unread-broken': ChatUnreadBrokenIcon,
   'check-circle-bold': CheckCircleBoldIcon,
   'check-circle-broken': CheckCircleBrokenIcon,
   'check-read-bold': CheckReadBoldIcon,
@@ -375,9 +378,11 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'danger-circle-bold': DangerCircleBoldIcon,
   'delivery-bold': DeliveryBoldIcon,
   'delivery-broken': DeliveryBrokenIcon,
+  'document-text-broken': DocumentTextBrokenIcon,
   'download-broken': DownloadBrokenIcon,
   'exit-outline': ExitOutlineIcon,
   'eye-broken': EyeBrokenIcon,
+  'eye-closed-broken': EyeClosedBrokenIcon,
   'filter-broken': FilterBrokenIcon,
   'fire-broken': FireBrokenIcon,
   'forward-broken': ForwardBrokenIcon,
@@ -386,13 +391,12 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'ghost-broken': GhostBrokenIcon,
   'globus-broken': GlobusBrokenIcon,
   'graph-up-broken': GraphUpBrokenIcon,
-  'hand-shake-broken': HandShakeBrokenIcon,
-  'heart-angle-bold-duotone': HeartAngleBoldDuotoneIcon,
   'heart-angle-bold': HeartAngleBoldIcon,
-  'heart-bold-duotone': HeartBoldDuotoneIcon,
+  'heart-angle-bold-duotone': HeartAngleBoldDuotoneIcon,
   'heart-bold': HeartBoldIcon,
-  'heart-broken-bold': HeartBrokenBoldIcon,
+  'heart-bold-duotone': HeartBoldDuotoneIcon,
   'heart-broken': HeartBrokenIcon,
+  'heart-broken-bold': HeartBrokenBoldIcon,
   'help-broken': HelpBrokenIcon,
   'history-broken': HistoryBrokenIcon,
   'home-angle-bold-duotone': HomeAngleBoldDuotoneIcon,
@@ -409,8 +413,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'magic-stick-broken': MagicStickBrokenIcon,
   'magnifer-bold': MagniferBoldIcon,
   'magnifer-broken': MagniferBrokenIcon,
-  'map-point-bold': MapPointBoldIcon,
   'map-point-broken': MapPointBrokenIcon,
+  'map-point-wave-broken': MapPointWaveBrokenIcon,
   'menu-dots-bold': MenuDotsBoldIcon,
   'menu-dots-broken': MenuDotsBrokenIcon,
   'microphone-broken': MicrophoneBrokenIcon,
@@ -432,46 +436,39 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'reply-bold': ReplyBoldIcon,
   'settings-bold': SettingsBoldIcon,
   'settings-broken': SettingsBrokenIcon,
-  'settings-minimalistic-bold-duotone': SettingsMinimalisticBoldDuotoneIcon,
   'settings-minimalistic-bold': SettingsMinimalisticBoldIcon,
   'settings-minimalistic-broken': SettingsMinimalisticBrokenIcon,
   'share-broken': ShareBrokenIcon,
   'shield-check-bold': ShieldCheckBoldIcon,
   'shield-check-broken': ShieldCheckBrokenIcon,
   'shield-warning-broken': ShieldWarningBrokenIcon,
-  'shop-2-bold-duotone': Shop2BoldDuotoneIcon,
   'shop-2-bold': Shop2BoldIcon,
-  'shop-2-broken': Shop2BrokenIcon,
-  'shop-bold': ShopBoldIcon,
-  'shop-broken': ShopBrokenIcon,
   'smartphone-broken': SmartphoneBrokenIcon,
   'smile-circle-broken': SmileCircleBrokenIcon,
-  'speaker-bold-duotone': SpeakerBoldDuotoneIcon,
   'speaker-bold': SpeakerBoldIcon,
+  'speaker-bold-duotone': SpeakerBoldDuotoneIcon,
   'square-broken': SquareBrokenIcon,
-  'star-bold-duotone': StarBoldDuotoneIcon,
   'star-bold': StarBoldIcon,
+  'star-bold-duotone': StarBoldDuotoneIcon,
   'star-broken': StarBrokenIcon,
   'stop-broken': StopBrokenIcon,
   'sun-broken': SunBrokenIcon,
   'tag-bold': TagBoldIcon,
+  'ticket-broken': TicketBrokenIcon,
   'transmission-broken': TransmissionBrokenIcon,
-  'trash-bin-trash-bold': TrashBinTrashBoldIcon,
   'trash-bin-trash-broken': TrashBinTrashBrokenIcon,
   'user-block-broken': UserBlockBrokenIcon,
   'user-bold': UserBoldIcon,
   'user-broken': UserBrokenIcon,
   'user-circle-bold': UserCircleBoldIcon,
-  'user-outline': UserOutlineIcon,
   'user-plus-bold': UserPlusBoldIcon,
   'user-plus-broken': UserPlusBrokenIcon,
-  'users-group-rounded-bold-duotone': UsersGroupRoundedBoldDuotoneIcon,
   'users-group-rounded-bold': UsersGroupRoundedBoldIcon,
+  'users-group-rounded-bold-duotone': UsersGroupRoundedBoldDuotoneIcon,
   'users-group-two-rounded-broken': UsersGroupTwoRoundedBrokenIcon,
-  'verified-check-bold-duotone': VerifiedCheckBoldDuotoneIcon,
   'verified-check-bold': VerifiedCheckBoldIcon,
+  'verified-check-bold-duotone': VerifiedCheckBoldDuotoneIcon,
   'videocamera-record-broken': VideocameraRecordBrokenIcon,
-  'volume-cross-bold-duotone': VolumeCrossBoldDuotoneIcon,
   'volume-cross-broken': VolumeCrossBrokenIcon,
   'wallet-money-bold': WalletMoneyBoldIcon,
   'wallet-money-broken': WalletMoneyBrokenIcon,

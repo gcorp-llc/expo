@@ -7,29 +7,16 @@ import {
   ScrollView,
   TextInput,
   Modal,
-  Dimensions,
 } from "react-native";
 import { useModalStore } from "@/hooks/use-modal-store";
 import { useRouter } from "expo-router";
-import { Colors, Spacing } from "@/constants/theme";
+import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import Animated, { FadeInDown } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeIn, FadeOut } from "react-native-reanimated";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
-import {
-  AltArrowLeftBrokenIcon,
-  AltArrowRightBrokenIcon,
-  MapPointBrokenIcon,
-  AddSquareBrokenIcon,
-  Pen2BrokenIcon,
-  TrashBinTrashBrokenIcon,
-  CheckCircleBoldIcon,
-  HomeBrokenIcon,
-  CaseBrokenIcon,
-} from "@/components/icons";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+import { Iconify } from "@/components/ui/Iconify";
 
 export interface AddressItem {
   id: string;
@@ -179,27 +166,19 @@ export default function AddressesScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: Math.max(insets.top, 12),
-            backgroundColor: 'transparent',
-          },
-        ]}
-      >
+      {/* Coordinated Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
           <TouchableOpacity
             onPress={() => router.back()}
             style={styles.floatingHeaderBtn}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            {isRTL ? (
-              <AltArrowRightBrokenIcon size={22} color={colors.text} />
-            ) : (
-              <AltArrowLeftBrokenIcon size={22} color={colors.text} />
-            )}
+            <Iconify
+              icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
+              size={22}
+              color={colors.text}
+            />
           </TouchableOpacity>
 
           <Text style={[styles.headerTitle, { color: colors.text }]}>
@@ -209,9 +188,9 @@ export default function AddressesScreen() {
           <TouchableOpacity
             onPress={openAddModal}
             style={styles.floatingHeaderBtn}
-            activeOpacity={0.7}
+            activeOpacity={0.8}
           >
-            <AddSquareBrokenIcon size={22} color={colors.tint} />
+            <Iconify icon="solar:map-point-wave-broken" size={22} color={colors.tint} />
           </TouchableOpacity>
         </View>
       </View>
@@ -225,7 +204,7 @@ export default function AddressesScreen() {
           >
             <View style={[styles.cardHeader, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
               <View style={[styles.iconChip, { backgroundColor: colors.tint + "18" }]}>
-                <MapPointBrokenIcon size={20} color={colors.tint} />
+                <Iconify icon="solar:map-point-broken" size={20} color={colors.tint} />
               </View>
 
               <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
@@ -252,7 +231,11 @@ export default function AddressesScreen() {
                 onPress={() => handleSetDefault(addr.id)}
                 style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 6 }}
               >
-                <CheckCircleBoldIcon size={18} color={addr.isDefault ? colors.success : colors.textSecondary} />
+                <Iconify
+                  icon={addr.isDefault ? "solar:check-circle-bold" : "solar:check-circle-broken"}
+                  size={18}
+                  color={addr.isDefault ? colors.success : colors.textSecondary}
+                />
                 <Text style={{ fontSize: 13, fontWeight: "700", color: addr.isDefault ? colors.success : colors.textSecondary }}>
                   {isRTL ? "انتخاب به عنوان پیش‌فرض" : "Set as default"}
                 </Text>
@@ -260,10 +243,10 @@ export default function AddressesScreen() {
 
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
                 <TouchableOpacity onPress={() => openEditModal(addr)} hitSlop={8}>
-                  <Pen2BrokenIcon size={18} color={colors.text} />
+                  <Iconify icon="solar:pen-2-broken" size={18} color={colors.text} />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => handleDeleteAddress(addr.id)} hitSlop={8}>
-                  <TrashBinTrashBrokenIcon size={18} color={colors.destructive} />
+                  <Iconify icon="solar:trash-bin-trash-broken" size={18} color={colors.destructive} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -271,10 +254,14 @@ export default function AddressesScreen() {
         ))}
       </ScrollView>
 
-      {/* Add / Edit Modal with Map & Text Address */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
+      {/* Smooth Reanimated Edit/Add Address Modal */}
+      <Modal visible={modalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Animated.View
+            entering={FadeIn.duration(280)}
+            exiting={FadeOut.duration(200)}
+            style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+          >
             <Text style={[styles.modalTitle, { color: colors.text, textAlign: isRTL ? "right" : "left" }]}>
               {editingId
                 ? isRTL ? "ویرایش نشانی" : "Edit Address"
@@ -366,7 +353,7 @@ export default function AddressesScreen() {
                 <Text style={{ color: "#fff", fontWeight: "800" }}>{isRTL ? "ذخیره نشانی" : "Save Address"}</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
     </View>
@@ -375,12 +362,11 @@ export default function AddressesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { backgroundColor: 'transparent' },
+  header: { backgroundColor: 'transparent', paddingHorizontal: 16 },
   headerContent: {
-    height: 56,
+    height: 52,
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: Spacing.md,
   },
   floatingHeaderBtn: {
     width: 42,
@@ -390,11 +376,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: 'transparent',
   },
-  headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: -0.4 },
-  scrollContent: { padding: Spacing.md, gap: Spacing.md },
+  headerTitle: { fontSize: 18, fontWeight: "800" },
+  scrollContent: { padding: 16, gap: 16 },
   addressCard: {
-    padding: Spacing.md,
-    borderRadius: 18,
+    padding: 16,
+    borderRadius: 20,
     borderWidth: 1,
     gap: 12,
   },
@@ -414,17 +400,17 @@ const styles = StyleSheet.create({
   cardFooter: { justifyContent: "space-between", alignItems: "center" },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: Spacing.md,
+    padding: 16,
   },
   modalCard: {
     width: "100%",
     maxHeight: "85%",
     borderRadius: 24,
     borderWidth: 1,
-    padding: Spacing.lg,
+    padding: 20,
     gap: 14,
   },
   modalTitle: { fontSize: 18, fontWeight: "800" },

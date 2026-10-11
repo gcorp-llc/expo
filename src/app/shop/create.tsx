@@ -7,7 +7,6 @@ import {
   ScrollView,
   TextInput,
   Switch,
-  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
@@ -20,6 +19,7 @@ import { Image } from 'expo-image';
 import { PageBackground } from '@/components/ui/PageBackground';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
+import { SelectionModal, Option } from '@/components/ui/SelectionModal';
 
 const SHOP_CATEGORIES = [
   { id: 'electronics', nameFa: 'دیجیتال و الکترونیک', nameEn: 'Electronics', icon: 'solar:smartphone-broken' },
@@ -42,6 +42,8 @@ export default function CreateShopScreen() {
   const [logoUri, setLogoUri] = useState<string>('https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=500&q=80');
   const [coverUri, setCoverUri] = useState<string>('https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1000&q=80');
 
+  const [imagePickerTarget, setImagePickerTarget] = useState<'logo' | 'cover' | null>(null);
+
   const [shopName, setShopName] = useState('');
   const [handle, setHandle] = useState('');
   const [selectedCategory, setSelectedCategory] = useState(SHOP_CATEGORIES[0].id);
@@ -52,29 +54,49 @@ export default function CreateShopScreen() {
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [instagram, setInstagram] = useState('');
-  const [telegram, setTelegram] = useState('');
 
   const [city, setCity] = useState(isRTL ? 'تهران' : 'Tehran');
   const [address, setAddress] = useState('');
-  const [postalCode, setPostalCode] = useState('');
 
   const [workingHours, setWorkingHours] = useState(isRTL ? 'شنبه تا پنج‌شنبه: ۹ الی ۲۱' : 'Mon-Sat: 09:00 - 21:00');
-  const [returnPolicy, setReturnPolicy] = useState(isRTL ? '۷ روز ضمانت بازگشت کالا' : '7 days return policy');
   const [iban, setIban] = useState('IR');
 
   const [enableCod, setEnableCod] = useState(true);
   const [enableExpressShipping, setEnableExpressShipping] = useState(true);
 
-  const pickImage = async (type: 'logo' | 'cover') => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: type === 'logo' ? [1, 1] : [16, 9],
-      quality: 0.8,
-    });
+  const photoOptions: Option[] = [
+    { label: isRTL ? 'دوربین' : 'Camera', value: 'camera', icon: 'solar:camera-minimalistic-broken' },
+    { label: isRTL ? 'گالری' : 'Gallery', value: 'gallery', icon: 'solar:gallery-wide-line-duotone' },
+  ];
+
+  const handleSelectPhotoOption = async (optionValue: string) => {
+    const target = imagePickerTarget;
+    setImagePickerTarget(null);
+    if (!target) return;
+
+    let result: ImagePicker.ImagePickerResult;
+
+    if (optionValue === 'camera') {
+      const permission = await ImagePicker.requestCameraPermissionsAsync();
+      if (!permission.granted) return;
+      result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: target === 'logo' ? [1, 1] : [16, 9],
+        quality: 0.8,
+      });
+    } else {
+      const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permission.granted) return;
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: target === 'logo' ? [1, 1] : [16, 9],
+        quality: 0.8,
+      });
+    }
 
     if (!result.canceled && result.assets[0]?.uri) {
-      if (type === 'logo') setLogoUri(result.assets[0].uri);
+      if (target === 'logo') setLogoUri(result.assets[0].uri);
       else setCoverUri(result.assets[0].uri);
     }
   };
@@ -123,31 +145,33 @@ export default function CreateShopScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
-      {/* Floating Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <TouchableOpacity
-          onPress={() => router.back()}
-          style={[styles.iconBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
-          activeOpacity={0.8}
-        >
-          <Iconify
-            icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
-            size={22}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+      {/* Modern Standard Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.floatingHeaderBtn}
+            activeOpacity={0.8}
+          >
+            <Iconify
+              icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
+              size={22}
+              color={colors.text}
+            />
+          </TouchableOpacity>
 
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {isRTL ? 'ثبت فروشگاه جدید' : 'Create New Shop'}
-        </Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            {isRTL ? 'ثبت فروشگاه جدید' : 'Create New Shop'}
+          </Text>
 
-        <TouchableOpacity
-          onPress={handleRegister}
-          style={[styles.saveBtn, { backgroundColor: colors.tint }]}
-          activeOpacity={0.85}
-        >
-          <Text style={styles.saveBtnText}>{isRTL ? 'ایجاد فروشگاه' : 'Register'}</Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleRegister}
+            style={[styles.saveBtn, { backgroundColor: colors.tint }]}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.saveBtnText}>{isRTL ? 'ایجاد' : 'Register'}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -156,21 +180,21 @@ export default function CreateShopScreen() {
       >
         {/* Cover & Logo Section */}
         <Animated.View entering={FadeInDown.duration(450)} style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <TouchableOpacity onPress={() => pickImage('cover')} activeOpacity={0.85} style={styles.coverWrapper}>
+          <TouchableOpacity onPress={() => setImagePickerTarget('cover')} activeOpacity={0.85} style={styles.coverWrapper}>
             <Image source={{ uri: coverUri }} style={styles.coverImage} contentFit="cover" />
             <View style={styles.coverOverlay}>
               <View style={[styles.cameraBadge, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-                <Iconify icon="solar:camera-bold" size={18} color="#fff" />
+                <Iconify icon="solar:camera-broken" size={18} color="#fff" />
                 <Text style={styles.cameraBadgeText}>{isRTL ? 'تغییر کاور' : 'Change Cover'}</Text>
               </View>
             </View>
           </TouchableOpacity>
 
           <View style={styles.logoRow}>
-            <TouchableOpacity onPress={() => pickImage('logo')} activeOpacity={0.85} style={[styles.logoWrapper, { borderColor: colors.tint }]}>
+            <TouchableOpacity onPress={() => setImagePickerTarget('logo')} activeOpacity={0.85} style={[styles.logoWrapper, { borderColor: colors.tint }]}>
               <Image source={{ uri: logoUri }} style={styles.logoImage} contentFit="cover" />
               <View style={[styles.logoCameraBadge, { backgroundColor: colors.tint }]}>
-                <Iconify icon="solar:camera-bold" size={14} color="#fff" />
+                <Iconify icon="solar:camera-broken" size={14} color="#fff" />
               </View>
             </TouchableOpacity>
 
@@ -480,31 +504,32 @@ export default function CreateShopScreen() {
           <Text style={styles.submitBigBtnText}>{isRTL ? 'ثبت و راه‌اندازی رسمی فروشگاه' : 'Complete Registration'}</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      {/* Standard Image Picker Selection Modal (Camera / Gallery, exactly 2 options, no cancel button) */}
+      <SelectionModal
+        isVisible={imagePickerTarget !== null}
+        onClose={() => setImagePickerTarget(null)}
+        title={imagePickerTarget === 'logo'
+          ? (isRTL ? 'انتخاب آواتار فروشگاه' : 'Choose Shop Avatar')
+          : (isRTL ? 'انتخاب کاور فروشگاه' : 'Choose Shop Cover')}
+        options={photoOptions}
+        onSelect={handleSelectPhotoOption}
+        isRTL={isRTL}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: {
-    height: 56,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  iconBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
+  header: { backgroundColor: 'transparent', paddingHorizontal: 16 },
+  headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
+  floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
   saveBtn: {
     paddingHorizontal: 18,
-    height: 40,
-    borderRadius: 20,
+    height: 38,
+    borderRadius: 19,
     alignItems: 'center',
     justifyContent: 'center',
   },

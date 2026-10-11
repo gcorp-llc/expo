@@ -47,7 +47,12 @@ const extraMappings = [
   'stop-broken',
   'check-square-broken',
   'bag-smile-outline',
-  'bag-smile-bold-duotone'
+  'bag-smile-bold-duotone',
+  'bell-broken',
+  'chat-unread-broken',
+  'chat-square-check-broken',
+  'volume-cross-broken',
+  'map-point-wave-broken'
 ];
 
 extraMappings.forEach(i => foundIcons.add(i));
@@ -100,6 +105,7 @@ const exportedIcons = [];
 for (const name of Array.from(foundIcons).sort()) {
   let lookupName = name;
   if (name === 'square-broken') lookupName = 'stop-broken';
+  if (name === 'chat-unread-broken') lookupName = 'chat-round-unread-broken';
 
   let iconData = getIconData(solarData, lookupName);
   let svgBody = '';

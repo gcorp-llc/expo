@@ -65,18 +65,17 @@ export default function TabShopScreen() {
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { language, customProducts, addCustomProduct } = useStore();
+  const { language, customProducts } = useStore();
   const showModal = useModalStore((state) => state.showModal);
   const isRTL = language === 'fa';
   const router = useRouter();
 
   const [activeStoreId, setActiveStoreId] = useState<string>('store-1');
-  const [stores, setStores] = useState<StoreOption[]>(DEMO_STORES);
+  const [stores] = useState<StoreOption[]>(DEMO_STORES);
   const [activeTab, setActiveTab] = useState<TabType>('products');
   const [isStorePickerVisible, setIsStorePickerVisible] = useState(false);
-  const [isAddProductVisible, setIsAddProductVisible] = useState(false);
 
-  // Product Filter State (for filtering Stats, Finance, Messages to a specific product)
+  // Product Filter State
   const [selectedProductFilter, setSelectedProductFilter] = useState<any | null>(null);
 
   // Product Menu & Action Modals
@@ -100,29 +99,14 @@ export default function TabShopScreen() {
   const [editPrice, setEditPrice] = useState('');
   const [editStock, setEditStock] = useState('');
 
-  // Products extra state management (disabled items, disabled comments)
+  // Products extra state management
   const [deactivatedProductIds, setDeactivatedProductIds] = useState<string[]>([]);
   const [disabledCommentsProductIds, setDisabledCommentsProductIds] = useState<string[]>([]);
 
-  // Reply Box State for Requests/Messages tab
+  // Reply Box State
   const [replyingMsgId, setReplyingMsgId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const [sentReplies, setSentReplies] = useState<Record<string, string>>({});
-
-  // New store form
-  const [newStoreName, setNewStoreName] = useState('');
-  const [newStoreSpecialty, setNewStoreSpecialty] = useState('');
-
-  // New product form
-  const [pTitle, setPTitle] = useState('');
-  const [pPrice, setPPrice] = useState('');
-  const [pCostPrice, setPCostPrice] = useState('');
-  const [pStock, setPStock] = useState('15');
-  const [pDiscount, setPDiscount] = useState('');
-  const [isAuction, setIsAuction] = useState(false);
-  const [pCategory, setPCategory] = useState('Electronics');
-  const [pImage, setPImage] = useState('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400');
-  const [pDescription, setPDescription] = useState('');
 
   const currentStore = stores.find((s) => s.id === activeStoreId) || stores[0];
 
@@ -223,66 +207,8 @@ export default function TabShopScreen() {
   };
 
   const handleMainTabPress = (tab: TabType) => {
-    // Regular main tab click clears product filter
     setSelectedProductFilter(null);
     setActiveTab(tab);
-  };
-
-  const handleAddProduct = () => {
-    if (!pTitle.trim() || !pPrice.trim()) {
-      showModal({
-        title: isRTL ? 'خطا در افزودن محصول' : 'Input Error',
-        message: isRTL ? 'عنوان و قیمت فروش محصول الزامی است.' : 'Title and selling price are required.',
-        icon: 'solar:danger-circle-bold',
-        iconColor: colors.destructive,
-        buttons: [{ text: isRTL ? 'متوجه شدم' : 'Understood', style: 'primary' }]
-      });
-      return;
-    }
-
-    const priceNum = parseFloat(pPrice);
-    const costNum = pCostPrice ? parseFloat(pCostPrice) : priceNum * 0.7;
-    const stockNum = pStock ? parseInt(pStock, 10) : 10;
-    const discountNum = pDiscount ? parseFloat(pDiscount) : 0;
-
-    const newProd: CustomProduct = {
-      id: `custom-${Date.now()}`,
-      name: pTitle.trim(),
-      price: priceNum,
-      costPrice: costNum,
-      stockQuantity: stockNum,
-      salesCount: 0,
-      description: pDescription.trim() || (isRTL ? 'محصول جدید افزوده‌شده از بخش مدیریت فروشگاه کوتیک' : 'New custom product added from store manager'),
-      image: pImage || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-      category: pCategory,
-      seller: currentStore.name,
-      oldPrice: discountNum > 0 ? priceNum + (priceNum * (discountNum / 100)) : undefined,
-      discountPercentage: discountNum > 0 ? discountNum : undefined,
-      hasActiveSale: discountNum > 0 || isAuction,
-      rating: 5.0,
-      reviews: 1,
-    };
-
-    addCustomProduct(newProd);
-    setIsAddProductVisible(false);
-
-    // Reset form
-    setPTitle('');
-    setPPrice('');
-    setPCostPrice('');
-    setPStock('15');
-    setPDiscount('');
-    setIsAuction(false);
-
-    showModal({
-      title: isRTL ? 'محصول جدید افزوده شد 🎉' : 'Product Added 🎉',
-      message: isRTL
-        ? `محصول «${newProd.name}» با موفقیت ثبت گردید و هم‌اکنون در لیست محصولات فروشگاه و صفحه اصلی اپلیکیشن نمایش داده می‌شود.`
-        : `Product "${newProd.name}" added successfully and is now live on Home page.`,
-      icon: 'solar:bag-smile-bold-duotone',
-      iconColor: colors.tint,
-      buttons: [{ text: isRTL ? 'عالی' : 'Great', style: 'primary' }]
-    });
   };
 
   const handleSendReply = (msgId: string) => {
@@ -349,8 +275,16 @@ export default function TabShopScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
-      {/* Requirement 1: Store Header with full space for store switcher dropdown only */}
-      <View style={[styles.expandedHeaderArea, { paddingTop: insets.top + 8 }]}>
+      {/* Item 12: Header with Back Button and Store Switcher Dropdown */}
+      <View style={[styles.expandedHeaderArea, { paddingTop: insets.top + 8, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 10 }]}>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          style={[styles.backHeaderBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+          activeOpacity={0.8}
+        >
+          <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
+        </TouchableOpacity>
+
         <TouchableOpacity
           onPress={() => setIsStorePickerVisible(true)}
           style={[
@@ -359,6 +293,7 @@ export default function TabShopScreen() {
               backgroundColor: colors.card,
               borderColor: colors.border,
               flexDirection: isRTL ? 'row-reverse' : 'row',
+              flex: 1,
             },
           ]}
           activeOpacity={0.85}
@@ -403,9 +338,10 @@ export default function TabShopScreen() {
             <Text style={[styles.specialty, { color: colors.textSecondary }]}>{currentStore.specialty}</Text>
 
             <View style={[styles.actionRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              {/* Item 4: Navigate to dedicated Add Product Screen instead of Modal */}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.tint }]}
-                onPress={() => setIsAddProductVisible(true)}
+                onPress={() => router.push('/shop/add-product')}
                 activeOpacity={0.85}
               >
                 <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
@@ -425,13 +361,14 @@ export default function TabShopScreen() {
 
         {/* 2. INVENTORY, SALES, PROFIT & AUCTIONS STATS */}
         <Animated.View entering={FadeInDown.duration(500).delay(100)} style={styles.statsGrid}>
-          <View style={[styles.overviewCard, { backgroundColor: colors.tint }]}>
+          {/* Item 5: Live Stock ("انبار زنده") Card styled like other cards */}
+          <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Iconify icon="solar:box-broken" size={22} color="#fff" />
-              <Text style={styles.statBadgeText}>{isRTL ? 'انبار زنده' : 'Live Stock'}</Text>
+              <Iconify icon="solar:box-broken" size={22} color={colors.tint} />
+              <Text style={[styles.statBadgeText, { color: colors.tint }]}>{isRTL ? 'انبار زنده' : 'Live Stock'}</Text>
             </View>
-            <Text style={styles.overviewLabel}>{isRTL ? 'موجودی انبار' : 'Inventory Stock'}</Text>
-            <Text style={styles.overviewValue}>{stats.totalStock} {isRTL ? 'عدد' : 'pcs'}</Text>
+            <Text style={[styles.overviewLabel, { color: colors.textSecondary }]}>{isRTL ? 'موجودی انبار' : 'Inventory Stock'}</Text>
+            <Text style={[styles.overviewValue, { color: colors.text }]}>{stats.totalStock} {isRTL ? 'عدد' : 'pcs'}</Text>
           </View>
 
           <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -518,7 +455,7 @@ export default function TabShopScreen() {
                     onPress={() => router.push(`/product/${product.id}`)}
                     activeOpacity={0.9}
                   >
-                    {/* Card Top Row with Title & Top-Right Menu Button */}
+                    {/* Card Top Row with Title & Menu Button */}
                     <View style={[styles.cardHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                       <View style={{ flex: 1, flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                         <Text style={[styles.largeProductName, { color: colors.text }]}>{product.name}</Text>
@@ -534,7 +471,6 @@ export default function TabShopScreen() {
                         )}
                       </View>
 
-                      {/* Requirement 3: Top-Right Menu Button */}
                       <TouchableOpacity
                         style={styles.menuDotBtn}
                         onPress={() => handleOpenProductMenu(product)}
@@ -569,7 +505,7 @@ export default function TabShopScreen() {
                       </View>
                     </View>
 
-                    {/* Requirement 5: Interactive Card Actions (Stats, Sales, Messages) */}
+                    {/* Interactive Card Actions */}
                     <View style={[styles.cardQuickActionsRow, { borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                       <TouchableOpacity
                         style={[styles.quickActionChip, { backgroundColor: colors.surface }]}
@@ -596,7 +532,7 @@ export default function TabShopScreen() {
                       </TouchableOpacity>
                     </View>
 
-                    {/* Requirement 4: Footer with total messages & unanswered notifications badge */}
+                    {/* Footer */}
                     <View style={[styles.largeProductFooter, { borderTopColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                       <View style={styles.footerStat}>
                         <Iconify icon="solar:box-broken" size={15} color={colors.textSecondary} />
@@ -605,7 +541,6 @@ export default function TabShopScreen() {
                         </Text>
                       </View>
 
-                      {/* Requirement 4: Total messages & unanswered messages badge */}
                       <View style={styles.footerStat}>
                         <Iconify icon="solar:chat-line-broken" size={15} color={colors.textSecondary} />
                         <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>
@@ -728,7 +663,6 @@ export default function TabShopScreen() {
                       </View>
                     )}
 
-                    {/* Requirement 6: Reply text box expands on reply button press */}
                     {isReplying ? (
                       <View style={styles.replyBoxContainer}>
                         <TextInput
@@ -786,7 +720,7 @@ export default function TabShopScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* Requirement 3: Product Action Options Modal */}
+      {/* Product Action Options Modal */}
       <Modal visible={isProductMenuVisible} transparent animationType="slide" onRequestClose={() => setIsProductMenuVisible(false)}>
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsProductMenuVisible(false)}>
           <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -972,9 +906,9 @@ export default function TabShopScreen() {
         </View>
       </Modal>
 
-      {/* Modal: Multi-Store Switcher */}
+      {/* Item 6: Store Switcher Modal with transparent background overlay so it doesn't darken the screen image */}
       <Modal visible={isStorePickerVisible} transparent animationType="slide">
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsStorePickerVisible(false)}>
+        <TouchableOpacity style={styles.cleanModalOverlay} activeOpacity={1} onPress={() => setIsStorePickerVisible(false)}>
           <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <Text style={[styles.modalTitle, { color: colors.text }]}>{isRTL ? 'مدیریت و سوییچ فروشگاه‌ها' : 'Switch Store'}</Text>
@@ -1027,137 +961,6 @@ export default function TabShopScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
-
-      {/* Modal: Add New Product */}
-      <Modal visible={isAddProductVisible} transparent animationType="slide" onRequestClose={() => setIsAddProductVisible(false)}>
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{isRTL ? 'افزودن محصول جدید به فروشگاه' : 'Add New Product'}</Text>
-              <TouchableOpacity onPress={() => setIsAddProductVisible(false)}>
-                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingVertical: 8 }}>
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'عنوان محصول' : 'Product Title'} *
-                </Text>
-                <TextInput
-                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
-                  placeholder={isRTL ? 'مثال: ساعت هوشمند گلکسی واچ ۶' : 'e.g. Galaxy Watch 6'}
-                  placeholderTextColor={colors.textSecondary}
-                  value={pTitle}
-                  onChangeText={setPTitle}
-                />
-              </View>
-
-              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                    {isRTL ? 'قیمت فروش ($)' : 'Selling Price ($)'} *
-                  </Text>
-                  <TextInput
-                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
-                    placeholder="299"
-                    keyboardType="numeric"
-                    placeholderTextColor={colors.textSecondary}
-                    value={pPrice}
-                    onChangeText={setPPrice}
-                  />
-                </View>
-
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                    {isRTL ? 'قیمت خرید/تمام شده' : 'Cost Price ($)'}
-                  </Text>
-                  <TextInput
-                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
-                    placeholder="180"
-                    keyboardType="numeric"
-                    placeholderTextColor={colors.textSecondary}
-                    value={pCostPrice}
-                    onChangeText={setPCostPrice}
-                  />
-                </View>
-              </View>
-
-              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                    {isRTL ? 'موجودی اولیه انبار' : 'Initial Stock'}
-                  </Text>
-                  <TextInput
-                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
-                    placeholder="15"
-                    keyboardType="numeric"
-                    placeholderTextColor={colors.textSecondary}
-                    value={pStock}
-                    onChangeText={setPStock}
-                  />
-                </View>
-
-                <View style={[styles.formGroup, { flex: 1 }]}>
-                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                    {isRTL ? 'درصد تخفیف / حراج' : 'Discount (%)'}
-                  </Text>
-                  <TextInput
-                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
-                    placeholder="15"
-                    keyboardType="numeric"
-                    placeholderTextColor={colors.textSecondary}
-                    value={pDiscount}
-                    onChangeText={setPDiscount}
-                  />
-                </View>
-              </View>
-
-              <View style={[styles.formGroup, { flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }]}>
-                <Text style={[styles.formLabel, { color: colors.text }]}>
-                  {isRTL ? 'علامت‌گذاری به‌عنوان حراجی ویژه' : 'Mark as Hot Auction'}
-                </Text>
-                <Switch value={isAuction} onValueChange={setIsAuction} trackColor={{ false: colors.border, true: colors.tint }} thumbColor="#fff" />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'لینک تصویر محصول' : 'Image URL'}
-                </Text>
-                <TextInput
-                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
-                  placeholder="https://images.unsplash.com/..."
-                  placeholderTextColor={colors.textSecondary}
-                  value={pImage}
-                  onChangeText={setPImage}
-                />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'توضیحات محصول' : 'Description'}
-                </Text>
-                <TextInput
-                  style={[styles.formInput, { height: 70, color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
-                  placeholder={isRTL ? 'توضیحات مربوط به ویژگی‌ها و مشخصات فنی...' : 'Product specifications...'}
-                  placeholderTextColor={colors.textSecondary}
-                  multiline
-                  value={pDescription}
-                  onChangeText={setPDescription}
-                />
-              </View>
-            </ScrollView>
-
-            <TouchableOpacity
-              style={[styles.addStoreBtn, { backgroundColor: colors.tint }]}
-              onPress={handleAddProduct}
-            >
-              <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
-              <Text style={styles.addStoreBtnText}>{isRTL ? 'ثبت و انتشار محصول در صفحه اصلی' : 'Add & Publish to Home'}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -1167,6 +970,14 @@ const styles = StyleSheet.create({
   expandedHeaderArea: {
     paddingHorizontal: 16,
     paddingBottom: 8,
+  },
+  backHeaderBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   fullWidthStoreSelector: {
     height: 58,
@@ -1264,9 +1075,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  statBadgeText: { fontSize: 10, color: '#fff', fontWeight: '800' },
-  overviewLabel: { fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.85)' },
-  overviewValue: { fontSize: 17, fontWeight: '900', color: '#fff' },
+  statBadgeText: { fontSize: 10, fontWeight: '800' },
+  overviewLabel: { fontSize: 11, fontWeight: '700' },
+  overviewValue: { fontSize: 17, fontWeight: '900' },
 
   filterBanner: {
     padding: 12,
@@ -1314,7 +1125,6 @@ const styles = StyleSheet.create({
   tabContent: { minHeight: 250 },
   productsList: { gap: 16 },
 
-  // Enlarged Product Card Styles
   largeProductCard: {
     borderRadius: 24,
     overflow: 'hidden',
@@ -1383,7 +1193,7 @@ const styles = StyleSheet.create({
   productSummary: { fontSize: 12, lineHeight: 17 },
   oldPrice: { fontSize: 13, textDecorationLine: 'line-through', color: '#888' },
 
-  largeProductFooter: { paddingT: 10, borderTopWidth: 1, justifyContent: 'space-around', alignItems: 'center' },
+  largeProductFooter: { paddingTop: 10, borderTopWidth: 1, justifyContent: 'space-around', alignItems: 'center' },
   footerStat: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   footerStatText: { fontSize: 12, fontWeight: '700' },
   unreadCountBadge: {
@@ -1469,8 +1279,8 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 
-  // Modal styles
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  cleanModalOverlay: { flex: 1, backgroundColor: 'transparent', justifyContent: 'flex-end' },
   modalContent: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, borderWidth: 1, maxHeight: '85%' },
   modalHeaderRow: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   modalTitle: { fontSize: 18, fontWeight: '900' },

@@ -1,7 +1,6 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { PageBackground } from '@/components/ui/PageBackground';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
-import { useModalStore } from '@/hooks/use-modal-store';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, TextInput, Pressable } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,9 +22,11 @@ export default function FavoritesScreen() {
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const showModal = useModalStore((state) => state.showModal);
-  const { language, favorites: favoriteIds, clearFavorites } = useStore();
+  const { language, favorites: favoriteIds } = useStore();
   const isRTL = language === 'fa';
+
+  const [isSearchVisible, setSearchVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const scrollY = useSharedValue(0);
   const scrollHandler = useAnimatedScrollHandler({
@@ -34,23 +35,18 @@ export default function FavoritesScreen() {
     },
   });
 
-  const favorites = useMemo(() => PRODUCTS.filter(p => favoriteIds.includes(p.id)), [favoriteIds]);
+  const favorites = useMemo(() => {
+    let list = PRODUCTS.filter(p => favoriteIds.includes(p.id));
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(p => p.name.toLowerCase().includes(q) || (p.description && p.description.toLowerCase().includes(q)));
+    }
+    return list;
+  }, [favoriteIds, searchQuery]);
+
   const specialOffers = useMemo(() => PRODUCTS.slice(4, 9), []);
 
   const handleNavigate = useCallback((id: string) => router.push(`/product/${id}`), [router]);
-
-  const handleClearAll = () => {
-    showModal({
-      title: isRTL ? 'حذف همه علاقه‌مندی‌ها' : 'Clear All Favorites',
-      message: isRTL ? 'آیا از حذف تمام محصولات از لیست علاقه‌مندی‌ها اطمینان دارید؟' : 'Are you sure you want to remove all items from favorites?',
-      icon: 'solar:trash-bin-trash-broken',
-      iconColor: colors.destructive,
-      buttons: [
-        { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
-        { text: isRTL ? 'حذف همه' : 'Remove All', style: 'destructive', onPress: clearFavorites },
-      ]
-    });
-  };
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
     const shadowOpacity = interpolate(scrollY.value, [0, 30], [0, 0.08], Extrapolate.CLAMP);
@@ -102,7 +98,9 @@ export default function FavoritesScreen() {
         <Animated.View entering={FadeInDown.duration(600).delay(300)} style={styles.emptyContainer}>
           <Iconify icon="solar:heart-broken-bold" width={64} height={64} color={colors.icon} />
           <Text style={[styles.emptyText, { color: colors.textSecondary, textAlign: 'center' }]}>
-            {isRTL ? 'لیست علاقه‌مندی‌های شما خالی است' : 'Your favorites list is empty'}
+            {searchQuery.trim()
+              ? (isRTL ? 'محصولی با این عبارت یافت نشد' : 'No favorites found matching search')
+              : (isRTL ? 'لیست علاقه‌مندی‌های شما خالی است' : 'Your favorites list is empty')}
           </Text>
         </Animated.View>
       )}
@@ -112,36 +110,58 @@ export default function FavoritesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
+      {/* Header without title or clear all, but with search button matching modern header icon button style */}
       <Animated.View
         style={[
           styles.header,
           headerAnimatedStyle,
           {
-            paddingTop: insets.top + 12,
+            paddingTop: insets.top + 10,
             backgroundColor: 'transparent',
             flexDirection: isRTL ? 'row-reverse' : 'row',
           },
         ]}
       >
-        <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
-          {isRTL ? 'علاقه‌مندی‌ها' : 'Favorites'}
-        </Text>
-        {favorites.length > 0 && (
-          <TouchableOpacity
-            style={[
-              styles.clearButtonFloating,
-              {
-                flexDirection: isRTL ? 'row-reverse' : 'row',
-              },
-            ]}
-            onPress={handleClearAll}
-            activeOpacity={0.8}
-          >
-            <Iconify icon="solar:trash-bin-trash-broken" width={20} height={20} color={colors.destructive} />
-            <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
-              {isRTL ? 'حذف همه' : 'Clear All'}
-            </Text>
-          </TouchableOpacity>
+        {isSearchVisible ? (
+          <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Iconify icon="solar:magnifer-broken" size={20} color={colors.textSecondary} />
+            <TextInput
+              style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
+              placeholder={isRTL ? 'جستجو در علاقه مندی‌ها...' : 'Search favorites...'}
+              placeholderTextColor={colors.textSecondary}
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+              autoFocus
+            />
+            {searchQuery.length > 0 && (
+              <Pressable onPress={() => setSearchQuery('')} hitSlop={8}>
+                <Iconify icon="solar:close-circle-broken" size={18} color={colors.textSecondary} />
+              </Pressable>
+            )}
+            <Pressable
+              onPress={() => {
+                setSearchVisible(false);
+                setSearchQuery('');
+              }}
+              hitSlop={8}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '700', color: colors.tint, marginHorizontal: 4 }}>
+                {isRTL ? 'بستن' : 'Close'}
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View style={[styles.headerRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => setSearchVisible(true)}
+              activeOpacity={0.7}
+              hitSlop={8}
+            >
+              <Iconify icon="solar:magnifer-broken" size={24} color={colors.text} />
+            </TouchableOpacity>
+          </View>
         )}
       </Animated.View>
 
@@ -152,7 +172,7 @@ export default function FavoritesScreen() {
         numColumns={2}
         columnWrapperStyle={[styles.productRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
         ListHeaderComponent={renderHeader}
-        contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 75 }]}
+        contentContainerStyle={[styles.listContent, { paddingTop: insets.top + 65 }]}
         onScroll={scrollHandler}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
@@ -169,20 +189,37 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
-    paddingHorizontal: 20,
-    paddingBottom: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    alignItems: 'center',
+  },
+  headerRow: {
+    width: '100%',
+    alignItems: 'center',
     justifyContent: 'space-between',
-    alignItems: 'center',
   },
-  title: { fontSize: 24, fontWeight: '900', letterSpacing: -0.8 },
-  clearButtonFloating: {
-    flexDirection: 'row',
+  headerIconButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
-    gap: 6,
-    paddingVertical: 7,
-    paddingHorizontal: 12,
+    justifyContent: 'center',
   },
-  clearButtonText: { fontSize: 14, fontWeight: '800' },
+  searchBar: {
+    flex: 1,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    gap: 8,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '600',
+    height: '100%',
+  },
   listHeader: { marginBottom: 12, gap: 20 },
   section: {
     borderRadius: 28,

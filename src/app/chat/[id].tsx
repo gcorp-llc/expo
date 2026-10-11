@@ -127,7 +127,6 @@ export default function ChatDetailScreen() {
     setSelectedMedia({ uri, type });
   }, []);
 
-  // Dropdown options matching Image 2
   const chatDropdownOptions: DropdownOption[] = useMemo(() => [
     { value: 'search', label: isRTL ? 'جستجو' : 'Search', icon: 'solar:magnifer-broken' },
     { value: 'wallpaper', label: isRTL ? 'تغییر پس‌زمینه' : 'Change Background', icon: 'solar:widget-2-broken' },
@@ -337,7 +336,7 @@ export default function ChatDetailScreen() {
         isVisible={isMenuVisible}
         onClose={() => setIsMenuVisible(false)}
         headerTitle={isRTL ? (isMuted ? 'صدا وصل شد' : 'بی‌صدا') : 'Mute'}
-        headerIcon="solar:speaker-bold-duotone"
+        headerIcon="solar:volume-cross-broken"
         onHeaderPress={handleMuteHeaderPress}
         options={chatDropdownOptions}
         onSelectOption={handleMenuSelect}
@@ -348,7 +347,7 @@ export default function ChatDetailScreen() {
       <SelectionModal
         isVisible={isMuteModalVisible}
         onClose={() => setIsMuteModalVisible(false)}
-        title={isRTL ? 'بی‌صدا کردن notifications' : 'Mute Notifications'}
+        title={isRTL ? 'بی‌صدا کردن نوتیفیکیشن‌ها' : 'Mute Notifications'}
         options={muteOptions}
         onSelect={(val) => {
           setIsMuted(true);
@@ -356,7 +355,7 @@ export default function ChatDetailScreen() {
           showModal({
             title: isRTL ? 'اعلانات بی‌صدا شد' : 'Notifications Muted',
             message: isRTL ? 'اعلانات این گفتگو برای مدت انتخاب شده بی‌صدا گردید.' : 'Notifications muted.',
-            icon: 'solar:speaker-bold-duotone',
+            icon: 'solar:volume-cross-broken',
             buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
           });
         }}
