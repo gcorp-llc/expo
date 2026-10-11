@@ -139,7 +139,7 @@ export const CoverSection = ({
               styles.coverEditButton,
               {
                 backgroundColor: colors.surface + 'EE',
-                top: 56,
+                bottom: 12,
                 [isRTL ? 'left' : 'right']: 16,
               },
             ]}

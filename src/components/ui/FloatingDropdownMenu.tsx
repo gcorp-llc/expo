@@ -15,6 +15,8 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -49,8 +51,10 @@ export const FloatingDropdownMenu = ({
   isRTL = true,
   topOffset,
 }: FloatingDropdownMenuProps) => {
+  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
+  const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const scale = useSharedValue(0.9);
+  const scale = useSharedValue(0.95);
   const opacity = useSharedValue(0);
 
   const calculatedTop = topOffset ?? insets.top + 50;
@@ -92,11 +96,13 @@ export const FloatingDropdownMenu = ({
         <Animated.View
           style={[
             styles.menuCard,
-            cardAnimatedStyle,
             {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
               top: calculatedTop,
               [isRTL ? 'right' : 'left']: 16,
             },
+            cardAnimatedStyle,
           ]}
         >
           {headerTitle && (
@@ -112,7 +118,6 @@ export const FloatingDropdownMenu = ({
                 }}
                 activeOpacity={0.7}
               >
-                {/* Right side in RTL (Header Icon + Title) */}
                 <View
                   style={[
                     styles.headerRightGroup,
@@ -120,12 +125,11 @@ export const FloatingDropdownMenu = ({
                   ]}
                 >
                   {headerIcon && (
-                    <Iconify icon={headerIcon} size={22} color="#FFFFFF" />
+                    <Iconify icon={headerIcon} size={22} color={colors.tint} />
                   )}
-                  <Text style={styles.headerTitle}>{headerTitle}</Text>
+                  <Text style={[styles.headerTitle, { color: colors.text }]}>{headerTitle}</Text>
                 </View>
 
-                {/* Left side in RTL (Back arrow) */}
                 <Iconify
                   icon={
                     isRTL
@@ -133,17 +137,17 @@ export const FloatingDropdownMenu = ({
                       : 'solar:alt-arrow-right-broken'
                   }
                   size={18}
-                  color="#A3A0B5"
+                  color={colors.textSecondary}
                 />
               </TouchableOpacity>
-              <View style={styles.divider} />
+              <View style={[styles.divider, { backgroundColor: colors.border }]} />
             </>
           )}
 
           <View style={styles.optionsList}>
             {options.map((item) => {
-              const textColor = item.isDestructive ? '#FF5252' : '#FFFFFF';
-              const iconColor = item.isDestructive ? '#FF5252' : '#C3C1D0';
+              const textColor = item.isDestructive ? colors.destructive : colors.text;
+              const iconColor = item.isDestructive ? colors.destructive : colors.textSecondary;
 
               return (
                 <TouchableOpacity
@@ -158,7 +162,6 @@ export const FloatingDropdownMenu = ({
                   }}
                   activeOpacity={0.65}
                 >
-                  {/* Icon sits on the right side in RTL */}
                   <Iconify icon={item.icon} size={22} color={iconColor} />
 
                   <Text

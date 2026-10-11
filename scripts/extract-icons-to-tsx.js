@@ -45,7 +45,9 @@ const extraMappings = [
   'star-bold',
   'add-square-bold',
   'stop-broken',
-  'check-square-broken'
+  'check-square-broken',
+  'bag-smile-outline',
+  'bag-smile-bold-duotone'
 ];
 
 extraMappings.forEach(i => foundIcons.add(i));

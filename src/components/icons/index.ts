@@ -15,6 +15,8 @@ export { ArrowRightUpBrokenIcon } from './ArrowRightUpBrokenIcon';
 export { Bag2BrokenIcon } from './Bag2BrokenIcon';
 export { Bag3BrokenIcon } from './Bag3BrokenIcon';
 export { BagHeartBrokenIcon } from './BagHeartBrokenIcon';
+export { BagSmileBoldDuotoneIcon } from './BagSmileBoldDuotoneIcon';
+export { BagSmileOutlineIcon } from './BagSmileOutlineIcon';
 export { BasketballBrokenIcon } from './BasketballBrokenIcon';
 export { BellBrokenIcon } from './BellBrokenIcon';
 export { BookBrokenIcon } from './BookBrokenIcon';
@@ -106,12 +108,12 @@ export { ReplyBoldIcon } from './ReplyBoldIcon';
 export { SettingsBoldIcon } from './SettingsBoldIcon';
 export { SettingsBrokenIcon } from './SettingsBrokenIcon';
 export { SettingsMinimalisticBoldIcon } from './SettingsMinimalisticBoldIcon';
-export { SettingsMinimalisticBoldDuotoneIcon } from './SettingsMinimalisticBoldDuotoneIcon';
 export { SettingsMinimalisticBrokenIcon } from './SettingsMinimalisticBrokenIcon';
 export { ShareBrokenIcon } from './ShareBrokenIcon';
 export { ShieldCheckBoldIcon } from './ShieldCheckBoldIcon';
 export { ShieldCheckBrokenIcon } from './ShieldCheckBrokenIcon';
 export { Shop2BoldIcon } from './Shop2BoldIcon';
+export { Shop2BoldDuotoneIcon } from './Shop2BoldDuotoneIcon';
 export { Shop2BrokenIcon } from './Shop2BrokenIcon';
 export { ShopBoldIcon } from './ShopBoldIcon';
 export { ShopBrokenIcon } from './ShopBrokenIcon';
@@ -164,6 +166,8 @@ import { ArrowRightUpBrokenIcon } from './ArrowRightUpBrokenIcon';
 import { Bag2BrokenIcon } from './Bag2BrokenIcon';
 import { Bag3BrokenIcon } from './Bag3BrokenIcon';
 import { BagHeartBrokenIcon } from './BagHeartBrokenIcon';
+import { BagSmileBoldDuotoneIcon } from './BagSmileBoldDuotoneIcon';
+import { BagSmileOutlineIcon } from './BagSmileOutlineIcon';
 import { BasketballBrokenIcon } from './BasketballBrokenIcon';
 import { BellBrokenIcon } from './BellBrokenIcon';
 import { BookBrokenIcon } from './BookBrokenIcon';
@@ -255,12 +259,12 @@ import { ReplyBoldIcon } from './ReplyBoldIcon';
 import { SettingsBoldIcon } from './SettingsBoldIcon';
 import { SettingsBrokenIcon } from './SettingsBrokenIcon';
 import { SettingsMinimalisticBoldIcon } from './SettingsMinimalisticBoldIcon';
-import { SettingsMinimalisticBoldDuotoneIcon } from './SettingsMinimalisticBoldDuotoneIcon';
 import { SettingsMinimalisticBrokenIcon } from './SettingsMinimalisticBrokenIcon';
 import { ShareBrokenIcon } from './ShareBrokenIcon';
 import { ShieldCheckBoldIcon } from './ShieldCheckBoldIcon';
 import { ShieldCheckBrokenIcon } from './ShieldCheckBrokenIcon';
 import { Shop2BoldIcon } from './Shop2BoldIcon';
+import { Shop2BoldDuotoneIcon } from './Shop2BoldDuotoneIcon';
 import { Shop2BrokenIcon } from './Shop2BrokenIcon';
 import { ShopBoldIcon } from './ShopBoldIcon';
 import { ShopBrokenIcon } from './ShopBrokenIcon';
@@ -312,6 +316,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'bag-2-broken': Bag2BrokenIcon,
   'bag-3-broken': Bag3BrokenIcon,
   'bag-heart-broken': BagHeartBrokenIcon,
+  'bag-smile-bold-duotone': BagSmileBoldDuotoneIcon,
+  'bag-smile-outline': BagSmileOutlineIcon,
   'basketball-broken': BasketballBrokenIcon,
   'bell-broken': BellBrokenIcon,
   'book-broken': BookBrokenIcon,
@@ -403,12 +409,12 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'settings-bold': SettingsBoldIcon,
   'settings-broken': SettingsBrokenIcon,
   'settings-minimalistic-bold': SettingsMinimalisticBoldIcon,
-  'settings-minimalistic-bold-duotone': SettingsMinimalisticBoldDuotoneIcon,
   'settings-minimalistic-broken': SettingsMinimalisticBrokenIcon,
   'share-broken': ShareBrokenIcon,
   'shield-check-bold': ShieldCheckBoldIcon,
   'shield-check-broken': ShieldCheckBrokenIcon,
   'shop-2-bold': Shop2BoldIcon,
+  'shop-2-bold-duotone': Shop2BoldDuotoneIcon,
   'shop-2-broken': Shop2BrokenIcon,
   'shop-bold': ShopBoldIcon,
   'shop-broken': ShopBrokenIcon,

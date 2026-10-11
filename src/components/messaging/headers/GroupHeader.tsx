@@ -80,14 +80,12 @@ export const GroupHeader = ({ conversation, isRTL, onBack, onInfo, onSearch }: G
 
   return (
     <View style={[styles.outerContainer, { top: insets.top + 10 }]}>
-      <BlurView
-        intensity={Platform.OS === 'ios' ? 80 : 100}
-        tint={colorScheme}
+      <View
         style={[
           styles.container,
           {
-            backgroundColor: colorScheme === 'dark' ? 'rgba(44, 44, 46, 0.8)' : 'rgba(241, 242, 244, 0.8)',
-            borderColor: colorScheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
             flexDirection: isRTL ? 'row-reverse' : 'row'
           }
         ]}
@@ -139,7 +137,7 @@ export const GroupHeader = ({ conversation, isRTL, onBack, onInfo, onSearch }: G
             </View>
           </>
         )}
-      </BlurView>
+      </View>
 
       <SelectionModal
         isVisible={isMenuVisible}

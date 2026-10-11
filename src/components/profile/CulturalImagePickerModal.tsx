@@ -7,8 +7,11 @@ import {
   ScrollView,
   Dimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { BlurView } from 'expo-blur';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
@@ -109,9 +112,18 @@ export const CulturalImagePickerModal = ({
     : (isRTL ? 'انتخاب آواتار از هنر ایرانی' : 'Select Persian Cultural Avatar');
 
   return (
-    <Modal visible={isVisible} animationType="slide" transparent>
+    <Modal visible={isVisible} animationType="fade" transparent onRequestClose={onClose}>
       <View style={styles.backdrop}>
-        <View style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <BlurView
+          intensity={Platform.OS === 'ios' ? 40 : 80}
+          tint="dark"
+          style={StyleSheet.absoluteFill}
+        />
+        <Animated.View
+          entering={FadeIn.duration(300)}
+          exiting={FadeOut.duration(200)}
+          style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+        >
           <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
               <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
@@ -154,7 +166,7 @@ export const CulturalImagePickerModal = ({
               </TouchableOpacity>
             ))}
           </ScrollView>
-        </View>
+        </Animated.View>
       </View>
     </Modal>
   );

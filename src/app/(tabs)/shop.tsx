@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, Modal, TextInput, Platform } from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions, Modal, TextInput, Platform, Switch } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { useStore } from '@/hooks/use-store';
+import { useStore, CustomProduct } from '@/hooks/use-store';
 import { useModalStore } from '@/hooks/use-modal-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -65,7 +65,7 @@ export default function TabShopScreen() {
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { language } = useStore();
+  const { language, customProducts, addCustomProduct } = useStore();
   const showModal = useModalStore((state) => state.showModal);
   const isRTL = language === 'fa';
   const router = useRouter();
@@ -75,13 +75,47 @@ export default function TabShopScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('products');
   const [isStorePickerVisible, setIsStorePickerVisible] = useState(false);
   const [isAddStoreVisible, setIsAddStoreVisible] = useState(false);
+  const [isAddProductVisible, setIsAddProductVisible] = useState(false);
 
   // New store form
   const [newStoreName, setNewStoreName] = useState('');
   const [newStoreSpecialty, setNewStoreSpecialty] = useState('');
   const [newStoreRole, setNewStoreRole] = useState('مالک فروشگاه');
 
+  // New product form
+  const [pTitle, setPTitle] = useState('');
+  const [pPrice, setPPrice] = useState('');
+  const [pCostPrice, setPCostPrice] = useState('');
+  const [pStock, setPStock] = useState('15');
+  const [pDiscount, setPDiscount] = useState('');
+  const [isAuction, setIsAuction] = useState(false);
+  const [pCategory, setPCategory] = useState('Electronics');
+  const [pImage, setPImage] = useState('https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400');
+  const [pDescription, setPDescription] = useState('');
+
   const currentStore = stores.find((s) => s.id === activeStoreId) || stores[0];
+
+  const allDisplayProducts = useMemo(() => {
+    return [...customProducts, ...PRODUCTS];
+  }, [customProducts]);
+
+  // Inventory & Stats calculation
+  const stats = useMemo(() => {
+    let totalStock = customProducts.reduce((acc, p) => acc + (p.stockQuantity || 10), 85);
+    let salesCount = customProducts.reduce((acc, p) => acc + (p.salesCount || 0), 124);
+    let totalRevenue = customProducts.reduce((acc, p) => acc + (p.price * (p.salesCount || 1)), 45000000);
+    let totalCost = customProducts.reduce((acc, p) => acc + ((p.costPrice || p.price * 0.7) * (p.salesCount || 1)), 28000000);
+    let netProfit = totalRevenue - totalCost;
+    let activeDiscountsCount = allDisplayProducts.filter(p => p.hasActiveSale || p.discountPercentage).length;
+
+    return {
+      totalStock,
+      salesCount,
+      totalRevenue,
+      netProfit,
+      activeDiscountsCount,
+    };
+  }, [customProducts, allDisplayProducts]);
 
   const handleCreateStore = () => {
     if (!newStoreName.trim()) {
@@ -115,9 +149,66 @@ export default function TabShopScreen() {
     showModal({
       title: isRTL ? 'فروشگاه جدید ثبت شد 🎉' : 'New Store Created 🎉',
       message: isRTL ? `فروشگاه «${created.name}» با موفقیت ایجاد شد و آماده مدیریت است.` : `Store "${created.name}" created successfully.`,
-      icon: 'solar:shop-2-bold',
+      icon: 'solar:bag-smile-bold-duotone',
       iconColor: colors.tint,
       buttons: [{ text: isRTL ? 'مدیریت فروشگاه' : 'Manage Store', style: 'primary' }]
+    });
+  };
+
+  const handleAddProduct = () => {
+    if (!pTitle.trim() || !pPrice.trim()) {
+      showModal({
+        title: isRTL ? 'خطا در افزودن محصول' : 'Input Error',
+        message: isRTL ? 'عنوان و قیمت فروش محصول الزامی است.' : 'Title and selling price are required.',
+        icon: 'solar:danger-circle-bold',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'متوجه شدم' : 'Understood', style: 'primary' }]
+      });
+      return;
+    }
+
+    const priceNum = parseFloat(pPrice);
+    const costNum = pCostPrice ? parseFloat(pCostPrice) : priceNum * 0.7;
+    const stockNum = pStock ? parseInt(pStock, 10) : 10;
+    const discountNum = pDiscount ? parseFloat(pDiscount) : 0;
+
+    const newProd: CustomProduct = {
+      id: `custom-${Date.now()}`,
+      name: pTitle.trim(),
+      price: priceNum,
+      costPrice: costNum,
+      stockQuantity: stockNum,
+      salesCount: 0,
+      description: pDescription.trim() || (isRTL ? 'محصول جدید افزوده‌شده از بخش مدیریت فروشگاه کوتیک' : 'New custom product added from store manager'),
+      image: pImage || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+      category: pCategory,
+      seller: currentStore.name,
+      oldPrice: discountNum > 0 ? priceNum + (priceNum * (discountNum / 100)) : undefined,
+      discountPercentage: discountNum > 0 ? discountNum : undefined,
+      hasActiveSale: discountNum > 0 || isAuction,
+      rating: 5.0,
+      reviews: 1,
+    };
+
+    addCustomProduct(newProd);
+    setIsAddProductVisible(false);
+
+    // Reset form
+    setPTitle('');
+    setPPrice('');
+    setPCostPrice('');
+    setPStock('15');
+    setPDiscount('');
+    setIsAuction(false);
+
+    showModal({
+      title: isRTL ? 'محصول جدید افزوده شد 🎉' : 'Product Added 🎉',
+      message: isRTL
+        ? `محصول «${newProd.name}» با موفقیت ثبت گردید و هم‌اکنون در لیست محصولات فروشگاه و صفحه اصلی اپلیکیشن نمایش داده می‌شود.`
+        : `Product "${newProd.name}" added successfully and is now live on Home page.`,
+      icon: 'solar:bag-smile-bold-duotone',
+      iconColor: colors.tint,
+      buttons: [{ text: isRTL ? 'عالی' : 'Great', style: 'primary' }]
     });
   };
 
@@ -179,7 +270,7 @@ export default function TabShopScreen() {
           style={[styles.floatingHeaderBtn, { flexDirection: isRTL ? 'row-reverse' : 'row', gap: 6, width: undefined, paddingHorizontal: 12 }]}
           activeOpacity={0.8}
         >
-          <Iconify icon="solar:shop-2-broken" size={22} color={colors.tint} />
+          <Iconify icon="solar:bag-smile-bold-duotone" size={22} color={colors.tint} />
           <Text style={[styles.headerTitle, { color: colors.text }]}>{isRTL ? 'فروشگاه من' : 'My Store'}</Text>
           <Iconify icon="solar:alt-arrow-down-broken" size={16} color={colors.textSecondary} />
         </TouchableOpacity>
@@ -187,7 +278,7 @@ export default function TabShopScreen() {
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8 }}>
           <TouchableOpacity
             style={styles.floatingHeaderIconBtn}
-            onPress={() => setIsAddStoreVisible(true)}
+            onPress={() => router.push('/shop/create')}
             activeOpacity={0.8}
           >
             <Iconify icon="solar:add-circle-broken" size={22} color={colors.tint} />
@@ -198,14 +289,14 @@ export default function TabShopScreen() {
             onPress={() => router.push('/settings/shop-management')}
             activeOpacity={0.8}
           >
-            <Iconify icon="solar:settings-broken" size={20} color={colors.text} />
+            <Iconify icon="solar:settings-minimalistic-broken" size={20} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}>
         
-        {/* 1. STORE NAME CARD (PLACED AT TOP AS REQUESTED) */}
+        {/* 1. STORE NAME CARD */}
         <Animated.View entering={FadeInDown.duration(500)} style={[styles.profileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Image source={{ uri: currentStore.cover }} style={styles.coverImage} contentFit="cover" />
 
@@ -214,10 +305,8 @@ export default function TabShopScreen() {
           </View>
 
           <View style={styles.shopInfo}>
-            {/* Store Name */}
             <Text style={[styles.name, { color: colors.text }]}>{currentStore.name}</Text>
 
-            {/* Role Badge in Store */}
             <View style={[styles.roleBadge, { backgroundColor: colors.tint + '18', borderColor: colors.tint + '40' }]}>
               <Iconify icon="solar:verified-check-bold" size={14} color={colors.tint} />
               <Text style={[styles.roleBadgeText, { color: colors.tint }]}>
@@ -225,48 +314,67 @@ export default function TabShopScreen() {
               </Text>
             </View>
 
-            {/* Specialty */}
             <Text style={[styles.specialty, { color: colors.textSecondary }]}>{currentStore.specialty}</Text>
 
-            {/* Quick Action Buttons */}
             <View style={[styles.actionRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: colors.tint }]}
-                onPress={() => router.push('/settings/shop-management')}
+                onPress={() => setIsAddProductVisible(true)}
                 activeOpacity={0.85}
               >
-                <Text style={styles.primaryButtonText}>{isRTL ? 'مدیریت و تنظیمات فروشگاه' : 'Manage Store'}</Text>
+                <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
+                <Text style={styles.primaryButtonText}>{isRTL ? 'افزودن محصول جدید' : 'Add Product'}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[styles.secondaryButton, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                onPress={() => setIsStorePickerVisible(true)}
+                onPress={() => router.push('/settings/shop-management')}
                 activeOpacity={0.85}
               >
-                <Iconify icon="solar:refresh-broken" size={20} color={colors.text} />
+                <Iconify icon="solar:settings-minimalistic-broken" size={20} color={colors.text} />
               </TouchableOpacity>
             </View>
           </View>
         </Animated.View>
 
-        {/* 2. INVENTORY & MONTHLY SALES CARDS (PLACED UNDERNEATH STORE NAME CARD AS REQUESTED) */}
-        <Animated.View entering={FadeInDown.duration(500).delay(100)} style={[styles.overviewRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <View style={[styles.overviewCard, { backgroundColor: colors.tint, shadowColor: colors.tint }]}>
+        {/* 2. INVENTORY, SALES, PROFIT & AUCTIONS STATS */}
+        <Animated.View entering={FadeInDown.duration(500).delay(100)} style={styles.statsGrid}>
+          <View style={[styles.overviewCard, { backgroundColor: colors.tint }]}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Iconify icon="solar:wallet-money-bold" size={24} color="#fff" />
-              <Text style={{ fontSize: 10, color: 'rgba(255,255,255,0.8)', fontWeight: '800' }}>{isRTL ? 'بروز' : 'Live'}</Text>
+              <Iconify icon="solar:box-broken" size={22} color="#fff" />
+              <Text style={styles.statBadgeText}>{isRTL ? 'انبار زنده' : 'Live Stock'}</Text>
             </View>
-            <Text style={styles.overviewLabel}>{isRTL ? 'موجودی انبار و کیف‌پول' : 'Inventory & Balance'}</Text>
-            <Text style={styles.overviewValue}>{currentStore.balance}</Text>
+            <Text style={styles.overviewLabel}>{isRTL ? 'موجودی انبار' : 'Inventory Stock'}</Text>
+            <Text style={styles.overviewValue}>{stats.totalStock} {isRTL ? 'عدد' : 'pcs'}</Text>
           </View>
 
           <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Iconify icon="solar:graph-up-broken" size={24} color={colors.tint} />
-              <Text style={{ fontSize: 10, color: colors.tint, fontWeight: '800' }}>+۱۲٪</Text>
+              <Iconify icon="solar:graph-up-broken" size={22} color={colors.success} />
+              <Text style={[styles.statBadgeText, { color: colors.success }]}>+۱۸٪</Text>
             </View>
-            <Text style={[styles.overviewLabel, { color: colors.textSecondary }]}>{isRTL ? 'فروش این ماه' : 'Monthly Sales'}</Text>
-            <Text style={[styles.overviewValue, { color: colors.text }]}>{currentStore.monthlySales}</Text>
+            <Text style={[styles.overviewLabel, { color: colors.textSecondary }]}>{isRTL ? 'تعداد فروش کل' : 'Total Sales'}</Text>
+            <Text style={[styles.overviewValue, { color: colors.text }]}>{stats.salesCount} {isRTL ? 'سفارش' : 'orders'}</Text>
+          </View>
+
+          <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Iconify icon="solar:wallet-money-broken" size={22} color={colors.tint} />
+              <Text style={[styles.statBadgeText, { color: colors.tint }]}>{isRTL ? 'سود خالص' : 'Profit'}</Text>
+            </View>
+            <Text style={[styles.overviewLabel, { color: colors.textSecondary }]}>{isRTL ? 'سود حاصل از فروش' : 'Net Profit'}</Text>
+            <Text style={[styles.overviewValue, { color: colors.tint }]}>
+              {stats.netProfit > 1000 ? `$${(stats.netProfit/1000).toFixed(1)}k` : `$${stats.netProfit}`}
+            </Text>
+          </View>
+
+          <View style={[styles.overviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Iconify icon="solar:fire-broken" size={22} color={colors.warning} />
+              <Text style={[styles.statBadgeText, { color: colors.warning }]}>{stats.activeDiscountsCount} {isRTL ? 'حراجی' : 'Active'}</Text>
+            </View>
+            <Text style={[styles.overviewLabel, { color: colors.textSecondary }]}>{isRTL ? 'حراجی و تخفیف‌ها' : 'Discounts & Deals'}</Text>
+            <Text style={[styles.overviewValue, { color: colors.text }]}>{stats.activeDiscountsCount} {isRTL ? 'محصول' : 'items'}</Text>
           </View>
         </Animated.View>
 
@@ -282,7 +390,7 @@ export default function TabShopScreen() {
         <Animated.View entering={FadeInDown.duration(400)} style={styles.tabContent}>
           {activeTab === 'products' && (
             <View style={styles.productsList}>
-              {PRODUCTS.map((product) => (
+              {allDisplayProducts.map((product) => (
                 <TouchableOpacity
                   key={product.id}
                   style={[styles.productCard, { backgroundColor: colors.card, borderColor: colors.border }]}
@@ -292,29 +400,41 @@ export default function TabShopScreen() {
                   <View style={[styles.productMain, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                     <Image source={{ uri: product.image }} style={styles.productImage} contentFit="cover" transition={300} />
                     <View style={[styles.productInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-                      <Text style={[styles.productName, { color: colors.text }]}>{product.name}</Text>
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <Text style={[styles.productName, { color: colors.text }]}>{product.name}</Text>
+                        {(product.hasActiveSale || product.discountPercentage) && (
+                          <View style={[styles.saleBadge, { backgroundColor: colors.destructive + '18' }]}>
+                            <Text style={[styles.saleBadgeText, { color: colors.destructive }]}>
+                              {product.discountPercentage ? `%${product.discountPercentage} حراج` : 'حراجی'}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
                       <Text style={[styles.productSummary, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
                         {product.description}
                       </Text>
-                      <Text style={[styles.productPrice, { color: colors.tint }]}>${product.price}</Text>
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                        <Text style={[styles.productPrice, { color: colors.tint }]}>${product.price}</Text>
+                        {product.oldPrice && (
+                          <Text style={styles.oldPrice}>${product.oldPrice}</Text>
+                        )}
+                      </View>
                     </View>
                   </View>
                   <View style={[styles.productFooter, { borderTopColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                     <View style={styles.footerStat}>
-                      <Iconify icon="solar:eye-broken" size={14} color={colors.textSecondary} />
-                      <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>۱۲۴</Text>
+                      <Iconify icon="solar:box-broken" size={14} color={colors.textSecondary} />
+                      <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>
+                        {isRTL ? `موجود: ${product.stockQuantity ?? 10}` : `Stock: ${product.stockQuantity ?? 10}`}
+                      </Text>
                     </View>
                     <View style={styles.footerStat}>
                       <Iconify icon="solar:bag-heart-broken" size={14} color={colors.textSecondary} />
                       <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>۴۵</Text>
                     </View>
                     <View style={styles.footerStat}>
-                      <Iconify icon="solar:chat-line-broken" size={14} color={colors.textSecondary} />
-                      <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>۱۲</Text>
-                    </View>
-                    <View style={styles.footerStat}>
                       <Iconify icon="solar:star-bold" size={12} color="#fbbf24" />
-                      <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>۴.۸</Text>
+                      <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>{product.rating || '۴.۸'}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
@@ -386,7 +506,7 @@ export default function TabShopScreen() {
 
           {activeTab === 'messages' && (
             <View style={styles.messagesList}>
-              {PRODUCTS.slice(0, 3).map((product) => (
+              {allDisplayProducts.slice(0, 3).map((product) => (
                 <View key={product.id} style={[styles.messageCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <View style={[styles.messageHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
                     <Image source={{ uri: product.image }} style={styles.msgProductThumb} />
@@ -413,7 +533,138 @@ export default function TabShopScreen() {
         </Animated.View>
       </ScrollView>
 
-      {/* Multi-Store Switcher Modal */}
+      {/* Modal 1: Add New Product */}
+      <Modal visible={isAddProductVisible} transparent animationType="slide" onRequestClose={() => setIsAddProductVisible(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{isRTL ? 'افزودن محصول جدید به فروشگاه' : 'Add New Product'}</Text>
+              <TouchableOpacity onPress={() => setIsAddProductVisible(false)}>
+                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12, paddingVertical: 8 }}>
+              <View style={styles.formGroup}>
+                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'عنوان محصول' : 'Product Title'} *
+                </Text>
+                <TextInput
+                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
+                  placeholder={isRTL ? 'مثال: ساعت هوشمند گلکسی واچ ۶' : 'e.g. Galaxy Watch 6'}
+                  placeholderTextColor={colors.textSecondary}
+                  value={pTitle}
+                  onChangeText={setPTitle}
+                />
+              </View>
+
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                    {isRTL ? 'قیمت فروش ($)' : 'Selling Price ($)'} *
+                  </Text>
+                  <TextInput
+                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                    placeholder="299"
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.textSecondary}
+                    value={pPrice}
+                    onChangeText={setPPrice}
+                  />
+                </View>
+
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                    {isRTL ? 'قیمت خرید/تمام شده' : 'Cost Price ($)'}
+                  </Text>
+                  <TextInput
+                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                    placeholder="180"
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.textSecondary}
+                    value={pCostPrice}
+                    onChangeText={setPCostPrice}
+                  />
+                </View>
+              </View>
+
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                    {isRTL ? 'موجودی اولیه انبار' : 'Initial Stock'}
+                  </Text>
+                  <TextInput
+                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                    placeholder="15"
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.textSecondary}
+                    value={pStock}
+                    onChangeText={setPStock}
+                  />
+                </View>
+
+                <View style={[styles.formGroup, { flex: 1 }]}>
+                  <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                    {isRTL ? 'درصد تخفیف / حراج' : 'Discount (%)'}
+                  </Text>
+                  <TextInput
+                    style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                    placeholder="15"
+                    keyboardType="numeric"
+                    placeholderTextColor={colors.textSecondary}
+                    value={pDiscount}
+                    onChangeText={setPDiscount}
+                  />
+                </View>
+              </View>
+
+              <View style={[styles.formGroup, { flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', justifyContent: 'space-between', paddingTop: 4 }]}>
+                <Text style={[styles.formLabel, { color: colors.text }]}>
+                  {isRTL ? 'علامت‌گذاری به‌عنوان حراجی ویژه' : 'Mark as Hot Auction'}
+                </Text>
+                <Switch value={isAuction} onValueChange={setIsAuction} trackColor={{ false: colors.border, true: colors.tint }} thumbColor="#fff" />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'لینک تصویر محصول' : 'Image URL'}
+                </Text>
+                <TextInput
+                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                  placeholder="https://images.unsplash.com/..."
+                  placeholderTextColor={colors.textSecondary}
+                  value={pImage}
+                  onChangeText={setPImage}
+                />
+              </View>
+
+              <View style={styles.formGroup}>
+                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'توضیحات محصول' : 'Description'}
+                </Text>
+                <TextInput
+                  style={[styles.formInput, { height: 70, color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
+                  placeholder={isRTL ? 'توضیحات مربوط به ویژگی‌ها و مشخصات فنی...' : 'Product specifications...'}
+                  placeholderTextColor={colors.textSecondary}
+                  multiline
+                  value={pDescription}
+                  onChangeText={setPDescription}
+                />
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={[styles.addStoreBtn, { backgroundColor: colors.tint }]}
+              onPress={handleAddProduct}
+            >
+              <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
+              <Text style={styles.addStoreBtnText}>{isRTL ? 'ثبت و انتشار محصول در صفحه اصلی' : 'Add & Publish to Home'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Modal 2: Multi-Store Switcher */}
       <Modal visible={isStorePickerVisible} transparent animationType="slide">
         <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setIsStorePickerVisible(false)}>
           <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -459,7 +710,7 @@ export default function TabShopScreen() {
               style={[styles.addStoreBtn, { backgroundColor: colors.tint }]}
               onPress={() => {
                 setIsStorePickerVisible(false);
-                setIsAddStoreVisible(true);
+                router.push('/shop/create');
               }}
             >
               <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
@@ -467,81 +718,6 @@ export default function TabShopScreen() {
             </TouchableOpacity>
           </View>
         </TouchableOpacity>
-      </Modal>
-
-      {/* Add New Store Modal */}
-      <Modal visible={isAddStoreVisible} transparent animationType="slide">
-        <View style={styles.modalOverlay}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>{isRTL ? 'معرفی و ثبت فروشگاه جدید' : 'Introduce New Store'}</Text>
-              <TouchableOpacity onPress={() => setIsAddStoreVisible(false)}>
-                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 14, paddingVertical: 10 }}>
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'نام فروشگاه' : 'Store Name'}
-                </Text>
-                <TextInput
-                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
-                  placeholder={isRTL ? 'مثال: گالری دیجیتال پارس' : 'e.g. Digital Gallery'}
-                  placeholderTextColor={colors.textSecondary}
-                  value={newStoreName}
-                  onChangeText={setNewStoreName}
-                />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'تخصص و حیطه حوزه کاری' : 'Specialty / Field'}
-                </Text>
-                <TextInput
-                  style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: isRTL ? 'right' : 'left' }]}
-                  placeholder={isRTL ? 'مثال: مرکز تخصصی پوشاک و اکسسوری' : 'e.g. Fashion & Apparel'}
-                  placeholderTextColor={colors.textSecondary}
-                  value={newStoreSpecialty}
-                  onChangeText={setNewStoreSpecialty}
-                />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={[styles.formLabel, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
-                  {isRTL ? 'سمت شما در فروشگاه' : 'My Role in Store'}
-                </Text>
-                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, flexWrap: 'wrap' }}>
-                  {['مدیر کل و مالک', 'مدیر فروشگاه', 'کارمند فروش و پشتیبانی'].map((r) => {
-                    const isSelected = newStoreRole === r;
-                    return (
-                      <TouchableOpacity
-                        key={r}
-                        onPress={() => setNewStoreRole(r)}
-                        style={[
-                          styles.roleChip,
-                          {
-                            backgroundColor: isSelected ? colors.tint + '18' : colors.surface,
-                            borderColor: isSelected ? colors.tint : colors.border,
-                          },
-                        ]}
-                      >
-                        <Text style={{ fontSize: 12, fontWeight: '700', color: isSelected ? colors.tint : colors.text }}>{r}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            </ScrollView>
-
-            <TouchableOpacity
-              style={[styles.addStoreBtn, { backgroundColor: colors.tint }]}
-              onPress={handleCreateStore}
-            >
-              <Text style={styles.addStoreBtnText}>{isRTL ? 'تایید و ثبت فروشگاه' : 'Create Store'}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
       </Modal>
     </View>
   );
@@ -607,8 +783,10 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
   },
   primaryButtonText: { color: '#fff', fontWeight: '800', fontSize: 14 },
   secondaryButton: {
@@ -619,11 +797,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
   },
-  overviewRow: { gap: 12 },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
   overviewCard: {
-    flex: 1,
-    padding: 18,
-    borderRadius: 22,
+    width: (width - 32 - 12) / 2,
+    padding: 14,
+    borderRadius: 20,
     gap: 6,
     borderWidth: 1,
     shadowOffset: { width: 0, height: 4 },
@@ -631,8 +813,9 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 3,
   },
-  overviewLabel: { fontSize: 12, fontWeight: '700', color: 'rgba(255,255,255,0.85)' },
-  overviewValue: { fontSize: 18, fontWeight: '900', color: '#fff' },
+  statBadgeText: { fontSize: 10, color: '#fff', fontWeight: '800' },
+  overviewLabel: { fontSize: 11, fontWeight: '700', color: 'rgba(255,255,255,0.85)' },
+  overviewValue: { fontSize: 17, fontWeight: '900', color: '#fff' },
   tabsContainer: { gap: 8, marginTop: 4 },
   tabButton: {
     height: 64,
@@ -650,8 +833,11 @@ const styles = StyleSheet.create({
   productImage: { width: 80, height: 80, borderRadius: 16 },
   productInfo: { flex: 1, gap: 4 },
   productName: { fontSize: 15, fontWeight: '800' },
+  saleBadge: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
+  saleBadgeText: { fontSize: 10, fontWeight: '800' },
   productSummary: { fontSize: 12 },
-  productPrice: { fontSize: 16, fontWeight: '900', marginTop: 2 },
+  productPrice: { fontSize: 16, fontWeight: '900' },
+  oldPrice: { fontSize: 13, textDecorationLine: 'line-through', color: '#888' },
   productFooter: { padding: 10, borderTopWidth: 1, justifyContent: 'space-around' },
   footerStat: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   footerStatText: { fontSize: 11, fontWeight: '700' },
@@ -681,7 +867,7 @@ const styles = StyleSheet.create({
 
   // Modal styles
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, borderWidth: 1, maxHeight: '80%' },
+  modalContent: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 20, borderWidth: 1, maxHeight: '85%' },
   modalHeaderRow: { justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
   modalTitle: { fontSize: 18, fontWeight: '900' },
   storeOptionCard: { padding: 12, borderRadius: 18, borderWidth: 1.5, alignItems: 'center', gap: 12 },
@@ -692,5 +878,4 @@ const styles = StyleSheet.create({
   formGroup: { gap: 6 },
   formLabel: { fontSize: 12, fontWeight: '700' },
   formInput: { height: 50, borderRadius: 14, borderWidth: 1, paddingHorizontal: 14, fontSize: 14, fontWeight: '600' },
-  roleChip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 12, borderWidth: 1 },
 });

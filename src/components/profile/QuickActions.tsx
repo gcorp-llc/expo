@@ -41,7 +41,7 @@ export const QuickActions = ({ isRTL, mode = 'own', userId }: QuickActionsProps)
     },
     {
       label: isRTL ? 'مشاهده فروشگاه' : 'View Shop',
-      icon: 'solar:shop-broken',
+      icon: 'solar:bag-smile-outline',
       color: '#6366F1',
       route: `/shop/${userId || '1'}`
     },

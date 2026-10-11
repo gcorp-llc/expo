@@ -107,7 +107,7 @@ export default function ShopManagementScreen() {
           </Text>
           <InputField
             label={isRTL ? 'نام فروشگاه' : 'Shop Name'}
-            icon="solar:shop-2-broken"
+            icon="solar:bag-smile-outline"
             value={form.name}
             onChangeText={(text: string) => setForm({ ...form, name: text })}
             placeholder={isRTL ? 'نام فروشگاه' : 'Shop name'}

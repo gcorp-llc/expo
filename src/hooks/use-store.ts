@@ -13,6 +13,25 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface CustomProduct {
+  id: string;
+  name: string;
+  price: number;
+  costPrice?: number;
+  stockQuantity?: number;
+  salesCount?: number;
+  description: string;
+  image: string;
+  category: string;
+  seller: string;
+  oldPrice?: number;
+  discountPercentage?: number;
+  hasActiveSale?: boolean;
+  saleEndDate?: string;
+  rating?: number;
+  reviews?: number;
+}
+
 interface AppState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -108,6 +127,10 @@ interface AppState {
     balance: number;
   };
   updateFinance: (info: Partial<AppState["finance"]>) => void;
+
+  customProducts: CustomProduct[];
+  addCustomProduct: (product: CustomProduct) => void;
+  removeCustomProduct: (id: string) => void;
 
   // Auth State
   isAuthenticated: boolean;
@@ -326,6 +349,16 @@ export const useStore = create<AppState>()(
           finance: { ...state.finance, ...info },
         })),
 
+      customProducts: [],
+      addCustomProduct: (product) =>
+        set((state) => ({
+          customProducts: [product, ...state.customProducts],
+        })),
+      removeCustomProduct: (id) =>
+        set((state) => ({
+          customProducts: state.customProducts.filter((p) => p.id !== id),
+        })),
+
       // Auth State Initial
       isAuthenticated: false,
       isGuest: false,
@@ -359,6 +392,7 @@ export const useStore = create<AppState>()(
         cartItems: state.cartItems,
         cart: state.cartItems.map((item) => item.id),
         recentSearches: state.recentSearches,
+        customProducts: state.customProducts,
       }),
     },
   ),

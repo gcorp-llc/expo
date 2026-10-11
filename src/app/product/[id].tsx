@@ -415,7 +415,7 @@ export default function ProductDetailScreen() {
             ]}
           >
             <View style={[styles.sellerAvatar, { backgroundColor: colors.tint + '20' }]}>
-              <Iconify icon="solar:shop-2-bold" size={22} color={colors.tint} />
+              <Iconify icon="solar:bag-smile-bold-duotone" size={22} color={colors.tint} />
             </View>
             <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
               <Text style={{ color: colors.textSecondary, fontSize: 12, fontWeight: '600' }}>
