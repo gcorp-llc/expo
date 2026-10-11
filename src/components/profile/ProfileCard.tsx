@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Share, Alert } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Share } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { useRouter } from 'expo-router';
 import { Iconify } from '@/components/ui/Iconify';
 import { Colors, Spacing } from '@/constants/theme';
@@ -18,6 +19,7 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
   const router = useRouter();
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
+  const showModal = useModalStore((state) => state.showModal);
   const { updateProfile, blockUser, blockedUserIds } = useProfileStore();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -54,12 +56,14 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
   const onBlock = () => {
     if (!userId) return;
 
-    Alert.alert(
-      isRTL ? 'مسدود کردن مخاطب' : 'Block Contact',
-      isRTL
+    showModal({
+      title: isRTL ? 'مسدود کردن مخاطب' : 'Block Contact',
+      message: isRTL
         ? 'آیا از مسدود کردن این مخاطب اطمینان دارید؟ گفتگوهای این شخص دیگر نمایش داده نخواهند شد.'
         : 'Are you sure you want to block this contact? Conversations with this person will no longer be visible.',
-      [
+      icon: 'solar:user-block-broken',
+      iconColor: colors.destructive,
+      buttons: [
         { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
         {
           text: isRTL ? 'مسدود کردن' : 'Block',
@@ -70,7 +74,7 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
           }
         }
       ]
-    );
+    });
   };
 
   const StatItem = ({ label, value }: { label: string; value: string | number }) => (

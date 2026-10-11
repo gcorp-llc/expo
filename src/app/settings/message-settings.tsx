@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,6 +15,7 @@ export default function MessageSettingsScreen() {
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const showModal = useModalStore((state) => state.showModal);
   const { language } = useStore();
   const isRTL = language === 'fa';
 
@@ -111,14 +113,27 @@ export default function MessageSettingsScreen() {
           <TouchableOpacity
             style={[styles.actionRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
             onPress={() => {
-              Alert.alert(
-                isRTL ? 'پاک‌سازی تاریخچه محلی' : 'Clear Local Cache',
-                isRTL ? 'آیا از پاک کردن کش محلی گفتگوها اطمینان دارید؟' : 'Are you sure you want to clear local chat cache?',
-                [
+              showModal({
+                title: isRTL ? 'پاک‌سازی تاریخچه محلی' : 'Clear Local Cache',
+                message: isRTL ? 'آیا از پاک کردن کش محلی گفتگوها اطمینان دارید؟ این عمل قابل بازگشت نیست.' : 'Are you sure you want to clear local chat cache?',
+                icon: 'solar:trash-bin-trash-broken',
+                iconColor: colors.destructive,
+                buttons: [
                   { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
-                  { text: isRTL ? 'پاک‌سازی' : 'Clear', style: 'destructive', onPress: () => {} },
+                  {
+                    text: isRTL ? 'پاک‌سازی' : 'Clear',
+                    style: 'destructive',
+                    onPress: () => {
+                      showModal({
+                        title: isRTL ? 'پاک‌سازی گردید' : 'Cleared',
+                        message: isRTL ? 'کش محلی گفتگوها با موفقیت پاک‌سازی شد.' : 'Local cache cleared.',
+                        icon: 'solar:check-circle-bold',
+                        buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+                      });
+                    }
+                  },
                 ]
-              );
+              });
             }}
           >
             <View style={[styles.iconBox, { backgroundColor: colors.destructive + '15', borderColor: colors.destructive + '30' }]}>

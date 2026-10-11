@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, Platform, Alert } from 'react-native';
+import { StyleSheet, View, Platform } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStore } from '@/hooks/use-store';
@@ -75,6 +76,8 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
     { value: 'report', label: isRTL ? 'گزارش' : 'Report', icon: 'solar:danger-circle-bold', isDestructive: true },
   ], [isRTL]);
 
+  const showModal = useModalStore((state) => state.showModal);
+
   const autoDeleteOptions: Option[] = useMemo(() => [
     { value: 'off', label: isRTL ? 'خاموش' : 'Off' },
     { value: '24h', label: isRTL ? '۲۴ ساعت' : '24 Hours' },
@@ -88,55 +91,73 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         onShare();
         break;
       case 'block':
-        Alert.alert(
-          isRTL ? 'مسدود کردن کاربر' : 'Block User',
-          isRTL ? 'آیا از مسدود کردن این کاربر اطمینان دارید؟' : 'Are you sure you want to block this user?',
-          [
+        showModal({
+          title: isRTL ? 'مسدود کردن کاربر' : 'Block User',
+          message: isRTL ? 'آیا از مسدود کردن این کاربر اطمینان دارید؟ پیام‌های وی دیگر به شما نمایش داده نخواهند شد.' : 'Are you sure you want to block this user?',
+          icon: 'solar:user-block-broken',
+          iconColor: colors.destructive,
+          buttons: [
             { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
             { text: isRTL ? 'مسدود کن' : 'Block', style: 'destructive' },
           ]
-        );
+        });
         break;
       case 'edit':
-        Alert.alert(isRTL ? 'ویرایش مخاطب' : 'Edit Contact', isRTL ? 'فرم ویرایش اطلاعات مخاطب.' : 'Edit contact details.');
+        showModal({
+          title: isRTL ? 'ویرایش مخاطب' : 'Edit Contact',
+          message: isRTL ? 'اطلاعات مخاطب را می‌توانید ویرایش کنید.' : 'Edit contact details.',
+          icon: 'solar:pen-2-broken',
+          buttons: [{ text: isRTL ? 'تایید' : 'OK', style: 'primary' }]
+        });
         break;
       case 'delete_contact':
-        Alert.alert(
-          isRTL ? 'حذف مخاطب' : 'Delete Contact',
-          isRTL ? 'آیا این مخاطب از فهرست مخاطبین شما حذف شود؟' : 'Remove this contact from your contacts list?',
-          [
+        showModal({
+          title: isRTL ? 'حذف مخاطب' : 'Delete Contact',
+          message: isRTL ? 'آیا این مخاطب از فهرست مخاطبین شما حذف شود؟' : 'Remove this contact from your contacts list?',
+          icon: 'solar:trash-bin-trash-broken',
+          iconColor: colors.destructive,
+          buttons: [
             { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
-            { text: isRTL ? 'حذف' : 'Delete', style: 'destructive' },
+            { text: isRTL ? 'حذف مخاطب' : 'Delete', style: 'destructive' },
           ]
-        );
+        });
         break;
       case 'secret_chat':
-        Alert.alert(
-          isRTL ? 'گفتگوی محرمانه' : 'Secret Chat',
-          isRTL ? 'گفتگوی محرمانه رمزشده با مخاطب فعال گردید.' : 'Secret encrypted chat session initiated.'
-        );
+        showModal({
+          title: isRTL ? 'گفتگوی محرمانه' : 'Secret Chat',
+          message: isRTL ? 'گفتگوی محرمانه رمزشده با مخاطب فعال گردید.' : 'Secret encrypted chat session initiated.',
+          icon: 'solar:lock-password-broken',
+          iconColor: colors.tint,
+          buttons: [{ text: isRTL ? 'شروع گفتگو' : 'Start Chat', style: 'primary' }]
+        });
         break;
       case 'disable_sharing':
-        Alert.alert(
-          isRTL ? 'اشتراک‌گذاری' : 'Sharing',
-          isRTL ? 'اشتراک‌گذاری اطلاعات غیرفعال گردید.' : 'Sharing disabled for this user.'
-        );
+        showModal({
+          title: isRTL ? 'اشتراک‌گذاری' : 'Sharing',
+          message: isRTL ? 'اشتراک‌گذاری اطلاعات غیرفعال گردید.' : 'Sharing disabled for this user.',
+          icon: 'solar:transmission-broken',
+          buttons: [{ text: isRTL ? 'متوجه شدم' : 'Understood', style: 'primary' }]
+        });
         break;
       case 'add_home':
-        Alert.alert(
-          isRTL ? 'صفحه اصلی' : 'Home Screen',
-          isRTL ? 'میانبر مخاطب به صفحه اصلی اضافه شد.' : 'Contact shortcut added to home screen.'
-        );
+        showModal({
+          title: isRTL ? 'افزودن به صفحه اصلی' : 'Add to Home Screen',
+          message: isRTL ? 'میانبر مخاطب به صفحه اصلی اضافه شد.' : 'Contact shortcut added to home screen.',
+          icon: 'solar:add-square-broken',
+          buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+        });
         break;
       case 'report':
-        Alert.alert(
-          isRTL ? 'گزارش تخلف' : 'Report User',
-          isRTL ? 'گزارش شما برای تیم پشتیبانی ارسال می‌شود.' : 'Your report will be sent to moderation.',
-          [
+        showModal({
+          title: isRTL ? 'گزارش تخلف' : 'Report User',
+          message: isRTL ? 'گزارش شما بررسی شده و توسط تیم پشتیبانی کوتیک پیگیری می‌شود.' : 'Your report will be sent to moderation.',
+          icon: 'solar:danger-circle-bold',
+          iconColor: colors.destructive,
+          buttons: [
             { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
             { text: isRTL ? 'ارسال گزارش' : 'Send Report', style: 'destructive' },
           ]
-        );
+        });
         break;
     }
   };
@@ -170,6 +191,13 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         />
 
         <View style={[styles.rightActions, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          {isOwn && (
+            <FloatingIconButton
+              icon="solar:settings-minimalistic-broken"
+              onPress={() => router.push('/settings')}
+              iconSize={20}
+            />
+          )}
           <FloatingIconButton icon="solar:share-broken" onPress={onShare} iconSize={20} />
           {!isOwn && (
             <FloatingIconButton
@@ -249,7 +277,12 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         options={autoDeleteOptions}
         onSelect={(val) => {
           setIsAutoDeleteModalVisible(false);
-          Alert.alert(isRTL ? 'زمان حذف خودکار تنظیم گردید.' : 'Auto-delete timer set.');
+          showModal({
+            title: isRTL ? 'تنظیمات ذخیره شد' : 'Timer Set',
+            message: isRTL ? 'زمان حذف خودکار پیام‌ها با موفقیت تنظیم گردید.' : 'Auto-delete timer set.',
+            icon: 'solar:clock-circle-broken',
+            buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+          });
         }}
         isRTL={isRTL}
       />

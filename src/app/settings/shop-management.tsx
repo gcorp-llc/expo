@@ -50,15 +50,15 @@ export default function ShopManagementScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={24} color={colors.text} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
+            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'تنظیمات فروشگاه' : 'Shop Settings'}
           </Text>
-          <TouchableOpacity onPress={handleSave} style={[styles.saveBtn, { backgroundColor: colors.tint }]}>
+          <TouchableOpacity onPress={handleSave} style={[styles.saveBtn, { backgroundColor: colors.tint }]} activeOpacity={0.8}>
             <Text style={styles.saveBtnText}>{isRTL ? 'ذخیره' : 'Save'}</Text>
           </TouchableOpacity>
         </View>
@@ -185,9 +185,9 @@ export default function ShopManagementScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1 },
-  headerContent: { height: 70, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
-  iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+  header: { backgroundColor: 'transparent' },
+  headerContent: { height: 56, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
+  floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
   saveBtn: { paddingHorizontal: 20, height: 40, borderRadius: 20, justifyContent: 'center' },
   saveBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },

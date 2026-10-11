@@ -23,12 +23,12 @@ export const QuickActions = ({ isRTL, mode = 'own', userId }: QuickActionsProps)
   const isOwn = mode === 'own';
 
   const ownActions = [
+    { label: isRTL ? 'تنظیمات' : 'Settings', icon: 'solar:settings-minimalistic-broken', color: '#06B6D4', route: '/settings' },
     { label: isRTL ? 'محصولات' : 'Products', icon: 'solar:box-broken', color: '#6366F1', route: '/settings/my-products' },
     { label: isRTL ? 'سفارشات' : 'Orders', icon: 'solar:bag-2-broken', color: '#EC4899', route: '/settings/orders' },
     { label: isRTL ? 'علاقه‌مندی' : 'Wishlist', icon: 'solar:heart-broken', color: '#F43F5E', route: '/(tabs)/favorites' },
     { label: isRTL ? 'آنالیز' : 'Analytics', icon: 'solar:graph-up-broken', color: '#8B5CF6', route: '/settings/analytics' },
     { label: isRTL ? 'مالی' : 'Finance', icon: 'solar:wallet-money-broken', color: '#10B981', route: '/settings/finance' },
-    { label: isRTL ? 'نظرات' : 'Reviews', icon: 'solar:chat-line-broken', color: '#F59E0B', route: '/shop/reviews' },
   ];
 
   // TODO: replace with real cross-reference logic once real order/favorites data exists

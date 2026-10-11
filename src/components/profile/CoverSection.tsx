@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated from 'react-native-reanimated';
@@ -34,33 +35,37 @@ export const CoverSection = ({
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const updateProfile = useProfileStore((state) => state.updateProfile);
+  const showModal = useModalStore((state) => state.showModal);
 
   const isOwn = mode === 'own';
 
   const handleImageOptions = (type: 'avatar' | 'cover') => {
     const title = type === 'avatar'
-      ? (isRTL ? 'تصویر آواتار' : 'Avatar Image')
-      : (isRTL ? 'تصویر کاور' : 'Cover Image');
+      ? (isRTL ? 'ویرایش تصویر پروفایل' : 'Edit Avatar Image')
+      : (isRTL ? 'ویرایش تصویر کاور' : 'Edit Cover Image');
 
     const hasCurrent = type === 'avatar' ? !!avatar : !!image;
 
-    Alert.alert(
+    showModal({
       title,
-      isRTL ? 'گزینه مورد نظر را انتخاب کنید' : 'Select an option',
-      [
+      message: isRTL ? 'روش مورد نظر برای تغییر تصویر را انتخاب کنید:' : 'Choose a method to update image:',
+      icon: 'solar:camera-bold',
+      buttons: [
         {
-          text: isRTL ? 'تصاویر آماده با ریشه فرهنگ ایرانی 🏛️' : 'Persian Cultural Gallery 🏛️',
+          text: isRTL ? '🏛️ گالری فرهنگی ایران' : '🏛️ Cultural Gallery',
+          style: 'primary',
           onPress: () => {
             setPickerType(type);
             setCulturalModalVisible(true);
           },
         },
         {
-          text: isRTL ? 'انتخاب از گالری گوشی' : 'Choose from Gallery',
+          text: isRTL ? '📱 گالری دستگاه' : '📱 Device Gallery',
+          style: 'default',
           onPress: () => pickImage(type),
         },
         ...(hasCurrent ? [{
-          text: isRTL ? 'حذف تصویر' : 'Remove Image',
+          text: isRTL ? '🗑️ حذف تصویر' : '🗑️ Remove Image',
           style: 'destructive' as const,
           onPress: () => {
             if (type === 'avatar') {
@@ -72,22 +77,25 @@ export const CoverSection = ({
         }] : []),
         {
           text: isRTL ? 'انصراف' : 'Cancel',
-          style: 'cancel' as const,
+          style: 'cancel',
         }
       ]
-    );
+    });
   };
 
   const pickImage = async (type: 'avatar' | 'cover') => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
-      Alert.alert(
-        isRTL ? 'عدم دسترسی' : 'Permission Denied',
-        isRTL
-          ? 'برای تغییر تصویر، لطفاً دسترسی به گالری را در تنظیمات تایید کنید.'
-          : 'Please grant gallery permissions in settings to change your image.'
-      );
+      showModal({
+        title: isRTL ? 'عدم دسترسی به گالری' : 'Permission Denied',
+        message: isRTL
+          ? 'برای تغییر تصویر، لطفاً دسترسی به گالری را در تنظیمات دستگاه تایید کنید.'
+          : 'Please grant gallery permissions in settings to change your image.',
+        icon: 'solar:danger-circle-bold',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'متوجه شدم' : 'Got it', style: 'primary' }]
+      });
       return;
     }
 
@@ -131,7 +139,8 @@ export const CoverSection = ({
               styles.coverEditButton,
               {
                 backgroundColor: colors.surface + 'EE',
-                left: 16,
+                top: 56,
+                [isRTL ? 'left' : 'right']: 16,
               },
             ]}
             onPress={() => handleImageOptions('cover')}
@@ -220,8 +229,6 @@ const styles = StyleSheet.create({
   },
   coverEditButton: {
     position: 'absolute',
-    bottom: 12,
-    right: 12,
     width: 40,
     height: 40,
     borderRadius: 20,

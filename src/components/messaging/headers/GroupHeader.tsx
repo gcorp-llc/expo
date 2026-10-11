@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
@@ -36,6 +37,8 @@ export const GroupHeader = ({ conversation, isRTL, onBack, onInfo, onSearch }: G
     { value: 'leave', label: isRTL ? 'ترک گروه' : 'Leave Group', icon: 'solar:exit-outline' },
   ], [isRTL]);
 
+  const showModal = useModalStore((state) => state.showModal);
+
   const muteOptions: Option[] = useMemo(() => [
     { value: '1h', label: isRTL ? '۱ ساعت' : 'Mute for 1 hour' },
     { value: '8h', label: isRTL ? '۸ ساعت' : 'Mute for 8 hours' },
@@ -49,17 +52,21 @@ export const GroupHeader = ({ conversation, isRTL, onBack, onInfo, onSearch }: G
     } else if (val === 'mute') {
       setIsMuteModalVisible(true);
     } else if (val === 'leave') {
-      Alert.alert(
-        isRTL ? 'ترک گروه' : 'Leave Group',
-        isRTL ? 'آیا از ترک این گروه اطمینان دارید؟' : 'Are you sure you want to leave this group?',
-        [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'ترک گروه' : 'Leave', style: 'destructive' }]
-      );
+      showModal({
+        title: isRTL ? 'ترک گروه' : 'Leave Group',
+        message: isRTL ? 'آیا از ترک این گروه اطمینان دارید؟' : 'Are you sure you want to leave this group?',
+        icon: 'solar:exit-outline',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'ترک گروه' : 'Leave', style: 'destructive' }]
+      });
     } else if (val === 'clear') {
-      Alert.alert(
-        isRTL ? 'پاک کردن تاریخچه' : 'Clear History',
-        isRTL ? 'تمام پیام‌های این گفتگو پاک خواهند شد.' : 'All messages in this chat will be deleted.',
-        [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'پاک کن' : 'Clear', style: 'destructive' }]
-      );
+      showModal({
+        title: isRTL ? 'پاک کردن تاریخچه' : 'Clear History',
+        message: isRTL ? 'تمام پیام‌های این گفتگو پاک خواهند شد.' : 'All messages in this chat will be deleted.',
+        icon: 'solar:broom-broken',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'پاک کردن' : 'Clear', style: 'destructive' }]
+      });
     }
   };
 

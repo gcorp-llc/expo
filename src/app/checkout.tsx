@@ -135,15 +135,14 @@ export default function CheckoutScreen() {
           styles.header,
           {
             paddingTop: Math.max(insets.top, 12),
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
+            backgroundColor: 'transparent',
           },
         ]}
       >
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.iconBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            style={styles.floatingHeaderBtn}
             activeOpacity={0.7}
           >
             {isRTL ? (
@@ -461,20 +460,20 @@ export default function CheckoutScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1 },
+  header: { backgroundColor: 'transparent' },
   headerContent: {
-    height: 60,
+    height: 56,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: Spacing.md,
   },
-  iconBtn: {
+  floatingHeaderBtn: {
     width: 42,
     height: 42,
-    borderRadius: 14,
+    borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    backgroundColor: 'transparent',
   },
   headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: -0.4 },
   scrollContent: { padding: Spacing.md, gap: Spacing.md },

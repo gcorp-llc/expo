@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Alert, Dimensions, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, TextInput, Dimensions, Platform } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -17,6 +18,7 @@ export default function FinanceScreen() {
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const showModal = useModalStore((state) => state.showModal);
   const { language, finance, updateFinance } = useStore();
   const isRTL = language === 'fa';
 
@@ -38,12 +40,27 @@ export default function FinanceScreen() {
       ? `آیا مایل به برداشت مبلغ ${formatCurrency(finance.balance)} تومان به شماره شبای ${iban} هستید؟`
       : `Are you sure you want to withdraw ${formatCurrency(finance.balance)} to IBAN ${iban}?`;
 
-    Alert.alert(title, message, [
-      { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
-      { text: isRTL ? 'تایید' : 'Confirm', onPress: () => {
-        Alert.alert(isRTL ? 'موفق' : 'Success', isRTL ? 'درخواست شما ثبت شد.' : 'Your request has been submitted.');
-      }}
-    ]);
+    showModal({
+      title,
+      message,
+      icon: 'solar:wallet-money-broken',
+      iconColor: colors.tint,
+      buttons: [
+        { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
+        {
+          text: isRTL ? 'تایید و تسویه' : 'Confirm',
+          style: 'primary',
+          onPress: () => {
+            showModal({
+              title: isRTL ? 'درخواست ثبت شد' : 'Success',
+              message: isRTL ? 'درخواست تسویه حساب شما با موفقیت ثبت شد و ظرف ۲۴ ساعت آینده به حساب واریز می‌شود.' : 'Your request has been submitted.',
+              icon: 'solar:check-circle-bold',
+              buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }]
+            });
+          }
+        }
+      ]
+    });
   };
 
   const chartData = {

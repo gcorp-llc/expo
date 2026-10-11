@@ -19,6 +19,7 @@ import { FilterSlide } from "@/components/ui/FilterSlide";
 import { FloatingDrawer } from "@/components/ui/FloatingDrawer";
 import { SearchSlide } from "@/components/ui/SearchSlide";
 import { CustomToastProvider } from "@/components/ui/CustomToast";
+import { CustomModalProvider } from "@/components/ui/CustomModal";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
@@ -85,8 +86,8 @@ export default function RootLayout() {
             <Stack
               screenOptions={{
                 headerShown: false,
-                animation: "ios_from_right",
-                contentStyle: { backgroundColor: "transparent" },
+                animation: "slide_from_right",
+                contentStyle: { backgroundColor: colors.background },
               }}
             >
               <Stack.Screen name="index" options={{ animation: "none" }} />
@@ -107,6 +108,7 @@ export default function RootLayout() {
                 <FilterSlide />
                 <FloatingDrawer />
                 <CustomToastProvider />
+                <CustomModalProvider />
               </>
             )}
 

@@ -8,9 +8,9 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  Alert,
   Modal,
 } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +31,7 @@ export default function SellScreen() {
   const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const showModal = useModalStore((state) => state.showModal);
   const { language, isGuest, hasEnteredDemoMode } = useStore();
   const isRTL = language === 'fa';
 
@@ -61,10 +62,13 @@ export default function SellScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert(
-        isRTL ? 'خطای دسترسی' : 'Permission Required',
-        isRTL ? 'لطفاً دسترسی به گالری را تایید کنید.' : 'Gallery access is required.'
-      );
+      showModal({
+        title: isRTL ? 'خطای دسترسی' : 'Permission Required',
+        message: isRTL ? 'لطفاً دسترسی به گالری دستگاه را تایید کنید.' : 'Gallery access is required.',
+        icon: 'solar:danger-circle-bold',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }]
+      });
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -83,12 +87,15 @@ export default function SellScreen() {
     if (!permission?.granted) {
       const res = await requestPermission();
       if (!res.granted) {
-        Alert.alert(
-          isRTL ? 'خطای دسترسی دوربین' : 'Camera Permission Required',
-          isRTL
-            ? 'جهت اسکن بارکد، دسترسی دوربین الزامی است.'
-            : 'Camera access is needed to scan barcodes.'
-        );
+        showModal({
+          title: isRTL ? 'خطای دسترسی دوربین' : 'Camera Permission Required',
+          message: isRTL
+            ? 'جهت اسکن بارکد محصولات، دسترسی به دوربین الزامی است.'
+            : 'Camera access is needed to scan barcodes.',
+          icon: 'solar:camera-bold',
+          iconColor: colors.destructive,
+          buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }]
+        });
         return;
       }
     }
@@ -115,17 +122,22 @@ export default function SellScreen() {
       if (matchedProduct.image) {
         setImages([matchedProduct.image]);
       }
-      Alert.alert(
-        isRTL ? 'بارکد شناسایی شد! 🏷️' : 'Barcode Scanned! 🏷️',
-        isRTL
+      showModal({
+        title: isRTL ? 'بارکد شناسایی شد! 🏷️' : 'Barcode Scanned! 🏷️',
+        message: isRTL
           ? `محصول «${matchedProduct.name}» پیدا شد و اطلاعات آن در فرم جای‌گذاری گردید.`
-          : `Product "${matchedProduct.name}" matched and populated automatically.`
-      );
+          : `Product "${matchedProduct.name}" matched and populated automatically.`,
+        icon: 'solar:check-circle-bold',
+        iconColor: colors.success,
+        buttons: [{ text: isRTL ? 'عالی' : 'Great', style: 'primary' }]
+      });
     } else {
-      Alert.alert(
-        isRTL ? 'بارکد ثبت شد' : 'Barcode Recorded',
-        isRTL ? `کد بارکد: ${data}` : `Scanned Code: ${data}`
-      );
+      showModal({
+        title: isRTL ? 'بارکد ثبت شد' : 'Barcode Recorded',
+        message: isRTL ? `کد بارکد: ${data}` : `Scanned Code: ${data}`,
+        icon: 'solar:info-circle-bold',
+        buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+      });
     }
   };
 
@@ -135,10 +147,13 @@ export default function SellScreen() {
 
   const handlePublish = () => {
     if (!title || !price || !category) {
-      Alert.alert(
-        isRTL ? 'اطلاعات ناقص' : 'Incomplete Form',
-        isRTL ? 'لطفاً عنوان، قیمت و دسته‌بندی را وارد کنید.' : 'Please enter title, price, and category.'
-      );
+      showModal({
+        title: isRTL ? 'اطلاعات ناقص' : 'Incomplete Form',
+        message: isRTL ? 'لطفاً عنوان، قیمت و دسته‌بندی آگهی را تکمیل کنید.' : 'Please enter title, price, and category.',
+        icon: 'solar:danger-circle-bold',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'اصلاح فرم' : 'Edit Form', style: 'primary' }]
+      });
       return;
     }
     setIsSuccess(true);

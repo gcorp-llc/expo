@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback } from 'react';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { StyleSheet, View, KeyboardAvoidingView, Platform, Alert, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView, Platform, Text, TouchableOpacity } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Image } from 'expo-image';
 import { Iconify } from '@/components/ui/Iconify';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,6 +54,7 @@ export default function ChatDetailScreen() {
 
   const insets = useSafeAreaInsets();
   const messagingService = MessagingService.getInstance();
+  const showModal = useModalStore((state) => state.showModal);
   const { conversations, messages: allMessages } = useMessagingStore();
   const conversation = conversations[chatId as string];
   const messages = useMemo(() => allMessages[chatId as string] || [], [allMessages, chatId]);
@@ -145,40 +147,51 @@ export default function ChatDetailScreen() {
       // Handled via state or header toggle
     } else if (val === 'wallpaper') {
       setWallpaperType(prev => (prev === 'pattern' ? 'solid' : 'pattern'));
-      Alert.alert(
-        isRTL ? 'تغییر پس‌زمینه' : 'Change Background',
-        isRTL ? 'پس‌زمینه چت تغییر یافت.' : 'Chat wallpaper has been updated.'
-      );
+      showModal({
+        title: isRTL ? 'تغییر پس‌زمینه' : 'Change Background',
+        message: isRTL ? 'پس‌زمینه چت با موفقیت تغییر یافت.' : 'Chat wallpaper has been updated.',
+        icon: 'solar:widget-2-broken',
+        buttons: [{ text: isRTL ? 'تایید' : 'OK', style: 'primary' }]
+      });
     } else if (val === 'clear') {
-      Alert.alert(
-        isRTL ? 'پاک کردن تاریخچه' : 'Clear History',
-        isRTL ? 'آیا از پاک کردن تمام پیام‌های این گفتگو اطمینان دارید؟' : 'Are you sure you want to clear all messages in this chat?',
-        [
+      showModal({
+        title: isRTL ? 'پاک کردن تاریخچه' : 'Clear History',
+        message: isRTL ? 'آیا از پاک کردن تمام پیام‌های این گفتگو اطمینان دارید؟' : 'Are you sure you want to clear all messages in this chat?',
+        icon: 'solar:broom-broken',
+        iconColor: colors.destructive,
+        buttons: [
           { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
           {
-            text: isRTL ? 'پاک کن' : 'Clear',
+            text: isRTL ? 'پاک کردن' : 'Clear',
             style: 'destructive',
             onPress: () => {
-              Alert.alert(isRTL ? 'تاریخچه پاک شد' : 'History cleared');
+              showModal({
+                title: isRTL ? 'تاریخچه پاک شد' : 'History cleared',
+                message: isRTL ? 'تمام پیام‌های این گفتگو پاک شدند.' : 'All messages cleared.',
+                icon: 'solar:check-circle-bold',
+                buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+              });
             }
           }
         ]
-      );
+      });
     } else if (val === 'delete') {
-      Alert.alert(
-        isRTL ? 'حذف گفتگو' : 'Delete Chat',
-        isRTL ? 'آیا از حذف کامل این گفتگو اطمینان دارید؟' : 'Are you sure you want to delete this chat?',
-        [
+      showModal({
+        title: isRTL ? 'حذف گفتگو' : 'Delete Chat',
+        message: isRTL ? 'آیا از حذف کامل این گفتگو اطمینان دارید؟' : 'Are you sure you want to delete this chat?',
+        icon: 'solar:trash-bin-trash-broken',
+        iconColor: colors.destructive,
+        buttons: [
           { text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' },
           {
-            text: isRTL ? 'حذف' : 'Delete',
+            text: isRTL ? 'حذف گفتگو' : 'Delete',
             style: 'destructive',
             onPress: () => {
               router.back();
             }
           }
         ]
-      );
+      });
     }
   };
 
@@ -187,11 +200,13 @@ export default function ChatDetailScreen() {
   };
 
   const handleCall = () => {
-    Alert.alert(
-      isRTL ? 'تماس صوتی' : 'Voice Call',
-      isRTL ? `در حال برقراری تماس با ${title}...` : `Calling ${title}...`,
-      [{ text: isRTL ? 'بستن' : 'Close', style: 'cancel' }]
-    );
+    showModal({
+      title: isRTL ? 'تماس صوتی' : 'Voice Call',
+      message: isRTL ? `در حال برقراری تماس صوتی با ${title}...` : `Calling ${title}...`,
+      icon: 'solar:phone-calling-broken',
+      iconColor: colors.tint,
+      buttons: [{ text: isRTL ? 'قطع تماس' : 'End Call', style: 'destructive' }]
+    });
   };
 
   const renderItem = ({ item, index }: { item: any; index: number }) => {
@@ -338,7 +353,12 @@ export default function ChatDetailScreen() {
         onSelect={(val) => {
           setIsMuted(true);
           setIsMuteModalVisible(false);
-          Alert.alert(isRTL ? 'اعلانات بی‌صدا شد' : 'Notifications muted');
+          showModal({
+            title: isRTL ? 'اعلانات بی‌صدا شد' : 'Notifications Muted',
+            message: isRTL ? 'اعلانات این گفتگو برای مدت انتخاب شده بی‌صدا گردید.' : 'Notifications muted.',
+            icon: 'solar:speaker-bold-duotone',
+            buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }]
+          });
         }}
         isRTL={isRTL}
       />

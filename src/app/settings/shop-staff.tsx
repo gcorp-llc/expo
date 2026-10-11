@@ -94,16 +94,16 @@ export default function StaffManagementScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top + 10, paddingBottom: 10, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, paddingBottom: 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.iconBtn}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={24} color={colors.text} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
+            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'مدیریت کارکنان' : 'Shop Staff'}
           </Text>
-          <TouchableOpacity onPress={() => setIsAdding(true)} style={[styles.addBtn, { backgroundColor: colors.tint }]}>
-            <Iconify icon="solar:user-plus-broken" size={20} color="#fff" />
+          <TouchableOpacity onPress={() => setIsAdding(true)} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
+            <Iconify icon="solar:user-plus-broken" size={22} color={colors.tint} />
           </TouchableOpacity>
         </View>
       </View>
@@ -196,9 +196,9 @@ export default function StaffManagementScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1 },
-  headerContent: { height: 70, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
-  iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 12 },
+  header: { backgroundColor: 'transparent' },
+  headerContent: { height: 56, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16 },
+  floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
   addBtn: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   scrollContent: { padding: 16, gap: 16 },

@@ -1,6 +1,7 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { PageBackground } from '@/components/ui/PageBackground';
-import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions, Alert } from 'react-native';
+import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -22,6 +23,7 @@ export default function FavoritesScreen() {
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const showModal = useModalStore((state) => state.showModal);
   const { language, favorites: favoriteIds, clearFavorites } = useStore();
   const isRTL = language === 'fa';
 
@@ -38,14 +40,16 @@ export default function FavoritesScreen() {
   const handleNavigate = useCallback((id: string) => router.push(`/product/${id}`), [router]);
 
   const handleClearAll = () => {
-    Alert.alert(
-      isRTL ? 'حذف همه علاقه‌مندی‌ها' : 'Clear All Favorites',
-      isRTL ? 'آیا از حذف تمام محصولات از لیست علاقه‌مندی‌ها اطمینان دارید؟' : 'Are you sure you want to remove all items from favorites?',
-      [
+    showModal({
+      title: isRTL ? 'حذف همه علاقه‌مندی‌ها' : 'Clear All Favorites',
+      message: isRTL ? 'آیا از حذف تمام محصولات از لیست علاقه‌مندی‌ها اطمینان دارید؟' : 'Are you sure you want to remove all items from favorites?',
+      icon: 'solar:trash-bin-trash-broken',
+      iconColor: colors.destructive,
+      buttons: [
         { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
-        { text: isRTL ? 'حذف' : 'Remove All', style: 'destructive', onPress: clearFavorites },
+        { text: isRTL ? 'حذف همه' : 'Remove All', style: 'destructive', onPress: clearFavorites },
       ]
-    );
+    });
   };
 
   const headerAnimatedStyle = useAnimatedStyle(() => {

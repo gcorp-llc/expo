@@ -8,8 +8,8 @@ import {
   TextInput,
   Modal,
   Dimensions,
-  Alert,
 } from "react-native";
+import { useModalStore } from "@/hooks/use-modal-store";
 import { useRouter } from "expo-router";
 import { Colors, Spacing } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -73,6 +73,7 @@ export default function AddressesScreen() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const showModal = useModalStore((state) => state.showModal);
   const { language } = useStore();
   const isRTL = language === "fa";
 
@@ -118,10 +119,13 @@ export default function AddressesScreen() {
 
   const handleSaveAddress = () => {
     if (!title.trim() || !fullAddress.trim()) {
-      Alert.alert(
-        isRTL ? "خطا" : "Error",
-        isRTL ? "لطفاً عنوان و نشانی متنی کامل را وارد کنید." : "Please fill required fields."
-      );
+      showModal({
+        title: isRTL ? "خطای ورودی" : "Error",
+        message: isRTL ? "لطفاً عنوان و نشانی متنی کامل را وارد کنید." : "Please fill required fields.",
+        icon: "solar:danger-circle-bold",
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? "متوجه شدم" : "OK", style: "primary" }]
+      });
       return;
     }
 
@@ -181,15 +185,14 @@ export default function AddressesScreen() {
           styles.header,
           {
             paddingTop: Math.max(insets.top, 12),
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
+            backgroundColor: 'transparent',
           },
         ]}
       >
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
           <TouchableOpacity
             onPress={() => router.back()}
-            style={[styles.iconBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            style={styles.floatingHeaderBtn}
             activeOpacity={0.7}
           >
             {isRTL ? (
@@ -205,7 +208,7 @@ export default function AddressesScreen() {
 
           <TouchableOpacity
             onPress={openAddModal}
-            style={[styles.iconBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+            style={styles.floatingHeaderBtn}
             activeOpacity={0.7}
           >
             <AddSquareBrokenIcon size={22} color={colors.tint} />
@@ -372,20 +375,20 @@ export default function AddressesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1 },
+  header: { backgroundColor: 'transparent' },
   headerContent: {
-    height: 60,
+    height: 56,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: Spacing.md,
   },
-  iconBtn: {
+  floatingHeaderBtn: {
     width: 42,
     height: 42,
-    borderRadius: 14,
+    borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    backgroundColor: 'transparent',
   },
   headerTitle: { fontSize: 18, fontWeight: "800", letterSpacing: -0.4 },
   scrollContent: { padding: Spacing.md, gap: Spacing.md },

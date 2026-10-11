@@ -27,15 +27,15 @@ export default function HelpScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { paddingTop: insets.top }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={24} color={colors.text} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
+            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'راهنما' : 'Help Center'}
           </Text>
-          <View style={{ width: 40 }} />
+          <View style={{ width: 42 }} />
         </View>
       </View>
       <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -50,10 +50,10 @@ export default function HelpScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.1)' },
-  headerContent: { height: 60, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8 },
-  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '700' },
+  header: { backgroundColor: 'transparent', paddingHorizontal: 16 },
+  headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
+  floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
+  headerTitle: { fontSize: 18, fontWeight: '800' },
   scrollContent: { padding: 16 },
   row: { paddingHorizontal: 16, height: 60, borderRadius: 16, alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   left: { alignItems: 'center', gap: 12 },

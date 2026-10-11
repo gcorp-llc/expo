@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, TextInput, Modal, Alert, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, TextInput, Modal, Platform } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
@@ -16,6 +17,7 @@ interface ExperienceCardProps {
 export const ExperienceCard = ({ experiences, isRTL, mode = 'own' }: ExperienceCardProps) => {
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
+  const showModal = useModalStore((state) => state.showModal);
   const { addExperience, removeExperience } = useProfileStore();
 
   const isOwn = mode === 'own';
@@ -29,14 +31,16 @@ export const ExperienceCard = ({ experiences, isRTL, mode = 'own' }: ExperienceC
   });
 
   const handleDelete = (id: string) => {
-    Alert.alert(
-      isRTL ? 'حذف تجربه' : 'Delete Experience',
-      isRTL ? 'آیا از حذف این تجربه اطمینان دارید؟' : 'Are you sure you want to delete this experience?',
-      [
+    showModal({
+      title: isRTL ? 'حذف تجربه شغلی' : 'Delete Experience',
+      message: isRTL ? 'آیا از حذف این تجربه کاری اطمینان دارید؟' : 'Are you sure you want to delete this experience?',
+      icon: 'solar:trash-bin-trash-broken',
+      iconColor: colors.destructive,
+      buttons: [
         { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
         { text: isRTL ? 'حذف' : 'Delete', style: 'destructive', onPress: () => removeExperience(id) }
       ]
-    );
+    });
   };
 
   const handleAdd = () => {

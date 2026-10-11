@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Platform, Alert, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Platform, TextInput } from 'react-native';
+import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
@@ -34,6 +35,8 @@ export const ChannelHeader = ({ conversation, isRTL, onBack, onSearch }: Channel
     { value: 'leave', label: isRTL ? 'ترک کانال' : 'Leave Channel', icon: 'solar:exit-outline' },
   ], [isRTL]);
 
+  const showModal = useModalStore((state) => state.showModal);
+
   const muteOptions: Option[] = useMemo(() => [
     { value: '1h', label: isRTL ? '۱ ساعت' : 'Mute for 1 hour' },
     { value: '8h', label: isRTL ? '۸ ساعت' : 'Mute for 8 hours' },
@@ -45,11 +48,13 @@ export const ChannelHeader = ({ conversation, isRTL, onBack, onSearch }: Channel
     if (val === 'mute') {
       setIsMuteModalVisible(true);
     } else if (val === 'leave') {
-      Alert.alert(
-        isRTL ? 'ترک کانال' : 'Leave Channel',
-        isRTL ? 'آیا از ترک این کانال اطمینان دارید؟' : 'Are you sure you want to leave this channel?',
-        [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'ترک کانال' : 'Leave', style: 'destructive' }]
-      );
+      showModal({
+        title: isRTL ? 'ترک کانال' : 'Leave Channel',
+        message: isRTL ? 'آیا از ترک این کانال اطمینان دارید؟' : 'Are you sure you want to leave this channel?',
+        icon: 'solar:exit-outline',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'لغو' : 'Cancel', style: 'cancel' }, { text: isRTL ? 'ترک کانال' : 'Leave', style: 'destructive' }]
+      });
     }
   };
 

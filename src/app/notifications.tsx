@@ -41,19 +41,20 @@ export default function NotificationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
-      <View style={[styles.header, { paddingTop: insets.top }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={24} color={colors.text} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
+            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
           </TouchableOpacity>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'اعلان‌ها' : 'Notifications'}
           </Text>
           <TouchableOpacity
-            style={styles.backButton}
+            style={styles.floatingHeaderBtn}
             onPress={() => router.push('/settings/notification-settings')}
+            activeOpacity={0.8}
           >
-            <Iconify icon="solar:settings-broken" size={24} color={colors.text} />
+            <Iconify icon="solar:settings-broken" size={22} color={colors.text} />
           </TouchableOpacity>
         </View>
       </View>
@@ -71,10 +72,10 @@ export default function NotificationsScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { borderBottomWidth: 1, borderBottomColor: 'rgba(128,128,128,0.1)' },
-  headerContent: { height: 60, alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8 },
-  backButton: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 18, fontWeight: '700' },
+  header: { backgroundColor: 'transparent', paddingHorizontal: 16, marginBottom: 8 },
+  headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
+  floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
+  headerTitle: { fontSize: 18, fontWeight: '800' },
   listContent: { padding: 16, gap: 12 },
   card: { padding: 16, borderRadius: 14, gap: 12, alignItems: 'center', borderWidth: 1, shadowColor: "#000", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.03, shadowRadius: 10, elevation: 2 },
   iconBox: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },

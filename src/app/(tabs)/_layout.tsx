@@ -205,15 +205,16 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="settings"
+          name="shop"
           options={{
-            title: isRTL ? 'تنظیمات' : 'Settings',
+            title: isRTL ? 'فروشگاه' : 'Shop',
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
                 color={String(color)}
-                iconName="solar:settings-minimalistic-broken"
-                activeIconName="solar:settings-minimalistic-bold-duotone"
+                iconName="solar:shop-2-broken"
+                activeIconName="solar:shop-2-bold-duotone"
+                badge="3"
               />
             ),
           }}
