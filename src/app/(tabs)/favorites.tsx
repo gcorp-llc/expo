@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { PageBackground } from '@/components/ui/PageBackground';
 import { StyleSheet, View, Text, FlatList, TouchableOpacity, Dimensions } from 'react-native';
 import { useModalStore } from '@/hooks/use-modal-store';
@@ -10,7 +10,7 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { useStore } from '@/hooks/use-store';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
-import { Iconify } from '@/components/ui/Iconify'; // ایمپورت کامپوننت شما
+import { Iconify } from '@/components/ui/Iconify';
 import Animated, { FadeInDown, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
@@ -118,8 +118,7 @@ export default function FavoritesScreen() {
           headerAnimatedStyle,
           {
             paddingTop: insets.top + 12,
-            backgroundColor: colors.background + 'EE',
-            borderBottomColor: colors.border,
+            backgroundColor: 'transparent',
             flexDirection: isRTL ? 'row-reverse' : 'row',
           },
         ]}
@@ -132,15 +131,13 @@ export default function FavoritesScreen() {
             style={[
               styles.clearButtonFloating,
               {
-                backgroundColor: colors.destructive + '15',
-                borderColor: colors.destructive + '30',
                 flexDirection: isRTL ? 'row-reverse' : 'row',
               },
             ]}
             onPress={handleClearAll}
             activeOpacity={0.8}
           >
-            <Iconify icon="solar:trash-bin-trash-broken" width={18} height={18} color={colors.destructive} />
+            <Iconify icon="solar:trash-bin-trash-broken" width={20} height={20} color={colors.destructive} />
             <Text style={[styles.clearButtonText, { color: colors.destructive }]}>
               {isRTL ? 'حذف همه' : 'Clear All'}
             </Text>
@@ -176,10 +173,6 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   title: { fontSize: 24, fontWeight: '900', letterSpacing: -0.8 },
   clearButtonFloating: {
@@ -188,10 +181,8 @@ const styles = StyleSheet.create({
     gap: 6,
     paddingVertical: 7,
     paddingHorizontal: 12,
-    borderRadius: 14,
-    borderWidth: 1,
   },
-  clearButtonText: { fontSize: 13, fontWeight: '800' },
+  clearButtonText: { fontSize: 14, fontWeight: '800' },
   listHeader: { marginBottom: 12, gap: 20 },
   section: {
     borderRadius: 28,

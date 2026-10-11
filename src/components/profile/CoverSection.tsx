@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text, Modal } from 'react-native';
 import { useModalStore } from '@/hooks/use-modal-store';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,7 +9,6 @@ import { Iconify } from '@/components/ui/Iconify';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useProfileStore } from '@/hooks/use-profile-store';
-import { CulturalImagePickerModal } from './CulturalImagePickerModal';
 
 interface CoverSectionProps {
   image?: string;
@@ -30,7 +29,7 @@ export const CoverSection = ({
   isRTL,
   mode = 'own'
 }: CoverSectionProps) => {
-  const [culturalModalVisible, setCulturalModalVisible] = useState(false);
+  const [pickerModalVisible, setPickerModalVisible] = useState(false);
   const [pickerType, setPickerType] = useState<'avatar' | 'cover'>('cover');
   const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
@@ -40,50 +39,43 @@ export const CoverSection = ({
   const isOwn = mode === 'own';
 
   const handleImageOptions = (type: 'avatar' | 'cover') => {
-    const title = type === 'avatar'
-      ? (isRTL ? 'ویرایش تصویر پروفایل' : 'Edit Avatar Image')
-      : (isRTL ? 'ویرایش تصویر کاور' : 'Edit Cover Image');
-
-    const hasCurrent = type === 'avatar' ? !!avatar : !!image;
-
-    showModal({
-      title,
-      message: isRTL ? 'روش مورد نظر برای تغییر تصویر را انتخاب کنید:' : 'Choose a method to update image:',
-      icon: 'solar:camera-bold',
-      buttons: [
-        {
-          text: isRTL ? '🏛️ گالری فرهنگی ایران' : '🏛️ Cultural Gallery',
-          style: 'primary',
-          onPress: () => {
-            setPickerType(type);
-            setCulturalModalVisible(true);
-          },
-        },
-        {
-          text: isRTL ? '📱 گالری دستگاه' : '📱 Device Gallery',
-          style: 'default',
-          onPress: () => pickImage(type),
-        },
-        ...(hasCurrent ? [{
-          text: isRTL ? '🗑️ حذف تصویر' : '🗑️ Remove Image',
-          style: 'destructive' as const,
-          onPress: () => {
-            if (type === 'avatar') {
-              updateProfile({ avatar: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=500&q=80' });
-            } else {
-              updateProfile({ coverImage: undefined });
-            }
-          }
-        }] : []),
-        {
-          text: isRTL ? 'انصراف' : 'Cancel',
-          style: 'cancel',
-        }
-      ]
-    });
+    setPickerType(type);
+    setPickerModalVisible(true);
   };
 
-  const pickImage = async (type: 'avatar' | 'cover') => {
+  const pickFromCamera = async () => {
+    setPickerModalVisible(false);
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      showModal({
+        title: isRTL ? 'عدم دسترسی به دوربین' : 'Permission Denied',
+        message: isRTL
+          ? 'برای ثبت تصویر با دوربین، دسترسی مربوطه را در تنظیمات تایید نمایید.'
+          : 'Please grant camera permission in settings.',
+        icon: 'solar:danger-circle-bold',
+        iconColor: colors.destructive,
+        buttons: [{ text: isRTL ? 'متوجه شدم' : 'Got it', style: 'primary' }]
+      });
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: pickerType === 'avatar' ? [1, 1] : [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      if (pickerType === 'avatar') {
+        updateProfile({ avatar: result.assets[0].uri });
+      } else {
+        updateProfile({ coverImage: result.assets[0].uri });
+      }
+    }
+  };
+
+  const pickFromGallery = async () => {
+    setPickerModalVisible(false);
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (status !== 'granted') {
@@ -102,12 +94,12 @@ export const CoverSection = ({
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
-      aspect: type === 'avatar' ? [1, 1] : [16, 9],
+      aspect: pickerType === 'avatar' ? [1, 1] : [16, 9],
       quality: 0.8,
     });
 
-    if (!result.canceled) {
-      if (type === 'avatar') {
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      if (pickerType === 'avatar') {
         updateProfile({ avatar: result.assets[0].uri });
       } else {
         updateProfile({ coverImage: result.assets[0].uri });
@@ -145,7 +137,7 @@ export const CoverSection = ({
             ]}
             onPress={() => handleImageOptions('cover')}
           >
-            <Iconify icon="solar:camera-bold" size={20} color={colors.text} />
+            <Iconify icon="solar:camera-minimalistic-broken" size={20} color={colors.text} />
           </TouchableOpacity>
         )}
       </Animated.View>
@@ -160,7 +152,7 @@ export const CoverSection = ({
               onPress={() => handleImageOptions('avatar')}
               style={styles.avatarOverlay}
             >
-              <Iconify icon="solar:camera-broken" size={24} color="#fff" />
+              <Iconify icon="solar:camera-minimalistic-broken" size={24} color="#fff" />
             </TouchableOpacity>
           )}
 
@@ -185,24 +177,45 @@ export const CoverSection = ({
               },
             ]}
           >
-            <Iconify icon="solar:camera-bold" size={16} color={colors.text} />
+            <Iconify icon="solar:camera-minimalistic-broken" size={16} color={colors.text} />
           </TouchableOpacity>
         )}
       </View>
 
-      <CulturalImagePickerModal
-        isVisible={culturalModalVisible}
-        onClose={() => setCulturalModalVisible(false)}
-        type={pickerType}
-        isRTL={isRTL}
-        onSelectImage={(uri) => {
-          if (pickerType === 'avatar') {
-            updateProfile({ avatar: uri });
-          } else {
-            updateProfile({ coverImage: uri });
-          }
-        }}
-      />
+      {/* Requirement 12: Strictly 2 options modal without cancel button */}
+      <Modal visible={pickerModalVisible} transparent animationType="slide" onRequestClose={() => setPickerModalVisible(false)}>
+        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPickerModalVisible(false)}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Text style={[styles.modalTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+              {pickerType === 'avatar'
+                ? (isRTL ? 'تغییر تصویر اواتار' : 'Update Avatar')
+                : (isRTL ? 'تغییر تصویر کاور' : 'Update Cover Image')}
+            </Text>
+
+            <View style={{ gap: 10, marginTop: 14 }}>
+              <TouchableOpacity
+                style={[styles.twoOptionBtn, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                onPress={pickFromCamera}
+              >
+                <Iconify icon="solar:camera-minimalistic-broken" size={24} color={colors.tint} />
+                <Text style={[styles.twoOptionText, { color: colors.text }]}>
+                  {isRTL ? 'تصویر از دوربین' : 'Camera Photo'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.twoOptionBtn, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                onPress={pickFromGallery}
+              >
+                <Iconify icon="solar:gallery-wide-line-duotone" size={24} color={colors.tint} />
+                <Text style={[styles.twoOptionText, { color: colors.text }]}>
+                  {isRTL ? 'تصویر از گالری' : 'Gallery Photo'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 };
@@ -297,5 +310,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
+  },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { borderTopLeftRadius: 28, borderTopRightRadius: 28, padding: 22, borderWidth: 1 },
+  modalTitle: { fontSize: 17, fontWeight: '900' },
+  twoOptionBtn: {
+    height: 56,
+    borderRadius: 18,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    gap: 12,
+  },
+  twoOptionText: {
+    fontSize: 15,
+    fontWeight: '800',
   },
 });
