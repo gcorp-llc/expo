@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Modal, Platform } from 'react-native';
-import Animated, { ScaleIn, ScaleOut } from 'react-native-reanimated';
+import Animated, { ZoomIn, ZoomOut } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -44,8 +44,8 @@ export const CustomModalProvider = () => {
         />
 
         <Animated.View
-          entering={ScaleIn.duration(250).springify().damping(18)}
-          exiting={ScaleOut.duration(200)}
+          entering={ZoomIn.duration(250).springify().damping(18)}
+          exiting={ZoomOut.duration(200)}
           style={[
             styles.modalContainer,
             {
