@@ -7,7 +7,7 @@ import { useStore, Language, ThemeMode } from '@/hooks/use-store';
 import { Iconify } from '@/components/ui/Iconify';
 import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay';
 import { useRouter } from 'expo-router';
-import { Option } from '@/components/ui/SelectionModal';
+import { SelectionModal, Option } from '@/components/ui/SelectionModal';
 import { PageBackground } from '@/components/ui/PageBackground';
 import Animated, { FadeInDown, FadeIn, FadeOut } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
@@ -19,15 +19,18 @@ export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
   const {
     language,
+    setLanguage,
     themeMode,
-    setLanguageModalVisible,
-    setThemeModalVisible,
+    setThemeMode,
     isGuest,
     hasEnteredDemoMode,
     logout,
   } = useStore();
   const isRTL = language === 'fa';
+
   const [isLogoutModalVisible, setIsLogoutModalVisible] = useState(false);
+  const [isLanguageModalVisible, setLanguageModalVisibleState] = useState(false);
+  const [isThemeModalVisible, setThemeModalVisibleState] = useState(false);
 
   const handleLogout = () => {
     setIsLogoutModalVisible(true);
@@ -52,7 +55,7 @@ export default function SettingsScreen() {
 
   const SettingItem = ({ icon, label, value, onPress, destructive }: any) => (
     <TouchableOpacity
-      style={[styles.item, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+      style={[styles.item, { flexDirection: isRTL ? 'row-reverse' : 'row', backgroundColor: colors.surfaceStrong }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
@@ -60,18 +63,18 @@ export default function SettingsScreen() {
         <View style={[
           styles.iconContainer,
           {
-            backgroundColor: destructive ? colors.destructive + '15' : colors.surface,
-            borderColor: destructive ? colors.destructive + '30' : colors.border,
+            backgroundColor: destructive ? colors.destructive + '15' : colors.tint + '15',
+            borderColor: destructive ? colors.destructive + '30' : 'transparent',
           }
         ]}>
-          <Iconify icon={icon} size={22} color={destructive ? colors.destructive : colors.text} />
+          <Iconify icon={icon} size={22} color={destructive ? colors.destructive : colors.tint} />
         </View>
-        <Text style={[styles.label, { color: destructive ? colors.destructive : colors.text, marginHorizontal: 16 }]}>
+        <Text style={[styles.label, { color: destructive ? colors.destructive : colors.text }]}>
           {label}
         </Text>
       </View>
       <View style={[styles.itemRight, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        {value && <Text style={[styles.value, { color: colors.tint, [isRTL ? 'marginLeft' : 'marginRight']: 8 }]}>{value}</Text>}
+        {value && <Text style={[styles.value, { color: colors.tint, marginHorizontal: 8 }]}>{value}</Text>}
         <Iconify icon={isRTL ? "solar:alt-arrow-left-broken" : "solar:alt-arrow-right-broken"} size={18} color={colors.textSecondary} />
       </View>
     </TouchableOpacity>
@@ -95,14 +98,16 @@ export default function SettingsScreen() {
           description={isRTL ? 'برای دسترسی به تنظیمات و مدیریت حساب خود، لطفاً ابتدا ثبت‌نام کنید.' : 'To access settings and manage your account, please sign up first.'}
         />
       )}
-      <View style={[styles.header, { paddingTop: insets.top + 20, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <Text style={[styles.title, { color: colors.text }]}>
+
+      {/* Modern Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 16, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+        <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
           {isRTL ? 'تنظیمات' : 'Settings'}
         </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Animated.View entering={FadeInDown.duration(600).delay(100)} style={styles.section}>
+        <Animated.View entering={FadeInDown.duration(500).delay(100)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'حساب کاربری' : 'Account'}
           </Text>
@@ -123,7 +128,7 @@ export default function SettingsScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(200)} style={styles.section}>
+        <Animated.View entering={FadeInDown.duration(500).delay(200)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'کسب و کار' : 'Business'}
           </Text>
@@ -134,27 +139,28 @@ export default function SettingsScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(300)} style={styles.section}>
+        <Animated.View entering={FadeInDown.duration(500).delay(300)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'تنظیمات ظاهری' : 'Appearance'}
           </Text>
           <View style={styles.itemsGroup}>
+            {/* In-page selection modals for Language & Theme */}
             <SettingItem
               icon="solar:globus-broken"
               label={isRTL ? 'زبان' : 'Language'}
               value={getLangLabel(language)}
-              onPress={() => router.push('/settings/language')}
+              onPress={() => setLanguageModalVisibleState(true)}
             />
             <SettingItem
               icon="solar:moon-broken"
               label={isRTL ? 'حالت نمایش' : 'Theme'}
               value={getThemeLabel(themeMode)}
-              onPress={() => router.push('/settings/theme')}
+              onPress={() => setThemeModalVisibleState(true)}
             />
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(400)} style={styles.section}>
+        <Animated.View entering={FadeInDown.duration(500).delay(400)} style={styles.section}>
           <Text style={[styles.sectionTitle, { color: colors.tint, textAlign: isRTL ? 'right' : 'left' }]}>
             {isRTL ? 'پشتیبانی' : 'Support'}
           </Text>
@@ -164,12 +170,34 @@ export default function SettingsScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInDown.duration(600).delay(500)} style={[styles.section, { marginTop: 8 }]}>
+        <Animated.View entering={FadeInDown.duration(500).delay(500)} style={[styles.section, { marginTop: 8 }]}>
           <View style={styles.itemsGroup}>
             <SettingItem icon="solar:logout-broken" label={isRTL ? 'خروج' : 'Logout'} destructive onPress={handleLogout} />
           </View>
         </Animated.View>
       </ScrollView>
+
+      {/* In-Page Language Selection Modal */}
+      <SelectionModal
+        isVisible={isLanguageModalVisible}
+        onClose={() => setLanguageModalVisibleState(false)}
+        title={isRTL ? 'انتخاب زبان برنامه' : 'Select Language'}
+        options={languages}
+        selectedValue={language}
+        onSelect={(val) => setLanguage(val as Language)}
+        isRTL={isRTL}
+      />
+
+      {/* In-Page Theme Selection Modal */}
+      <SelectionModal
+        isVisible={isThemeModalVisible}
+        onClose={() => setThemeModalVisibleState(false)}
+        title={isRTL ? 'انتخاب پوسته و حالت نمایش' : 'Select Theme'}
+        options={themes}
+        selectedValue={themeMode}
+        onSelect={(val) => setThemeMode(val as ThemeMode)}
+        isRTL={isRTL}
+      />
 
       {/* Modern Logout Modal */}
       <Modal
@@ -234,41 +262,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 24,
-    paddingBottom: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '900',
-    letterSpacing: -1,
+    letterSpacing: -0.5,
   },
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 140,
-    gap: 24,
+    gap: 20,
   },
   section: {
-    paddingHorizontal: 4,
+    paddingHorizontal: 0,
   },
   sectionTitle: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '800',
-    marginBottom: 10,
+    marginBottom: 8,
     paddingHorizontal: 4,
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   itemsGroup: {
-    gap: 12,
+    gap: 8,
   },
   item: {
-    height: 52,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 4,
   },
   itemLeft: {
     alignItems: 'center',
+    gap: 12,
   },
   iconContainer: {
     width: 40,
@@ -276,11 +306,10 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   label: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: '700',
   },
   itemRight: {
     alignItems: 'center',

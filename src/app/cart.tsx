@@ -37,7 +37,7 @@ import {
   Bag2BrokenIcon,
   DeliveryBrokenIcon,
   ShieldCheckBoldIcon,
-  Shop2BrokenIcon,
+  Shop2BoldIcon,
 } from "@/components/icons";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
@@ -234,7 +234,7 @@ export default function CartScreen() {
               style={[styles.shopNowBtn, { backgroundColor: colors.tint }]}
               activeOpacity={0.8}
             >
-              <Shop2BrokenIcon size={22} color="#fff" />
+              <Shop2BoldIcon size={22} color="#fff" />
               <Text style={styles.shopNowText}>{isRTL ? "مشاهده محصولات" : "Browse Products"}</Text>
             </TouchableOpacity>
           </Animated.View>
