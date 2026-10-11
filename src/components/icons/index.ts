@@ -1,3 +1,8 @@
+export { VolumeCrossBoldDuotoneIcon } from './VolumeCrossBoldDuotoneIcon';
+export { VolumeCrossBrokenIcon } from './VolumeCrossBrokenIcon';
+export { ShieldWarningBrokenIcon } from './ShieldWarningBrokenIcon';
+export { GalleryWideLineDuotoneIcon } from './GalleryWideLineDuotoneIcon';
+export { CameraMinimalisticBrokenIcon } from './CameraMinimalisticBrokenIcon';
 export { AddCircleBoldIcon } from './AddCircleBoldIcon';
 export { AddCircleBrokenIcon } from './AddCircleBrokenIcon';
 export { AddSquareBoldIcon } from './AddSquareBoldIcon';
@@ -299,6 +304,11 @@ import { WheelBrokenIcon } from './WheelBrokenIcon';
 import { Widget2BrokenIcon } from './Widget2BrokenIcon';
 
 export const ICON_MAP: Record<string, React.FC<IconProps>> = {
+  'volume-cross-bold-duotone': VolumeCrossBoldDuotoneIcon,
+  'volume-cross-broken': VolumeCrossBrokenIcon,
+  'shield-warning-broken': ShieldWarningBrokenIcon,
+  'gallery-wide-line-duotone': GalleryWideLineDuotoneIcon,
+  'camera-minimalistic-broken': CameraMinimalisticBrokenIcon,
   'add-circle-bold': AddCircleBoldIcon,
   'add-circle-broken': AddCircleBrokenIcon,
   'add-square-bold': AddSquareBoldIcon,

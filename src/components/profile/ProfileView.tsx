@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react';
-import { StyleSheet, View, Platform } from 'react-native';
+import { StyleSheet, View, Text, Platform, TouchableOpacity } from 'react-native';
 import { useModalStore } from '@/hooks/use-modal-store';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -8,6 +8,7 @@ import { PageBackground } from '@/components/ui/PageBackground';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { Image } from 'expo-image';
 
 // Components
 import { CoverSection } from './CoverSection';
@@ -39,6 +40,40 @@ interface ProfileViewProps {
   userId?: string;
 }
 
+const DEMO_USER_STORES = [
+  {
+    id: 'store-1',
+    name: 'فروشگاه تخصصی کوتیک',
+    specialty: 'گجت‌های هوشمند و لوازم جانبی',
+    avatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=500&q=80',
+    rating: '۴.۹',
+  },
+  {
+    id: 'store-2',
+    name: 'گالری پوشاک آریا',
+    specialty: 'پوشاک و اکسسوری مدرن',
+    avatar: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&q=80',
+    rating: '۴.۷',
+  },
+];
+
+const PURCHASES_FROM_MY_STORE = [
+  {
+    id: 'p-101',
+    title: 'ساعت هوشمند اپل واچ سری ۹',
+    price: '$۳۹۹',
+    date: '۱۴ اسفند ۱۴۰۳',
+    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
+  },
+  {
+    id: 'p-102',
+    title: 'هدفون بی سیم سونی WH-1000XM5',
+    price: '$۲۹۹',
+    date: '۲۸ بهمن ۱۴۰۳',
+    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+  },
+];
+
 export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
   const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
   const colors = Colors[colorScheme];
@@ -64,16 +99,15 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
     shareSheetRef.current?.open();
   };
 
-  // Profile Options Menu matching Image 1
+  // Profile Options Menu: report icon changed to solar:shield-warning-broken and disable_sharing removed
   const profileDropdownOptions: DropdownOption[] = useMemo(() => [
     { value: 'share', label: isRTL ? 'به اشتراک گذاشتن مخاطب' : 'Share Contact', icon: 'solar:share-broken' },
     { value: 'block', label: isRTL ? 'مسدود کردن کاربر' : 'Block User', icon: 'solar:user-block-broken' },
     { value: 'edit', label: isRTL ? 'ویرایش مخاطب' : 'Edit Contact', icon: 'solar:pen-2-broken' },
     { value: 'delete_contact', label: isRTL ? 'حذف مخاطب' : 'Delete Contact', icon: 'solar:trash-bin-trash-broken' },
     { value: 'secret_chat', label: isRTL ? 'شروع گفتگوی محرمانه' : 'Start Secret Chat', icon: 'solar:lock-password-broken' },
-    { value: 'disable_sharing', label: isRTL ? 'غیرفعال کردن اشتراک‌گذاری' : 'Disable Sharing', icon: 'solar:transmission-broken' },
     { value: 'add_home', label: isRTL ? 'افزودن به صفحه اصلی' : 'Add to Home Screen', icon: 'solar:add-square-broken' },
-    { value: 'report', label: isRTL ? 'گزارش' : 'Report', icon: 'solar:danger-circle-bold', isDestructive: true },
+    { value: 'report', label: isRTL ? 'گزارش' : 'Report', icon: 'solar:shield-warning-broken', isDestructive: true },
   ], [isRTL]);
 
   const showModal = useModalStore((state) => state.showModal);
@@ -131,14 +165,6 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
           buttons: [{ text: isRTL ? 'شروع گفتگو' : 'Start Chat', style: 'primary' }]
         });
         break;
-      case 'disable_sharing':
-        showModal({
-          title: isRTL ? 'اشتراک‌گذاری' : 'Sharing',
-          message: isRTL ? 'اشتراک‌گذاری اطلاعات غیرفعال گردید.' : 'Sharing disabled for this user.',
-          icon: 'solar:transmission-broken',
-          buttons: [{ text: isRTL ? 'متوجه شدم' : 'Understood', style: 'primary' }]
-        });
-        break;
       case 'add_home':
         showModal({
           title: isRTL ? 'افزودن به صفحه اصلی' : 'Add to Home Screen',
@@ -151,7 +177,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         showModal({
           title: isRTL ? 'گزارش تخلف' : 'Report User',
           message: isRTL ? 'گزارش شما بررسی شده و توسط تیم پشتیبانی کوتیک پیگیری می‌شود.' : 'Your report will be sent to moderation.',
-          icon: 'solar:danger-circle-bold',
+          icon: 'solar:shield-warning-broken',
           iconColor: colors.destructive,
           buttons: [
             { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
@@ -232,6 +258,62 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
 
         {isOwn && <ProfileCompletion percentage={profile.completionPercentage} isRTL={isRTL} />}
 
+        {/* Requirement 13: Rename Store to Stores and show list of available stores */}
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.sectionHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Iconify icon="solar:bag-smile-bold-duotone" size={22} color={colors.tint} />
+            <Text style={[styles.sectionCardTitle, { color: colors.text }]}>
+              {isRTL ? 'فروشگاه‌ها' : 'Stores'}
+            </Text>
+          </View>
+          <View style={{ gap: 10, marginTop: 12 }}>
+            {DEMO_USER_STORES.map((s) => (
+              <TouchableOpacity
+                key={s.id}
+                style={[styles.storeItemRow, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                onPress={() => router.push('/shop')}
+              >
+                <Image source={{ uri: s.avatar }} style={styles.storeAvatar} />
+                <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 2 }}>
+                  <Text style={[styles.storeTitle, { color: colors.text }]}>{s.name}</Text>
+                  <Text style={[styles.storeSub, { color: colors.textSecondary }]}>{s.specialty}</Text>
+                </View>
+                <View style={[styles.ratingChip, { backgroundColor: colors.tint + '18' }]}>
+                  <Iconify icon="solar:star-bold" size={12} color="#fbbf24" />
+                  <Text style={[styles.ratingText, { color: colors.tint }]}>{s.rating}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Requirement 11: Purchases from my store section in shared contact profile */}
+        {!isOwn && (
+          <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.sectionHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <Iconify icon="solar:wallet-money-broken" size={22} color={colors.success} />
+              <Text style={[styles.sectionCardTitle, { color: colors.text }]}>
+                {isRTL ? 'لیست خریدها از فروشگاه من' : 'Purchases from My Store'}
+              </Text>
+            </View>
+            <View style={{ gap: 10, marginTop: 12 }}>
+              {PURCHASES_FROM_MY_STORE.map((p) => (
+                <View
+                  key={p.id}
+                  style={[styles.purchaseItemRow, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                >
+                  <Image source={{ uri: p.image }} style={styles.purchaseThumb} />
+                  <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 2 }}>
+                    <Text style={[styles.purchaseTitle, { color: colors.text }]}>{p.title}</Text>
+                    <Text style={[styles.purchaseDate, { color: colors.textSecondary }]}>{p.date}</Text>
+                  </View>
+                  <Text style={[styles.purchasePrice, { color: colors.tint }]}>{p.price}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         <AboutCard bio={profile.bio} isRTL={isRTL} mode={mode} />
 
         <ProductsGrid products={profile.products} isRTL={isRTL} />
@@ -257,7 +339,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         title={isRTL ? 'اشتراک‌گذاری پروفایل' : 'Share Profile'}
       />
 
-      {/* Floating Dropdown Menu matching Image 1 */}
+      {/* Floating Dropdown Menu */}
       <FloatingDropdownMenu
         isVisible={isMenuVisible}
         onClose={() => setIsMenuVisible(false)}
@@ -307,5 +389,74 @@ const styles = StyleSheet.create({
   },
   rightActions: {
     gap: 8,
+  },
+  sectionCard: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 24,
+    padding: 16,
+    borderWidth: 1,
+  },
+  sectionHeaderRow: {
+    alignItems: 'center',
+    gap: 10,
+  },
+  sectionCardTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+  },
+  storeItemRow: {
+    padding: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 12,
+  },
+  storeAvatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+  },
+  storeTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  storeSub: {
+    fontSize: 12,
+  },
+  ratingChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  ratingText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  purchaseItemRow: {
+    padding: 10,
+    borderRadius: 16,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 12,
+  },
+  purchaseThumb: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+  },
+  purchaseTitle: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  purchaseDate: {
+    fontSize: 11,
+  },
+  purchasePrice: {
+    fontSize: 14,
+    fontWeight: '900',
   },
 });

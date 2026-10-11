@@ -70,14 +70,14 @@ export default function MessageSettingsScreen() {
             {isRTL ? 'اعلان‌ها' : 'Notifications'}
           </Text>
           <SettingSwitchItem
-            icon="solar:bell-broken"
+            icon="solar:chat-line-broken"
             title={isRTL ? 'اعلان‌های درون‌برنامه‌ای' : 'In-App Notifications'}
             description={isRTL ? 'نمایش بنر هنگام دریافت پیام جدید در برنامه' : 'Show banners when new messages arrive'}
             value={inAppNotifications}
             onValueChange={setInAppNotifications}
           />
           <SettingSwitchItem
-            icon="solar:chat-round-line-bold"
+            icon="solar:chat-line-broken"
             title={isRTL ? 'اعلان پیام جدید' : 'New Message Alerts'}
             description={isRTL ? 'دریافت نوتیفیکیشن برای گفتگوها' : 'Receive push alerts for incoming chats'}
             value={newMessageAlerts}
@@ -97,7 +97,7 @@ export default function MessageSettingsScreen() {
             onValueChange={setShowPreviews}
           />
           <SettingSwitchItem
-            icon="solar:chat-square-bold"
+            icon="solar:chat-line-broken"
             title={isRTL ? 'نشانگر پیام‌های خوانده‌نشده' : 'Unread Message Badge'}
             description={isRTL ? 'نمایش تعداد پیام‌های جدید در آیکون تب' : 'Show unread counter badge on chat tab'}
             value={unreadBadge}
