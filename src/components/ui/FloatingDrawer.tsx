@@ -201,7 +201,7 @@ export const FloatingDrawer = () => {
               style={[styles.clinicButton, { backgroundColor: colors.tint, flexDirection: isRTL ? 'row' : 'row-reverse' }]}
               onPress={() => { setSettingsVisible(false); router.push('/settings/shop-management'); }}
             >
-              <Iconify icon="solar:shop-2-broken" size={20} color="#fff" />
+              <Iconify icon="solar:bag-smile-outline" size={20} color="#fff" />
               <Text style={styles.clinicButtonText}>{t.clinic}</Text>
             </TouchableOpacity>
           </View>

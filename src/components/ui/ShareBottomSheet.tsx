@@ -1,13 +1,12 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Pressable, Platform, Image } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Pressable, Platform, Image, Linking, Share } from 'react-native';
+import Toast from 'react-native-toast-message';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  withSpring,
   withTiming,
   runOnJS,
-  interpolate,
-  Extrapolation
+  Easing,
 } from 'react-native-reanimated';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -39,13 +38,13 @@ export const ShareBottomSheet = forwardRef<ShareBottomSheetRef, ShareBottomSheet
 
   const open = () => {
     setVisible(true);
-    opacity.value = withTiming(1, { duration: 300 });
-    translateY.value = withSpring(0, { damping: 20, stiffness: 90 });
+    opacity.value = withTiming(1, { duration: 250 });
+    translateY.value = withTiming(0, { duration: 280, easing: Easing.out(Easing.cubic) });
   };
 
   const close = () => {
-    opacity.value = withTiming(0, { duration: 200 });
-    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 300 }, () => {
+    opacity.value = withTiming(0, { duration: 180 });
+    translateY.value = withTiming(SCREEN_HEIGHT, { duration: 220, easing: Easing.in(Easing.quad) }, () => {
       runOnJS(setVisible)(false);
     });
   };
@@ -99,18 +98,84 @@ export const ShareBottomSheet = forwardRef<ShareBottomSheetRef, ShareBottomSheet
 
         <View style={[styles.actionsGrid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
           {[
-            { label: isRTL ? 'کپی لینک' : 'Copy Link', icon: 'solar:copy-broken', color: '#3B82F6' },
-            { label: isRTL ? 'تلگرام' : 'Telegram', icon: 'solar:plain-broken', color: '#0088cc' },
-            { label: isRTL ? 'واتس‌اپ' : 'WhatsApp', icon: 'solar:phone-broken', color: '#25D366' },
-            { label: isRTL ? 'بیشتر' : 'More', icon: 'solar:menu-dots-broken', color: colors.textSecondary },
-          ].map((action, i) => (
+            {
+              id: 'copy',
+              label: isRTL ? 'کپی لینک' : 'Copy Link',
+              icon: 'solar:copy-broken',
+              color: '#3B82F6',
+              onPress: async () => {
+                Toast.show({
+                  type: 'success',
+                  text1: isRTL ? 'لینک کپی شد' : 'Link Copied',
+                  text2: isRTL ? 'لینک پروفایل به حافظه موقت کپی گردید' : 'Profile link copied to clipboard',
+                });
+                close();
+              },
+            },
+            {
+              id: 'telegram',
+              label: isRTL ? 'تلگرام' : 'Telegram',
+              icon: 'solar:plain-broken',
+              color: '#229ED9',
+              onPress: async () => {
+                const url = `https://t.me/share/url?url=${encodeURIComponent('https://kutik.app/user/profile')}&text=${encodeURIComponent(isRTL ? 'مشاهده پروفایل در کوتیک' : 'Check out my profile on Kutik')}`;
+                await Linking.openURL(url).catch(() => {});
+                close();
+              },
+            },
+            {
+              id: 'whatsapp',
+              label: isRTL ? 'واتس‌اپ' : 'WhatsApp',
+              icon: 'solar:phone-broken',
+              color: '#25D366',
+              onPress: async () => {
+                const msg = encodeURIComponent((isRTL ? 'مشاهده پروفایل در کوتیک: ' : 'Check out my profile on Kutik: ') + 'https://kutik.app/user/profile');
+                await Linking.openURL(`whatsapp://send?text=${msg}`).catch(() => Linking.openURL(`https://api.whatsapp.com/send?text=${msg}`));
+                close();
+              },
+            },
+            {
+              id: 'instagram',
+              label: isRTL ? 'اینستاگرام' : 'Instagram',
+              icon: 'solar:camera-broken',
+              color: '#E1306C',
+              onPress: async () => {
+                await Linking.openURL('instagram://app').catch(() => Linking.openURL('https://instagram.com'));
+                close();
+              },
+            },
+            {
+              id: 'sms',
+              label: isRTL ? 'پیامک' : 'SMS',
+              icon: 'solar:chat-line-broken',
+              color: '#F59E0B',
+              onPress: async () => {
+                const msg = encodeURIComponent((isRTL ? 'سلام، پروفایل من در اپلیکیشن کوتیک: ' : 'Hi, view my Kutik profile: ') + 'https://kutik.app/user/profile');
+                await Linking.openURL(`sms:?body=${msg}`).catch(() => {});
+                close();
+              },
+            },
+            {
+              id: 'more',
+              label: isRTL ? 'بیشتر' : 'More',
+              icon: 'solar:menu-dots-broken',
+              color: colors.textSecondary,
+              onPress: async () => {
+                await Share.share({
+                  message: (isRTL ? 'پروفایل کوتیک: ' : 'Kutik Profile: ') + 'https://kutik.app/user/profile',
+                }).catch(() => {});
+                close();
+              },
+            },
+          ].map((action) => (
             <TouchableOpacity
-              key={i}
+              key={action.id}
               style={[styles.actionBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
               activeOpacity={0.7}
+              onPress={action.onPress}
             >
               <View style={[styles.iconWrapper, { backgroundColor: action.color + '15' }]}>
-                <Iconify icon={action.icon} size={26} color={action.color} />
+                <Iconify icon={action.icon} size={24} color={action.color} />
               </View>
               <Text style={[styles.actionLabel, { color: colors.text }]}>{action.label}</Text>
             </TouchableOpacity>

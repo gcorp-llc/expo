@@ -189,7 +189,7 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
                   onPress={() => router.push(`/shop/${profile.businessName || '1'}` as any)}
                   style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 >
-                  <Iconify icon="solar:shop-broken" size={20} color={colors.text} style={{ marginRight: 8 }} />
+                  <Iconify icon="solar:bag-smile-outline" size={20} color={colors.text} style={{ marginRight: 8 }} />
                   <Text style={[styles.secondaryActionText, { color: colors.text }]}>{isRTL ? 'فروشگاه' : 'Shop'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity

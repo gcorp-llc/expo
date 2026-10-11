@@ -212,11 +212,18 @@ export default function TabLayout() {
               <TabIcon 
                 focused={focused} 
                 color={String(color)}
-                iconName="solar:shop-2-broken"
-                activeIconName="solar:shop-2-bold-duotone"
+                iconName="solar:bag-smile-outline"
+                activeIconName="solar:bag-smile-bold-duotone"
                 badge="3"
               />
             ),
+          }}
+        />
+
+        <Tabs.Screen
+          name="settings"
+          options={{
+            href: null,
           }}
         />
       </Tabs>

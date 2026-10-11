@@ -136,7 +136,7 @@ export default function SettingsIndexScreen() {
             {isRTL ? 'کسب و کار' : 'Business'}
           </Text>
           <View style={styles.itemsGroup}>
-            <SettingItem icon="solar:shop-2-broken" label={isRTL ? 'فروشگاه من' : 'My Shop'} onPress={() => router.push('/shop/manage')} />
+            <SettingItem icon="solar:bag-smile-outline" label={isRTL ? 'فروشگاه من' : 'My Shop'} onPress={() => router.push('/shop/manage')} />
             <SettingItem icon="solar:wallet-money-broken" label={isRTL ? 'امور مالی' : 'Finance'} onPress={() => router.push('/settings/finance')} />
             <SettingItem icon="solar:settings-minimalistic-broken" label={isRTL ? 'تنظیمات فروشگاه' : 'Shop Settings'} onPress={() => router.push('/settings/shop-management')} />
           </View>

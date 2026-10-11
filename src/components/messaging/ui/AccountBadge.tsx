@@ -27,7 +27,7 @@ export const AccountBadge = ({ type, isVerified, size = 16 }: AccountBadgeProps)
         </View>
       );
     case 'business':
-      return <Iconify icon="solar:shop-bold" size={size} color={colors.warning} />;
+      return <Iconify icon="solar:bag-smile-bold-duotone" size={size} color={colors.warning} />;
     case 'premium':
       return <Iconify icon="solar:star-bold" size={size} color={colors.warning} />;
     default:

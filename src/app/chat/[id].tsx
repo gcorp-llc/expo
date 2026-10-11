@@ -238,7 +238,7 @@ export default function ChatDetailScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#1A1825' }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ChatWallpaper type={wallpaperType} />
 
       <MessagingHeader
@@ -257,7 +257,7 @@ export default function ChatDetailScreen() {
       {showPinned && !searchQuery && (
         <View style={[styles.pinnedContainer, { top: insets.top + 70 }]}>
           {productTitle ? (
-            <View style={[styles.productContextCard, { backgroundColor: '#282535', borderColor: 'rgba(255,255,255,0.1)' }]}>
+            <View style={[styles.productContextCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
               {productImage ? (
                 <Image source={{ uri: productImage }} style={styles.productContextImage} contentFit="cover" />
               ) : null}

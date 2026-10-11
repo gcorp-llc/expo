@@ -15,11 +15,13 @@ export const api = new ApiClient(getBaseUrl());
 
 export const productService = {
   getProducts: async () => {
-    return PRODUCTS;
+    const custom = useStore.getState().customProducts || [];
+    return [...custom, ...PRODUCTS];
   },
 
   getProductById: async (id: string) => {
-    const found = PRODUCTS.find((p) => p.id === id);
+    const all = [...(useStore.getState().customProducts || []), ...PRODUCTS];
+    const found = all.find((p) => p.id === id);
     if (found) return found;
     // Return fallback product if ID not matched
     return {
@@ -50,7 +52,8 @@ export const productService = {
     options?: { categoryId?: string; brandId?: string; minPrice?: number; maxPrice?: number; inStock?: boolean }
   ) => {
     const q = query.toLowerCase();
-    return PRODUCTS.filter((p) => p.name.toLowerCase().includes(q));
+    const all = [...(useStore.getState().customProducts || []), ...PRODUCTS];
+    return all.filter((p) => p.name.toLowerCase().includes(q));
   },
 
   getProductReviews: async (id: string) => {
