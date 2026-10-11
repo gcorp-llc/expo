@@ -366,7 +366,7 @@ export default function TabShopScreen() {
               {[1, 2, 3, 4].map((i) => (
                 <View key={i} style={[styles.financeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <View style={[styles.financeHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                    <Text style={[styles.financeProduct, { color: colors.text }]}>{isRTL ? `فاکتور سفارش شماره ${۱۰۲۴ + i}` : `Order #${1024 + i}`}</Text>
+                    <Text style={[styles.financeProduct, { color: colors.text }]}>{isRTL ? `فاکتور سفارش شماره ${1024 + i}` : `Order #${1024 + i}`}</Text>
                     <Text style={[styles.financeAmount, { color: colors.tint }]}>${(120 * i).toFixed(2)}</Text>
                   </View>
                   <View style={[styles.financeBuyer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
