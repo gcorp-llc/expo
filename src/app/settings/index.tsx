@@ -9,6 +9,7 @@ import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay
 import { useRouter } from 'expo-router';
 import { Option } from '@/components/ui/SelectionModal';
 import { PageBackground } from '@/components/ui/PageBackground';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 import Animated, { FadeInDown, FadeIn, FadeOut } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 
@@ -96,13 +97,10 @@ export default function SettingsIndexScreen() {
 
       {/* Floating Header */}
       <View style={[styles.floatingHeader, { paddingTop: insets.top + 8, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <TouchableOpacity
+        <FloatingIconButton
+          icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
           onPress={() => router.back()}
-          style={styles.floatingHeaderBtn}
-          activeOpacity={0.8}
-        >
-          <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
-        </TouchableOpacity>
+        />
         <Text style={[styles.title, { color: colors.text }]}>
           {isRTL ? 'تنظیمات' : 'Settings'}
         </Text>

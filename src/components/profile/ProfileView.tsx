@@ -75,7 +75,7 @@ const PURCHASES_FROM_MY_STORE = [
 ];
 
 export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
-  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
+  const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
   const colors = Colors[colorScheme];
   const { language, isGuest, hasEnteredDemoMode } = useStore();
   const isRTL = language === 'fa';
@@ -189,7 +189,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: '#1A1825' }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
       {isOwn && isGuest && !hasEnteredDemoMode && (
@@ -217,13 +217,6 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         />
 
         <View style={[styles.rightActions, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          {isOwn && (
-            <FloatingIconButton
-              icon="solar:settings-minimalistic-broken"
-              onPress={() => router.push('/settings')}
-              iconSize={20}
-            />
-          )}
           <FloatingIconButton icon="solar:share-broken" onPress={onShare} iconSize={20} />
           {!isOwn && (
             <FloatingIconButton

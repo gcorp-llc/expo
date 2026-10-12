@@ -193,10 +193,11 @@ export const ProfileCard = ({ profile, isRTL, mode = 'own', userId }: ProfileCar
                   <Text style={[styles.secondaryActionText, { color: colors.text }]}>{isRTL ? 'فروشگاه' : 'Shop'}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                  onPress={onInvite}
-                  style={[styles.iconAction, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                  onPress={() => router.push('/cart')}
+                  style={[styles.secondaryAction, { backgroundColor: colors.surface, borderColor: colors.border }]}
                 >
-                  <Iconify icon="solar:user-plus-broken" size={20} color={colors.text} />
+                  <Iconify icon="solar:bag-3-broken" size={20} color={colors.text} style={{ marginRight: 6 }} />
+                  <Text style={[styles.secondaryActionText, { color: colors.text }]}>{isRTL ? 'سبد خرید' : 'Cart'}</Text>
                 </TouchableOpacity>
               </>
             ) : (

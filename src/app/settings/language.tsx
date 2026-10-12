@@ -7,6 +7,7 @@ import { useStore, Language } from '@/hooks/use-store';
 import { Iconify } from '@/components/ui/Iconify';
 import { useRouter } from 'expo-router';
 import { PageBackground } from '@/components/ui/PageBackground';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function LanguageSettingsScreen() {
@@ -31,21 +32,14 @@ export default function LanguageSettingsScreen() {
       <PageBackground />
 
       <View style={[styles.header, { paddingTop: insets.top + 16, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-        <TouchableOpacity
-          style={[styles.backBtn, { backgroundColor: colors.surface, borderColor: colors.border }]}
+        <FloatingIconButton
+          icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
           onPress={() => router.back()}
-          hitSlop={10}
-        >
-          <Iconify
-            icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
-            size={22}
-            color={colors.text}
-          />
-        </TouchableOpacity>
+        />
         <Text style={[styles.headerTitle, { color: colors.text }]}>
           {isRTL ? 'تنظیمات زبان' : 'Language Settings'}
         </Text>
-        <View style={{ width: 44 }} />
+        <View style={{ width: 42 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>

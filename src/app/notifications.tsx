@@ -7,6 +7,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStore } from '@/hooks/use-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Iconify } from '@/components/ui/Iconify';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 
 const NOTIFICATIONS = [
   { id: '1', title: 'سفارش جدید', body: 'شما یک سفارش جدید برای محصول "آیفون ۱۵" دارید.', time: '۱۰ دقیقه پیش', type: 'order', icon: 'solar:bag-heart-broken' },
@@ -43,19 +44,17 @@ export default function NotificationsScreen() {
       <PageBackground />
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
-          </TouchableOpacity>
+          <FloatingIconButton
+            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
+            onPress={() => router.back()}
+          />
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'اعلان‌ها' : 'Notifications'}
           </Text>
-          <TouchableOpacity
-            style={styles.floatingHeaderBtn}
+          <FloatingIconButton
+            icon="solar:settings-broken"
             onPress={() => router.push('/settings/notification-settings')}
-            activeOpacity={0.8}
-          >
-            <Iconify icon="solar:settings-broken" size={22} color={colors.text} />
-          </TouchableOpacity>
+          />
         </View>
       </View>
 

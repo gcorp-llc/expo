@@ -10,6 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import { PageLoader } from '@/components/ui/Loading';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors, Spacing } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -48,6 +49,19 @@ export default function ProductDetailScreen() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [reviewOrderId, setReviewOrderId] = useState('');
+  const [replyingCommentId, setReplyingCommentId] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [localReplies, setLocalReplies] = useState<{ [key: string]: { id: string; author: string; isSeller: boolean; text: string; date: string }[] }>({
+    'sample-1': [
+      {
+        id: 'rep-1',
+        author: 'پاسخ فروشگاه (پشتیبانی)',
+        isSeller: true,
+        text: 'با سلام و احترام، بله تمامی محصولات با گارانتی اصالت کالا و مهلت تست ۷ روزه ارسال می‌شوند.',
+        date: '۲ روز پیش'
+      }
+    ]
+  });
   const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(
     null
   );
@@ -211,31 +225,18 @@ export default function ProductDetailScreen() {
           { top: insets.top + 8, flexDirection: isRTL ? 'row-reverse' : 'row' },
         ]}
       >
-        <Pressable onPress={() => router.back()} style={styles.circleButton}>
-          <View style={styles.circleInner}>
-            <Iconify
-              icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
-              size={22}
-              color="#fff"
-            />
-          </View>
-        </Pressable>
+        <FloatingIconButton
+          icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
+          onPress={() => router.back()}
+        />
 
         <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
-          <Pressable onPress={handleToggleFavorite} style={styles.circleButton}>
-            <View style={styles.circleInner}>
-              <Iconify
-                icon={isFavorite ? 'solar:heart-bold' : 'solar:heart-broken'}
-                size={22}
-                color={isFavorite ? '#ef4444' : '#fff'}
-              />
-            </View>
-          </Pressable>
-          <Pressable style={styles.circleButton}>
-            <View style={styles.circleInner}>
-              <Iconify icon="solar:share-broken" size={22} color="#fff" />
-            </View>
-          </Pressable>
+          <FloatingIconButton
+            icon={isFavorite ? 'solar:heart-bold' : 'solar:heart-broken'}
+            color={isFavorite ? '#ef4444' : undefined}
+            onPress={handleToggleFavorite}
+          />
+          <FloatingIconButton icon="solar:share-broken" />
         </View>
       </View>
 

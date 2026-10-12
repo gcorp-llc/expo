@@ -6,6 +6,7 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStore } from '@/hooks/use-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Iconify } from '@/components/ui/Iconify';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 
 import { Image } from 'expo-image';
 
@@ -52,9 +53,10 @@ export default function ShopManagementScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.floatingHeaderBtn} activeOpacity={0.8}>
-            <Iconify icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"} size={22} color={colors.text} />
-          </TouchableOpacity>
+          <FloatingIconButton
+            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
+            onPress={() => router.back()}
+          />
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'تنظیمات فروشگاه' : 'Shop Settings'}
           </Text>
