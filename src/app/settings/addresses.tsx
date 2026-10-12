@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeIn, FadeOut } from "react-native-reanimated";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 import { Iconify } from "@/components/ui/Iconify";
+import { FloatingIconButton } from "@/components/ui/FloatingIconButton";
 
 export interface AddressItem {
   id: string;
@@ -169,29 +170,20 @@ export default function AddressesScreen() {
       {/* Coordinated Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-          <TouchableOpacity
+          <FloatingIconButton
+            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
             onPress={() => router.back()}
-            style={styles.floatingHeaderBtn}
-            activeOpacity={0.8}
-          >
-            <Iconify
-              icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
-              size={22}
-              color={colors.text}
-            />
-          </TouchableOpacity>
+          />
 
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? "نشانی‌های ارسال" : "Addresses"}
           </Text>
 
-          <TouchableOpacity
+          <FloatingIconButton
+            icon="solar:map-point-wave-broken"
             onPress={openAddModal}
-            style={styles.floatingHeaderBtn}
-            activeOpacity={0.8}
-          >
-            <Iconify icon="solar:map-point-wave-broken" size={22} color={colors.tint} />
-          </TouchableOpacity>
+            color={colors.tint}
+          />
         </View>
       </View>
 
