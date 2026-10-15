@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مرجع بصری اپلیکیشن کوتیک (Kutik UI Reference)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app-layout">
+
+    <!-- Sidebar Route Inspector (Web Tool) -->
+    <aside id="reference-sidebar">
+      <div class="sidebar-header">
+        <h2>🛍️ مرجع بصری کوتیک</h2>
+        <span class="sidebar-badge">کوتیک (Cardiani) v1.0</span>
+      </div>
+
+      <div class="sidebar-controls">
+        <button class="tool-btn" id="theme-toggle-btn" onclick="toggleTheme()">🌙 تاریک</button>
+      </div>
+
+      <div class="sidebar-controls">
+        <button class="tool-btn" onclick="setViewMode('normal')">عادی</button>
+        <button class="tool-btn" onclick="setViewMode('loading')">Loading</button>
+        <button class="tool-btn" onclick="setViewMode('empty')">Empty</button>
+      </div>
+
+      <div class="sidebar-search">
+        <input type="text" placeholder="جستجوی Route..." oninput="filterRoutes(this.value)" />
+      </div>
+
+      <div class="routes-tree" id="routes-list">
+        <div class="route-group-title">اصلی (Main Tabs)</div>
+        <div class="route-item active" data-route="/(tabs)" onclick="navigateTo('/(tabs)')">
+          <span>خانه / Feed</span>
+          <span class="route-tag">/(tabs)</span>
+        </div>
+        <div class="route-item" data-route="/(tabs)/shop" onclick="navigateTo('/(tabs)/shop')">
+          <span>فروشگاه / بازار</span>
+          <span class="route-tag">/shop</span>
+        </div>
+        <div class="route-item" data-route="/(tabs)/sell" onclick="navigateTo('/(tabs)/sell')">
+          <span>ثبت آگهی</span>
+          <span class="route-tag">/sell</span>
+        </div>
+        <div class="route-item" data-route="/(tabs)/chat" onclick="navigateTo('/(tabs)/chat')">
+          <span>لیست پیام‌ها</span>
+          <span class="route-tag">/chat</span>
+        </div>
+        <div class="route-item" data-route="/(tabs)/settings" onclick="navigateTo('/(tabs)/settings')">
+          <span>تنظیمات</span>
+          <span class="route-tag">/settings</span>
+        </div>
+
+        <div class="route-group-title">پیام‌رسانی (Chat Suite)</div>
+        <div class="route-item" data-route="/chat/1" onclick="navigateTo('/chat/1')">
+          <span>گفتگو مستقیم</span>
+          <span class="route-tag">/chat/[id]</span>
+        </div>
+        <div class="route-item" data-route="/chat/group/1" onclick="navigateTo('/chat/1')">
+          <span>صفحه گروه</span>
+          <span class="route-tag">/chat/group</span>
+        </div>
+        <div class="route-item" data-route="/chat/channel/1" onclick="navigateTo('/chat/1')">
+          <span>صفحه کانال</span>
+          <span class="route-tag">/chat/channel</span>
+        </div>
+        <div class="route-item" data-route="/chat/contacts" onclick="navigateTo('/chat/contacts')">
+          <span>مخاطبین</span>
+          <span class="route-tag">/contacts</span>
+        </div>
+
+        <div class="route-group-title">فروشگاه و محصول</div>
+        <div class="route-item" data-route="/cart" onclick="navigateTo('/cart')">
+          <span>سبد خرید</span>
+          <span class="route-tag">/cart</span>
+        </div>
+        <div class="route-item" data-route="/checkout" onclick="navigateTo('/checkout')">
+          <span>تکمیل سفارش</span>
+          <span class="route-tag">/checkout</span>
+        </div>
+        <div class="route-item" data-route="/notifications" onclick="navigateTo('/notifications')">
+          <span>اعلان‌ها</span>
+          <span class="route-tag">/notifications</span>
+        </div>
+
+        <div class="route-group-title">احراز هویت (Auth)</div>
+        <div class="route-item" data-route="/auth/welcome" onclick="navigateTo('/auth/welcome')">
+          <span>خوش‌آمدگویی</span>
+          <span class="route-tag">/welcome</span>
+        </div>
+        <div class="route-item" data-route="/auth/phone" onclick="navigateTo('/auth/phone')">
+          <span>ورود با تلفن</span>
+          <span class="route-tag">/phone</span>
+        </div>
+        <div class="route-item" data-route="/auth/verify" onclick="navigateTo('/auth/verify')">
+          <span>تأیید کد OTP</span>
+          <span class="route-tag">/verify</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Stage Mobile Frame Stage -->
+    <main id="stage-container">
+      <div class="mobile-frame">
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+          <span class="status-bar-time">09:41</span>
+          <div class="status-bar-icons">
+            <span>📶</span>
+            <span>📶</span>
+            <span>🔋 100%</span>
+          </div>
+        </div>
+
+        <!-- Dynamic Screen Content -->
+        <div id="viewport-screen"></div>
+
+        <!-- Bottom Tab Navigation Bar -->
+        <nav class="bottom-nav">
+          <div class="tab-item active" data-tab="index" onclick="navigateTo('/(tabs)')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            <span>خانه</span>
+          </div>
+          <div class="tab-item" data-tab="shop" onclick="navigateTo('/(tabs)/shop')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+            <span>فروشگاه</span>
+          </div>
+          <div class="tab-item" data-tab="sell" onclick="navigateTo('/(tabs)/sell')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            <span>ثبت</span>
+          </div>
+          <div class="tab-item" data-tab="chat" onclick="navigateTo('/(tabs)/chat')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/></svg>
+            <span>پیام‌ها</span>
+          </div>
+          <div class="tab-item" data-tab="settings" onclick="navigateTo('/(tabs)/settings')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+            <span>تنظیمات</span>
+          </div>
+        </nav>
+
+        <!-- Bottom Sheet Modal Container -->
+        <div class="modal-overlay" id="modal-overlay" onclick="closeBottomSheet()">
+          <div class="bottom-sheet" id="bottom-sheet-content" onclick="event.stopPropagation()"></div>
+        </div>
+
+      </div>
+    </main>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
