@@ -21,7 +21,8 @@
       "package": "com.anonymous.cardiani"
     },
     "web": {
-      "output": "static",
+      "bundler": "metro",
+      "output": "single",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [

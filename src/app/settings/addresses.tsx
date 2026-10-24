@@ -7,6 +7,7 @@ import {
   ScrollView,
   TextInput,
   Modal,
+  Platform,
 } from "react-native";
 import { useModalStore } from "@/hooks/use-modal-store";
 import { useRouter } from "expo-router";
@@ -15,9 +16,20 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, { FadeInDown, FadeIn, FadeOut } from "react-native-reanimated";
-import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 import { Iconify } from "@/components/ui/Iconify";
 import { FloatingIconButton } from "@/components/ui/FloatingIconButton";
+
+// Import react-native-maps فقط برای موبایل
+let MapView: any = null;
+let Marker: any = null;
+let PROVIDER_DEFAULT: any = null;
+
+if (Platform.OS !== "web") {
+  const maps = require("react-native-maps");
+  MapView = maps.default;
+  Marker = maps.Marker;
+  PROVIDER_DEFAULT = maps.PROVIDER_DEFAULT;
+}
 
 export interface AddressItem {
   id: string;
@@ -64,7 +76,6 @@ export default function AddressesScreen() {
   const showModal = useModalStore((state) => state.showModal);
   const { language } = useStore();
   const isRTL = language === "fa";
-
   const [addresses, setAddresses] = useState<AddressItem[]>(INITIAL_ADDRESSES);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -112,7 +123,7 @@ export default function AddressesScreen() {
         message: isRTL ? "لطفاً عنوان و نشانی متنی کامل را وارد کنید." : "Please fill required fields.",
         icon: "solar:danger-circle-bold",
         iconColor: colors.destructive,
-        buttons: [{ text: isRTL ? "متوجه شدم" : "OK", style: "primary" }]
+        buttons: [{ text: isRTL ? "متوجه شدم" : "OK", style: "primary" }],
       });
       return;
     }
@@ -148,7 +159,6 @@ export default function AddressesScreen() {
       };
       setAddresses((prev) => [...prev, newAddr]);
     }
-
     setModalVisible(false);
   };
 
@@ -174,11 +184,9 @@ export default function AddressesScreen() {
             icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
             onPress={() => router.back()}
           />
-
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? "نشانی‌های ارسال" : "Addresses"}
           </Text>
-
           <FloatingIconButton
             icon="solar:map-point-wave-broken"
             onPress={openAddModal}
@@ -198,7 +206,6 @@ export default function AddressesScreen() {
               <View style={[styles.iconChip, { backgroundColor: colors.tint + "18" }]}>
                 <Iconify icon="solar:map-point-broken" size={20} color={colors.tint} />
               </View>
-
               <View style={{ flex: 1, alignItems: isRTL ? "flex-end" : "flex-start" }}>
                 <View style={{ flexDirection: isRTL ? "row-reverse" : "row", alignItems: "center", gap: 8 }}>
                   <Text style={[styles.addrTitle, { color: colors.text }]}>{addr.title}</Text>
@@ -215,9 +222,7 @@ export default function AddressesScreen() {
                 </Text>
               </View>
             </View>
-
             <View style={[styles.divider, { backgroundColor: colors.border }]} />
-
             <View style={[styles.cardFooter, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
               <TouchableOpacity
                 onPress={() => handleSetDefault(addr.id)}
@@ -232,7 +237,6 @@ export default function AddressesScreen() {
                   {isRTL ? "انتخاب به عنوان پیش‌فرض" : "Set as default"}
                 </Text>
               </TouchableOpacity>
-
               <View style={{ flexDirection: isRTL ? "row-reverse" : "row", gap: 12 }}>
                 <TouchableOpacity onPress={() => openEditModal(addr)} hitSlop={8}>
                   <Iconify icon="solar:pen-2-broken" size={18} color={colors.text} />
@@ -259,28 +263,41 @@ export default function AddressesScreen() {
                 ? isRTL ? "ویرایش نشانی" : "Edit Address"
                 : isRTL ? "افزودن نشانی جدید" : "Add New Address"}
             </Text>
-
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
-              {/* Map View Picker */}
+              {/* Map View Picker - فقط برای موبایل */}
               <View style={[styles.mapContainer, { borderColor: colors.border }]}>
-                <MapView
-                  provider={PROVIDER_DEFAULT}
-                  style={styles.map}
-                  initialRegion={{
-                    latitude: coords.latitude,
-                    longitude: coords.longitude,
-                    latitudeDelta: 0.01,
-                    longitudeDelta: 0.01,
-                  }}
-                  onPress={(e) => setCoords(e.nativeEvent.coordinate)}
-                >
-                  <Marker coordinate={coords} title={title || "موقعیت انتخاب شده"} />
-                </MapView>
-                <View style={styles.mapHint}>
-                  <Text style={styles.mapHintText}>
-                    {isRTL ? "نقشه تعاملی: برای تغییر موقعیت روی نقشه لمس کنید" : "Tap map to set pin"}
-                  </Text>
-                </View>
+                {Platform.OS !== "web" && MapView ? (
+                  <>
+                    <MapView
+                      provider={PROVIDER_DEFAULT}
+                      style={styles.map}
+                      initialRegion={{
+                        latitude: coords.latitude,
+                        longitude: coords.longitude,
+                        latitudeDelta: 0.01,
+                        longitudeDelta: 0.01,
+                      }}
+                      onPress={(e: any) => setCoords(e.nativeEvent.coordinate)}
+                    >
+                      <Marker coordinate={coords} title={title || "موقعیت انتخاب شده"} />
+                    </MapView>
+                    <View style={styles.mapHint}>
+                      <Text style={styles.mapHintText}>
+                        {isRTL ? "نقشه تعاملی: برای تغییر موقعیت روی نقشه لمس کنید" : "Tap map to set pin"}
+                      </Text>
+                    </View>
+                  </>
+                ) : (
+                  <View style={styles.webMapPlaceholder}>
+                    <Iconify icon="solar:map-point-broken" size={40} color={colors.textSecondary} />
+                    <Text style={[styles.webMapText, { color: colors.textSecondary }]}>
+                      {isRTL ? "نقشه در وب پشتیبانی نمی‌شود" : "Map not available on web"}
+                    </Text>
+                    <Text style={[styles.webMapSubtext, { color: colors.textSecondary }]}>
+                      {isRTL ? "لطفاً از اپلیکیشن موبایل استفاده کنید" : "Please use mobile app"}
+                    </Text>
+                  </View>
+                )}
               </View>
 
               {/* Title Field */}
@@ -337,7 +354,6 @@ export default function AddressesScreen() {
               >
                 <Text style={{ color: colors.text, fontWeight: "700" }}>{isRTL ? "انصراف" : "Cancel"}</Text>
               </TouchableOpacity>
-
               <TouchableOpacity
                 onPress={handleSaveAddress}
                 style={[styles.saveBtn, { backgroundColor: colors.tint }]}
@@ -354,7 +370,7 @@ export default function AddressesScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { backgroundColor: 'transparent', paddingHorizontal: 16 },
+  header: { backgroundColor: "transparent", paddingHorizontal: 16 },
   headerContent: {
     height: 52,
     alignItems: "center",
@@ -366,7 +382,7 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   headerTitle: { fontSize: 18, fontWeight: "800" },
   scrollContent: { padding: 16, gap: 16 },
@@ -425,6 +441,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   mapHintText: { color: "#fff", fontSize: 11, fontWeight: "700" },
+  webMapPlaceholder: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: "rgba(0,0,0,0.05)",
+  },
+  webMapText: { fontSize: 14, fontWeight: "600" },
+  webMapSubtext: { fontSize: 12, fontWeight: "500" },
   inputGroup: {
     height: 48,
     borderRadius: 14,
