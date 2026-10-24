@@ -7,10 +7,9 @@ import {
   ScrollView,
   Dimensions,
   Modal,
-  Platform,
+  Pressable,
 } from 'react-native';
 import { Image } from 'expo-image';
-import { BlurView } from 'expo-blur';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -112,18 +111,15 @@ export const CulturalImagePickerModal = ({
     : (isRTL ? 'انتخاب آواتار از هنر ایرانی' : 'Select Persian Cultural Avatar');
 
   return (
-    <Modal visible={isVisible} animationType="fade" transparent onRequestClose={onClose}>
-      <View style={styles.backdrop}>
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 40 : 80}
-          tint="dark"
-          style={StyleSheet.absoluteFill}
-        />
+    <Modal visible={isVisible} animationType="slide" transparent onRequestClose={onClose} statusBarTranslucent>
+      <View style={styles.overlay}>
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <Animated.View
-          entering={FadeIn.duration(300)}
+          entering={FadeIn.duration(250)}
           exiting={FadeOut.duration(200)}
           style={[styles.modalCard, { backgroundColor: colors.card, borderColor: colors.border }]}
         >
+          <View style={styles.indicator} />
           <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
               <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
@@ -173,16 +169,24 @@ export const CulturalImagePickerModal = ({
 };
 
 const styles = StyleSheet.create({
-  backdrop: {
+  overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'flex-end',
   },
+  indicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: 'rgba(128,128,128,0.25)',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 8,
+  },
   modalCard: {
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
     borderWidth: 1,
-    maxHeight: '80%',
+    maxHeight: '82%',
     padding: 20,
     gap: 16,
   },

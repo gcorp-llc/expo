@@ -311,7 +311,7 @@ export default function AddProductScreen() {
             </View>
           </View>
 
-          {sellingPrice && costPrice && (
+          {Boolean(sellingPrice) && Boolean(costPrice) && (
             <View style={[styles.profitPreview, { backgroundColor: colors.tint + '12', borderColor: colors.tint + '30', flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <Iconify icon="solar:wallet-money-broken" size={20} color={colors.tint} />
               <Text style={[styles.profitText, { color: colors.tint }]}>

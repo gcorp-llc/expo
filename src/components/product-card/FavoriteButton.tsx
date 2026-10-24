@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { TouchableOpacity, AccessibilityInfo } from 'react-native';
+import { Pressable, AccessibilityInfo, GestureResponderEvent } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { Iconify } from '@/components/ui/Iconify';
 import { styles } from './ProductCard.styles';
@@ -18,7 +18,10 @@ export const FavoriteButton = ({ isFavorite, onPress, isRTL, tintColor }: Favori
     transform: [{ scale: scale.value }],
   }));
 
-  const handlePress = useCallback(() => {
+  const handlePress = useCallback((e?: GestureResponderEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
     // Spring scaling effect
     scale.value = 0.8;
     scale.value = withSpring(1, { damping: 10, stiffness: 200 });
@@ -33,12 +36,12 @@ export const FavoriteButton = ({ isFavorite, onPress, isRTL, tintColor }: Favori
   }, [isFavorite, onPress, scale]);
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
+    <Pressable
       onPress={handlePress}
-      style={[
+      style={({ pressed }) => [
         styles.wishlistButton,
         isRTL ? { left: 12 } : { right: 12 },
+        { opacity: pressed ? 0.85 : 1 },
       ]}
       accessible={true}
       accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
@@ -51,6 +54,6 @@ export const FavoriteButton = ({ isFavorite, onPress, isRTL, tintColor }: Favori
           color={isFavorite ? "#FF4D4F" : tintColor} // Custom filled heart color or app primary color
         />
       </Animated.View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };

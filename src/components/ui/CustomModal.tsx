@@ -1,7 +1,6 @@
 import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Modal, Platform } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, Modal, Pressable } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { BlurView } from 'expo-blur';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useStore } from '@/hooks/use-store';
@@ -37,11 +36,7 @@ export const CustomModalProvider = () => {
       statusBarTranslucent
     >
       <View style={styles.overlay}>
-        <BlurView
-          intensity={Platform.OS === 'ios' ? 40 : 80}
-          tint={colorScheme === 'dark' ? 'dark' : 'light'}
-          style={StyleSheet.absoluteFill}
-        />
+        <Pressable style={StyleSheet.absoluteFill} onPress={hideModal} />
 
         <Animated.View
           entering={FadeIn.duration(300)}
@@ -128,6 +123,7 @@ export const CustomModalProvider = () => {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
