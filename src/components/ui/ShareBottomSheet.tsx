@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Pressable, Platform, Image, Linking, Share } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, Dimensions, Pressable, Platform, Image, Linking, Share, Modal } from 'react-native';
 import Toast from 'react-native-toast-message';
 import Animated, {
   useSharedValue,
@@ -62,12 +62,19 @@ export const ShareBottomSheet = forwardRef<ShareBottomSheetRef, ShareBottomSheet
   if (!visible) return null;
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-      <Animated.View style={[styles.backdrop, backdropStyle]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={close} />
-      </Animated.View>
+    <Modal
+      transparent
+      visible={visible}
+      onRequestClose={close}
+      animationType="none"
+      statusBarTranslucent
+    >
+      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+        <Animated.View style={[styles.backdrop, backdropStyle]}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={close} />
+        </Animated.View>
 
-      <Animated.View style={[styles.sheetContainer, sheetStyle, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
+        <Animated.View style={[styles.sheetContainer, sheetStyle, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <BlurView intensity={Platform.OS === 'ios' ? 20 : 0} style={StyleSheet.absoluteFill} tint={colorScheme} />
 
         <View style={styles.handleContainer}>
@@ -183,6 +190,7 @@ export const ShareBottomSheet = forwardRef<ShareBottomSheetRef, ShareBottomSheet
         </View>
       </Animated.View>
     </View>
+  </Modal>
   );
 });
 

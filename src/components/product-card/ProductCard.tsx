@@ -98,7 +98,7 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
           cardBgColor={colorScheme === 'light' ? '#FFFFFF' : colors.card}
         >
           {/* Floating Discount Badge */}
-          {hasDiscount && (
+          {Boolean(hasDiscount) && (
             <DiscountBadge percentage={product.discountPercentage!} isRTL={isRTL} />
           )}
 
@@ -111,7 +111,7 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
           />
 
           {/* Floating Active Countdown Timer */}
-          {hasCountdown && (
+          {Boolean(hasCountdown) && (
             <SaleCountdown
               saleEndDate={product.saleEndDate!}
               onExpired={handleExpired}
@@ -130,7 +130,7 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
           </Text>
 
           {/* Short Description */}
-          {product.description && (
+          {Boolean(product.description) && (
             <Text
               style={[styles.description, { color: colorScheme === 'light' ? '#6B7280' : colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}
               numberOfLines={2}
