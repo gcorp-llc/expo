@@ -16,7 +16,6 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Iconify } from '@/components/ui/Iconify';
 import { useStore } from '@/hooks/use-store';
-import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay';
 import { PageBackground } from '@/components/ui/PageBackground';
 import { SelectionModal, Option } from '@/components/ui/SelectionModal';
 import * as ImagePicker from 'expo-image-picker';
@@ -197,17 +196,6 @@ export default function SellScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
-      {isGuest && !hasEnteredDemoMode && (
-        <GuestRestrictionOverlay
-          icon={<Iconify icon="solar:add-square-bold" width={42} height={42} color={colors.tint} />}
-          title={isRTL ? 'ثبت آگهی' : 'Create Listing'}
-          description={
-            isRTL
-              ? 'برای ثبت آگهی و فروش محصولات خود، لطفاً ابتدا ثبت‌نام کنید.'
-              : 'To publish listings and sell your products, please sign up first.'
-          }
-        />
-      )}
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <ScrollView

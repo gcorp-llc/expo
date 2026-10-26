@@ -25,7 +25,6 @@ import { ContactCard } from './ContactCard';
 import { ProfileCompletion } from './ProfileCompletion';
 import { ShareBottomSheet, ShareBottomSheetRef } from '@/components/ui/ShareBottomSheet';
 import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
-import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay';
 import { Iconify } from '@/components/ui/Iconify';
 import { FloatingDropdownMenu, DropdownOption } from '@/components/ui/FloatingDropdownMenu';
 import { SelectionModal, Option } from '@/components/ui/SelectionModal';
@@ -192,17 +191,6 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
-      {isOwn && isGuest && !hasEnteredDemoMode && (
-        <GuestRestrictionOverlay
-          icon={<Iconify icon="solar:user-circle-bold" width={42} height={42} color={colors.tint} />}
-          title={isRTL ? 'پروفایل کاربری' : 'User Profile'}
-          description={
-            isRTL
-              ? 'برای مشاهده پروفایل و مدیریت محصولات، لطفاً ثبت‌نام کنید.'
-              : 'To view your profile and manage products, please sign up first.'
-          }
-        />
-      )}
 
       {/* Floating Header Buttons */}
       <View

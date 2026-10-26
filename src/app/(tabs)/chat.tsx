@@ -9,7 +9,6 @@ import { useProfileStore } from '@/hooks/use-profile-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedScrollHandler, useSharedValue, useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { GuestRestrictionOverlay } from '@/components/ui/GuestRestrictionOverlay';
 import { FlashList } from '@shopify/flash-list';
 import { Iconify } from '@/components/ui/Iconify';
 import { PageBackground } from '@/components/ui/PageBackground';
@@ -74,13 +73,6 @@ export default function ChatScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
-      {isGuest && !hasEnteredDemoMode && (
-        <GuestRestrictionOverlay
-          icon={<Iconify icon="solar:chat-square-bold" width={42} height={42} color={colors.tint} />}
-          title={isRTL ? 'پیام‌ها' : 'Messages'}
-          description={isRTL ? 'برای گفتگو با فروشندگان و استفاده از امکانات چت، لطفاً ثبت‌نام کنید.' : 'To chat with sellers and use messaging features, please sign up.'}
-        />
-      )}
 
       {/* Floating Header */}
       <Animated.View style={[
