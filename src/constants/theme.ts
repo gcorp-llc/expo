@@ -1,64 +1,192 @@
 import { Platform } from 'react-native';
+import { useStore, AppFontFamily } from '@/hooks/use-store';
 
 // Synchronized with Frontend OKLCH colors (Converted to Hex)
-const tintColorLight = '#3a93e6'; // OKLCH(0.65 0.15 250)
-const tintColorDark = '#68b5f5';  // OKLCH(0.75 0.12 245)
+const defaultTintColorLight = '#3a93e6';
+const defaultTintColorDark = '#68b5f5';
+
+export interface IranianColor {
+  id: string;
+  nameFa: string;
+  nameEn: string;
+  hex: string;
+}
+
+export const IRANIAN_TRADITIONAL_COLORS: IranianColor[] = [
+  { id: 'lazevardi', nameFa: 'لاجوردی', nameEn: 'Lapis Lazuli', hex: '#26619C' },
+  { id: 'firoozehi', nameFa: 'فیروزه‌ای', nameEn: 'Turquoise', hex: '#30BFBF' },
+  { id: 'nili', nameFa: 'نیلی', nameEn: 'Indigo', hex: '#2E3A87' },
+  { id: 'kashiei', nameFa: 'کاشی‌ای', nameEn: 'Tile Blue', hex: '#1E6FB8' },
+  { id: 'asemani', nameFa: 'آسمانی', nameEn: 'Sky Blue', hex: '#87CEEB' },
+  { id: 'shangarf', nameFa: 'شنگرف', nameEn: 'Cinnabar', hex: '#E34234' },
+  { id: 'anari', nameFa: 'اناری', nameEn: 'Pomegranate', hex: '#C0392B' },
+  { id: 'ghermez_danehi', nameFa: 'قرمز دانه‌ای', nameEn: 'Crimson', hex: '#A6122D' },
+  { id: 'annabi', nameFa: 'عنابی', nameEn: 'Jujube', hex: '#6E1F2A' },
+  { id: 'lali', nameFa: 'لعلی', nameEn: 'Ruby', hex: '#D2263E' },
+  { id: 'zafarani', nameFa: 'زعفرانی', nameEn: 'Saffron', hex: '#F2A900' },
+  { id: 'kahrabayi', nameFa: 'کهربایی', nameEn: 'Amber', hex: '#E0A030' },
+  { id: 'talayi', nameFa: 'طلایی', nameEn: 'Gold', hex: '#D4AF37' },
+  { id: 'nokodi', nameFa: 'نخودی', nameEn: 'Chickpea', hex: '#E8D3A2' },
+  { id: 'zomorrodi', nameFa: 'زمردی', nameEn: 'Emerald', hex: '#0B8A5B' },
+  { id: 'pestehi', nameFa: 'پسته‌ای', nameEn: 'Pistachio', hex: '#93C572' },
+  { id: 'yashmi', nameFa: 'یشمی', nameEn: 'Jade', hex: '#00A86B' },
+  { id: 'sabz_shirazi', nameFa: 'سبز شیرازی', nameEn: 'Shiraz Green', hex: '#1E7F5C' },
+  { id: 'hanayi', nameFa: 'حنایی', nameEn: 'Henna', hex: '#C8683C' },
+  { id: 'gerdoyi', nameFa: 'گردویی', nameEn: 'Walnut', hex: '#5C4033' },
+  { id: 'khakastari', nameFa: 'خاکستری', nameEn: 'Grey', hex: '#808080' },
+  { id: 'noghrei', nameFa: 'نقره‌ای', nameEn: 'Silver', hex: '#B8BCC2' },
+  { id: 'arghavani', nameFa: 'ارغوانی', nameEn: 'Purple', hex: '#B0448C' },
+  { id: 'banafsh_shaghayegi', nameFa: 'بنفش شقایقی', nameEn: 'Poppy Violet', hex: '#7B4FA0' },
+  { id: 'golgon', nameFa: 'گلگون', nameEn: 'Rose Pink', hex: '#F4A6B8' },
+  { id: 'shiri', nameFa: 'شیری', nameEn: 'Cream', hex: '#F5EFE0' },
+  { id: 'sormei', nameFa: 'سرمه‌ای', nameEn: 'Navy Blue', hex: '#1B2A49' },
+  { id: 'meshki', nameFa: 'مشکی', nameEn: 'Black', hex: '#1A1A1A' },
+];
+
+export interface FontOption {
+  id: AppFontFamily;
+  nameFa: string;
+  nameEn: string;
+  descFa: string;
+  descEn: string;
+  sampleFa: string;
+  fontFamilyStyle?: string;
+}
+
+export const APP_FONT_OPTIONS: FontOption[] = [
+  {
+    id: 'vazir',
+    nameFa: 'وزیرمتن',
+    nameEn: 'Vazirmatn',
+    descFa: 'خوانا، مدرن و استاندارد وب و موبایل',
+    descEn: 'Legible, modern and standard font for web and mobile',
+    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
+    fontFamilyStyle: Platform.select({
+      web: "'Vazirmatn', system-ui, sans-serif",
+      default: 'Vazirmatn, sans-serif',
+    }),
+  },
+  {
+    id: 'nastaliq',
+    nameFa: 'نستعلیق',
+    nameEn: 'Nastaliq',
+    descFa: 'خوشنویسی اصیل ایرانی، عروس خطوط کهن پارسی',
+    descEn: 'Authentic Iranian calligraphy, the bride of Persian scripts',
+    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
+    fontFamilyStyle: Platform.select({
+      web: "'IranNastaliq', 'Nastaliq', 'Vazirmatn', cursive, sans-serif",
+      default: 'IranNastaliq, Nastaliq, sans-serif',
+    }),
+  },
+  {
+    id: 'shabnam',
+    nameFa: 'شبنم',
+    nameEn: 'Shabnam',
+    descFa: 'طراحی شیک و روان، مناسب محیط‌های دیجیتال',
+    descEn: 'Sleek and smooth design, ideal for digital interfaces',
+    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
+    fontFamilyStyle: Platform.select({
+      web: "'Shabnam', 'Vazirmatn', sans-serif",
+      default: 'Shabnam, sans-serif',
+    }),
+  },
+  {
+    id: 'sahel',
+    nameFa: 'ساحل',
+    nameEn: 'Sahel',
+    descFa: 'فونت هندسی و مدرن با خوانایی بالا',
+    descEn: 'Geometric modern font with high legibility',
+    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
+    fontFamilyStyle: Platform.select({
+      web: "'Sahel', 'Vazirmatn', sans-serif",
+      default: 'Sahel, sans-serif',
+    }),
+  },
+  {
+    id: 'system',
+    nameFa: 'پیش‌فرض سیستم',
+    nameEn: 'System Default',
+    descFa: 'پیروی از قلم استاندارد دستگاه',
+    descEn: 'Follow device system default font',
+    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
+    fontFamilyStyle: Platform.select({
+      ios: 'System',
+      android: 'sans-serif',
+      web: 'system-ui, -apple-system, sans-serif',
+    }),
+  },
+];
+
+const getActiveTint = (defaultTint: string) => {
+  try {
+    const selectedColor = useStore.getState?.()?.selectedColorTheme;
+    return selectedColor || defaultTint;
+  } catch {
+    return defaultTint;
+  }
+};
 
 export const Colors = {
-  light: {
-    text: '#262f38',         // OKLCH(0.3 0.02 250)
-    textSecondary: '#5b646f', // OKLCH(0.5 0.02 250)
-    background: '#edf2f8',    // OKLCH(0.96 0.01 250)
-    secondaryBackground: '#e0e5eb', // OKLCH(0.92 0.01 250)
+  get light() {
+    const tint = getActiveTint(defaultTintColorLight);
+    return {
+      text: '#262f38',
+      textSecondary: '#5b646f',
+      background: '#edf2f8',
+      secondaryBackground: '#e0e5eb',
 
-    surface: 'rgba(255, 255, 255, 0.8)', // Glass effect
-    surfaceStrong: '#ffffff',
+      surface: 'rgba(255, 255, 255, 0.8)',
+      surfaceStrong: '#ffffff',
 
-    tint: tintColorLight,
-    icon: '#262f38',
-    tabIconDefault: '#5b646f',
-    tabIconSelected: tintColorLight,
+      tint,
+      icon: '#262f38',
+      tabIconDefault: '#5b646f',
+      tabIconSelected: tint,
 
-    border: '#d9dfe5',       // OKLCH(0.9 0.01 250)
-    headerBackground: 'rgba(237, 242, 248, 0.95)',
-    chatBackground: '#ffffff',
+      border: '#d9dfe5',
+      headerBackground: 'rgba(237, 242, 248, 0.95)',
+      chatBackground: '#ffffff',
 
-    success: '#10B981',
-    destructive: '#d74745',  // OKLCH(0.6 0.18 25)
-    warning: '#F59E0B',
+      success: '#10B981',
+      destructive: '#d74745',
+      warning: '#F59E0B',
 
-    shadow: 'rgba(38, 47, 56, 0.06)',
-    card: '#ffffff',
-    cardTransparent: 'rgba(255, 255, 255, 0.9)',
-    statusBarBackground: '#d0dceb',
+      shadow: 'rgba(38, 47, 56, 0.06)',
+      card: '#ffffff',
+      cardTransparent: 'rgba(255, 255, 255, 0.9)',
+      statusBarBackground: '#d0dceb',
+    };
   },
 
-  dark: {
-    text: '#c6cedb',         // OKLCH(0.85 0.02 260)
-    textSecondary: '#88909c', // OKLCH(0.65 0.02 260)
-    background: '#1a2029',    // OKLCH(0.24 0.02 260)
-    secondaryBackground: '#2d333d', // OKLCH(0.32 0.02 260)
+  get dark() {
+    const tint = getActiveTint(defaultTintColorDark);
+    return {
+      text: '#c6cedb',
+      textSecondary: '#88909c',
+      background: '#1a2029',
+      secondaryBackground: '#2d333d',
 
-    surface: 'rgba(33, 39, 48, 0.8)', // OKLCH(0.27 0.02 260) with alpha
-    surfaceStrong: '#212730',
+      surface: 'rgba(33, 39, 48, 0.8)',
+      surfaceStrong: '#212730',
 
-    tint: tintColorDark,
-    icon: '#c6cedb',
-    tabIconDefault: '#88909c',
-    tabIconSelected: tintColorDark,
+      tint,
+      icon: '#c6cedb',
+      tabIconDefault: '#88909c',
+      tabIconSelected: tint,
 
-    border: 'rgba(52, 59, 69, 0.3)', // OKLCH(0.35 0.02 260)
-    headerBackground: 'rgba(26, 32, 41, 0.95)',
-    chatBackground: '#1a2029',
+      border: 'rgba(52, 59, 69, 0.3)',
+      headerBackground: 'rgba(26, 32, 41, 0.95)',
+      chatBackground: '#1a2029',
 
-    success: '#10B981',
-    destructive: '#d74745',
-    warning: '#FBBF24',
+      success: '#10B981',
+      destructive: '#d74745',
+      warning: '#FBBF24',
 
-    shadow: 'rgba(0, 0, 0, 0.4)',
-    card: '#212730',
-    cardTransparent: 'rgba(33, 39, 48, 0.9)',
-    statusBarBackground: '#121720',
+      shadow: 'rgba(0, 0, 0, 0.4)',
+      card: '#212730',
+      cardTransparent: 'rgba(33, 39, 48, 0.9)',
+      statusBarBackground: '#121720',
+    };
   },
 };
 

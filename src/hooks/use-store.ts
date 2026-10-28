@@ -6,6 +6,7 @@ import { zustandStorage } from "@/lib/storage";
 
 export type Language = "en" | "fa";
 export type ThemeMode = "light" | "dark" | "system";
+export type AppFontFamily = "vazir" | "nastaliq" | "shabnam" | "sahel" | "system";
 export type PrivacyValue = "everyone" | "friends" | "nobody";
 
 export interface CartItem {
@@ -51,6 +52,15 @@ interface AppState {
 
   themeMode: ThemeMode;
   setThemeMode: (mode: ThemeMode) => void;
+
+  selectedColorTheme: string;
+  setSelectedColorTheme: (color: string) => void;
+
+  fontFamily: AppFontFamily;
+  setFontFamily: (font: AppFontFamily) => void;
+
+  fontSizeLevel: number;
+  setFontSizeLevel: (level: number) => void;
 
   isSearchVisible: boolean;
   setSearchVisible: (visible: boolean) => void;
@@ -231,6 +241,15 @@ export const useStore = create<AppState>()(
       themeMode: "dark", // Default to Dark as per screenshot
       setThemeMode: (mode) => set({ themeMode: mode }),
 
+      selectedColorTheme: "#7B4FA0", // Default active color: Banafsh Shaghayegi #7B4FA0
+      setSelectedColorTheme: (color) => set({ selectedColorTheme: color }),
+
+      fontFamily: "vazir",
+      setFontFamily: (font) => set({ fontFamily: font }),
+
+      fontSizeLevel: 9,
+      setFontSizeLevel: (level) => set({ fontSizeLevel: level }),
+
       isSearchVisible: false,
       setSearchVisible: (visible) => set({ isSearchVisible: visible }),
 
@@ -384,6 +403,9 @@ export const useStore = create<AppState>()(
       partialize: (state) => ({
         language: state.language,
         themeMode: state.themeMode,
+        selectedColorTheme: state.selectedColorTheme,
+        fontFamily: state.fontFamily,
+        fontSizeLevel: state.fontSizeLevel,
         isAuthenticated: state.isAuthenticated,
         isGuest: state.isGuest,
         hasEnteredDemoMode: state.hasEnteredDemoMode,
