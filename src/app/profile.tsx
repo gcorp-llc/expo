@@ -1,6 +1,14 @@
 import React from 'react';
-import { Redirect } from 'expo-router';
+import { useProfileStore } from '@/hooks/use-profile-store';
+import { ProfileView } from '@/components/profile/ProfileView';
 
-export default function ProfileRedirect() {
-  return <Redirect href="/(tabs)/profile" />;
+export default function ProfileScreen() {
+  const profile = useProfileStore();
+
+  return (
+    <ProfileView
+      profile={profile}
+      mode="own"
+    />
+  );
 }
