@@ -112,6 +112,11 @@ export default function RootLayout() {
           font-display: swap;
         }
 
+        html, body, #root, [data-reactroot] {
+          background-color: ${colors.background} !important;
+          transition: background-color 0.2s ease-in-out;
+        }
+
         body, #root, [class*="r-"], text, button, input, textarea {
           font-family: ${fontCSS} !important;
         }
@@ -121,7 +126,7 @@ export default function RootLayout() {
         }
       `;
     }
-  }, [fontFamily, fontSizeLevel]);
+  }, [fontFamily, fontSizeLevel, colors.background]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -130,7 +135,10 @@ export default function RootLayout() {
           <View
             style={[
               styles.container,
-              { direction: language === "fa" ? "rtl" : "ltr" },
+              {
+                direction: language === "fa" ? "rtl" : "ltr",
+                backgroundColor: colors.background,
+              },
             ]}
           >
             <Stack
@@ -142,6 +150,8 @@ export default function RootLayout() {
             >
               <Stack.Screen name="index" options={{ animation: "none" }} />
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="profile" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="settings/index" options={{ animation: "slide_from_right" }} />
               <Stack.Screen
                 name="auth/welcome"
                 options={{ animation: "fade" }}

@@ -1,0 +1,58 @@
+Starting project at /app
+Using src/app as the root directory for Expo Router.
+React Compiler enabled
+Starting Metro Bundler
+
+Waiting on http://localhost:8081
+
+Logs for your project will appear below.
+Web Bundled 42954ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (829 modules)
+λ Bundled 43998ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (3077 modules)
+λ Bundled 668ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (1 module)
+Web Bundled 5710ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+λ Bundled 23177ms src/app/(tabs)/index.tsx (1744 modules)
+λ Bundled 11066ms src/app/(tabs)/index.tsx (1 module)
+Web Bundled 8010ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (831 modules)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+λ Bundled 280ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (1 module)
+Web Bundled 5145ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+λ Bundled 3419ms src/app/profile.tsx (1 module)
+Web  WARN  Expo Router could not load the layout "./_layout.tsx" to read its `unstable_settings.anchor`, so the anchor is skipped. Check the network connection and that the bundler is running. [TypeError: Failed to fetch]
+Web Bundled 47ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web Bundled 22513ms src/app/_layout.tsx (2154 modules)
+Web Bundled 4950ms src/app/_layout.tsx (1 module)
+λ Bundled 543ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (1 module)
+Web Bundled 4210ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+λ Bundled 114ms src/app/(tabs)/index.tsx (1 module)
+Web Bundled 36ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web Bundled 97ms src/app/_layout.tsx (1 module)
+Web Bundled 1650ms src/app/(tabs)/_layout.tsx (1964 modules)
+Web Bundled 2688ms src/app/index.tsx (1480 modules)
+Web Bundled 4246ms src/app/(tabs)/index.tsx (2160 modules)
+λ Bundled 250ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (1 module)
+Web Bundled 2476ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+λ Bundled 2ms src/app/profile.tsx (1 module)
+Web Bundled 36ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+Web Bundled 4824ms src/app/auth/welcome.tsx (2014 modules)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web Bundled 93ms src/app/_layout.tsx (1 module)
+Web Bundled 86ms src/app/(tabs)/_layout.tsx (1 module)
+Web Bundled 93ms src/app/(tabs)/index.tsx (1 module)
+Web Bundled 3350ms src/app/profile.tsx (2102 modules)
+λ Bundled 212ms node_modules/.pnpm/@expo+router-server@58.0.19_@expo+metro-runtime@58.0.15_expo-constants@58.0.14_expo-fon_cb65422e2329a52dde38c15ec85270e8/node_modules/@expo/router-server/node/render.js (1 module)
+Web Bundled 2396ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+λ Bundled 2ms src/app/profile.tsx (1 module)
+Web Bundled 35ms node_modules/.pnpm/expo-router@58.0.28_patch_hash=10a1f1a2cb7d0793de6094415d8d3f80e9378787fc1ca810158fcaa8_0fd5c3f1515004620b4766edfa80ab87/node_modules/expo-router/entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web Bundled 111ms src/app/_layout.tsx (1 module)
+Web Bundled 88ms src/app/(tabs)/_layout.tsx (1 module)
+Web Bundled 101ms src/app/(tabs)/index.tsx (1 module)
+Web Bundled 108ms src/app/profile.tsx (1 module)
+Web  WARN  Animated: `useNativeDriver` is not supported because the native animated module is missing. Falling back to JS-based animation. To resolve this, add `RCTAnimation` module to this app, or remove `useNativeDriver`. Make sure to run `bundle exec pod install` first. Read more about autolinking: https://github.com/react-native-community/cli/blob/master/docs/autolinking.md
+npm notice
+npm notice New minor version of npm available! 11.11.0 -> 11.21.1
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.21.1
+npm notice To update run: npm install -g npm@11.21.1
+npm notice
