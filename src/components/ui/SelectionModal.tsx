@@ -1,17 +1,26 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Dimensions, Platform, Pressable, Modal } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import React, { useEffect } from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  Platform,
+  Pressable,
+  Modal,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Iconify } from '@/components/ui/Iconify';
+} from "react-native-reanimated";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Iconify } from "@/components/ui/Iconify";
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 export interface Option {
   label: string;
@@ -36,9 +45,9 @@ export const SelectionModal = ({
   selectedValue,
   onSelect,
   title,
-  isRTL = false
+  isRTL = false,
 }: SelectionModalProps) => {
-  const colorScheme = useColorScheme() ?? 'light';
+  const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const translateY = useSharedValue(SCREEN_HEIGHT);
@@ -84,27 +93,45 @@ export const SelectionModal = ({
       animationType="none"
       statusBarTranslucent
     >
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <View style={[StyleSheet.absoluteFill, { pointerEvents: "box-none" }]}>
         <Animated.View style={[styles.backdrop, backdropStyle]}>
           <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         </Animated.View>
 
-        <Animated.View style={[
-          styles.sheet,
-          sheetStyle,
-          {
-            backgroundColor: colors.card,
-            borderColor: colors.border,
-            maxHeight: SCREEN_HEIGHT * 0.55,
-            paddingBottom: Math.max(insets.bottom, 16),
-          }
-        ]}>
+        <Animated.View
+          style={[
+            styles.sheet,
+            sheetStyle,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              maxHeight: SCREEN_HEIGHT * 0.55,
+              paddingBottom: Math.max(insets.bottom, 16),
+            },
+          ]}
+        >
           <View style={[styles.grabber, { backgroundColor: colors.border }]} />
 
-          <View style={[styles.header, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-            <Text style={[styles.title, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
+          <View
+            style={[
+              styles.header,
+              { flexDirection: isRTL ? "row-reverse" : "row" },
+            ]}
+          >
+            <Text
+              style={[
+                styles.title,
+                { color: colors.text, textAlign: isRTL ? "right" : "left" },
+              ]}
+            >
+              {title}
+            </Text>
             <TouchableOpacity onPress={onClose} hitSlop={10}>
-              <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+              <Iconify
+                icon="solar:close-circle-broken"
+                size={24}
+                color={colors.textSecondary}
+              />
             </TouchableOpacity>
           </View>
 
@@ -120,10 +147,12 @@ export const SelectionModal = ({
                   style={[
                     styles.optionItem,
                     {
-                      flexDirection: isRTL ? 'row-reverse' : 'row',
-                      backgroundColor: isSelected ? colors.tint + '14' : colors.surface,
+                      flexDirection: isRTL ? "row-reverse" : "row",
+                      backgroundColor: isSelected
+                        ? colors.tint + "14"
+                        : colors.surface,
                       borderColor: isSelected ? colors.tint : colors.border,
-                    }
+                    },
                   ]}
                   onPress={() => {
                     onSelect(option.value);
@@ -131,20 +160,51 @@ export const SelectionModal = ({
                   }}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.optionLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <View
+                    style={[
+                      styles.optionLeft,
+                      { flexDirection: isRTL ? "row-reverse" : "row" },
+                    ]}
+                  >
                     {option.icon && (
-                      <View style={[styles.iconChip, { backgroundColor: isSelected ? colors.tint + '22' : colors.card }]}>
-                        <Iconify icon={option.icon} size={22} color={isSelected ? colors.tint : colors.textSecondary} />
+                      <View
+                        style={[
+                          styles.iconChip,
+                          {
+                            backgroundColor: isSelected
+                              ? colors.tint + "22"
+                              : colors.card,
+                          },
+                        ]}
+                      >
+                        <Iconify
+                          icon={option.icon}
+                          size={22}
+                          color={
+                            isSelected ? colors.tint : colors.textSecondary
+                          }
+                        />
                       </View>
                     )}
-                    <Text style={[
-                      styles.optionLabel,
-                      { color: isSelected ? colors.tint : colors.text, fontWeight: isSelected ? '800' : '600' }
-                    ]}>
+                    <Text
+                      style={[
+                        styles.optionLabel,
+                        {
+                          color: isSelected ? colors.tint : colors.text,
+                          fontWeight: isSelected ? "800" : "600",
+                        },
+                      ]}
+                    >
                       {option.label}
                     </Text>
                   </View>
-                  {isSelected && <Iconify icon="solar:check-circle-bold" size={20} color={colors.tint} />}
+                  {isSelected && (
+                    <Iconify
+                      icon="solar:check-circle-bold"
+                      size={20}
+                      color={colors.tint}
+                    />
+                  )}
                 </TouchableOpacity>
               );
             })}
@@ -158,10 +218,10 @@ export const SelectionModal = ({
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: "rgba(0,0,0,0.45)",
   },
   sheet: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     bottom: 0,
@@ -170,7 +230,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderBottomWidth: 0,
     paddingTop: 10,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: -8 },
     shadowOpacity: 0.1,
     shadowRadius: 20,
@@ -180,19 +240,19 @@ const styles = StyleSheet.create({
     width: 40,
     height: 4,
     borderRadius: 2,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 10,
     opacity: 0.6,
   },
   header: {
     paddingHorizontal: 20,
     paddingBottom: 14,
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     fontSize: 18,
-    fontWeight: '800',
+    fontWeight: "800",
   },
   scrollContent: {
     paddingHorizontal: 16,
@@ -204,22 +264,21 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 14,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   optionLeft: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 12,
   },
   iconChip: {
     width: 34,
     height: 34,
     borderRadius: 11,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   optionLabel: {
     fontSize: 15.5,
   },
 });
-
