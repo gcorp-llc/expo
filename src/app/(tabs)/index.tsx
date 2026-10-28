@@ -156,7 +156,7 @@ export default function HomeScreen() {
   const scrollY = useSharedValue(0);
   const isRTL = language === 'fa';
 
-  const suggestionScrollRef = useRef<ScrollView>(null);
+  const suggestionScrollRef = useRef<any>(null);
   const suggestionIndex = useRef(0);
 
   const categoryOptions: Option[] = useMemo(

@@ -78,7 +78,7 @@ export const SearchSlide = () => {
     setSearchQuery,
     language,
   } = useStore();
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
   const translateY = useSharedValue(SCREEN_HEIGHT);
 

@@ -149,7 +149,7 @@ export default function ProfileScreen() {
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.mainBtn, { backgroundColor: colors.tint, opacity: isValid ? 1 : 0.6 }]}
-            onPress={handleSubmit(onSubmit)}
+            onPress={() => handleSubmit(onSubmit)()}
             disabled={!isValid}
           >
             <Text style={styles.mainBtnText}>{isRTL ? 'تکمیل ثبت‌نام' : 'Finish Registration'}</Text>

@@ -7,20 +7,24 @@ const isWeb = Platform.OS === 'web';
 
 /**
  * Environment detection (Fail-Safe Approach)
- * به جای جستجو برای Expo Go، با قطعیت به دنبال بیلد واقعی می‌گردیم.
- * ExecutionEnvironment.Bare: بیلدهای توسعه (Development Builds / expo-dev-client)
- * ExecutionEnvironment.Standalone: بیلدهای نهایی پروداکشن (EAS Builds)
+ * Explicitly detect Expo Go / StoreClient to avoid trying to load C++ native modules like MMKV/NitroModules in Expo Go.
  */
+const isExpoGo =
+  Constants.appOwnership === 'expo' ||
+  Constants.executionEnvironment === ExecutionEnvironment.StoreClient ||
+  (Constants.executionEnvironment as string) === 'storeClient';
+
 const isDefinitiveNativeBuild =
-  Constants.executionEnvironment === ExecutionEnvironment.Bare ||
-  Constants.executionEnvironment === ExecutionEnvironment.Standalone;
+  !isExpoGo &&
+  (Constants.executionEnvironment === ExecutionEnvironment.Bare ||
+    Constants.executionEnvironment === ExecutionEnvironment.Standalone);
 
 /**
  * Universal storage provider selector.
- * پیش‌فرض امن: همیشه روی AsyncStorage باش، مگر اینکه کاملا مطمئن باشی بیلد نیتیو است.
+ * Fallback safely to AsyncStorage when running in Expo Go or web environment.
  */
 const getStorageProvider = () => {
-  // ۱. محیط وب (شامل پشتیبانی از SSR)
+  // 1. Web Environment (including SSR)
   if (isWeb) {
     if (typeof window !== 'undefined' && window.localStorage) {
       return {
@@ -37,7 +41,7 @@ const getStorageProvider = () => {
     };
   }
 
-  // ۲. اگر با قطعیت ۱۰۰٪ در یک بیلد نیتیو واقعی هستیم -> تلاش برای استفاده از MMKV
+  // 2. Definitive Native Custom Build (Expo Dev Client / EAS Standalone, non-Expo Go) -> Try MMKV
   if (isDefinitiveNativeBuild) {
     try {
       const { MMKV } = require('react-native-mmkv');
@@ -49,14 +53,11 @@ const getStorageProvider = () => {
         removeItem: (name: string) => storage.delete(name),
       };
     } catch (error) {
-      console.error('[Storage] MMKV init failed in native build, safely falling back to AsyncStorage:', error);
-      Sentry.captureException(error);
-      // در صورت هرگونه خطا، روند کد به بخش پیش‌فرض (شماره ۳) منتقل می‌شود
+      console.warn('[Storage] MMKV unavailable in current environment, falling back to AsyncStorage.');
     }
   }
 
-  // ۳. پیش‌فرض امن و قطعی (Fallback / Expo Go / Unknown Environment)
-  // اگر در اکسپو گو باشیم، یا نتوانیم محیط را تشخیص دهیم، یا MMKV خطا بدهد، اینجا اجرا می‌شود.
+  // 3. Fallback / Expo Go / Default Storage via AsyncStorage
   try {
     const AsyncStorage = require('@react-native-async-storage/async-storage').default;
     return {

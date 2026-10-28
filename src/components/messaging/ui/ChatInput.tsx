@@ -23,7 +23,7 @@ export const ChatInput = ({
 }: ChatInputProps) => {
   const [text, setText] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
   const handleSend = () => {
     if (text.trim()) {

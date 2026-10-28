@@ -35,7 +35,7 @@ export const AddToCartButton = ({ onPress, tintColor, isRTL, isInCart = false }:
           opacity: isInCart ? 0.85 : (pressed && Platform.OS === 'ios' ? 0.85 : 1),
         },
       ]}
-      android_ripple={isInCart ? null : { color: 'rgba(255, 255, 255, 0.25)', borderless: false }}
+      android_ripple={isInCart ? undefined : { color: 'rgba(255, 255, 255, 0.25)', borderless: false }}
       accessible={true}
       accessibilityLabel={
         isInCart
