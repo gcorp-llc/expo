@@ -102,6 +102,7 @@ export { MicrophoneBrokenIcon } from './MicrophoneBrokenIcon';
 export { MinusSquareBrokenIcon } from './MinusSquareBrokenIcon';
 export { MoonBrokenIcon } from './MoonBrokenIcon';
 export { NotesBrokenIcon } from './NotesBrokenIcon';
+export { PaletteBrokenIcon } from './PaletteBrokenIcon';
 export { PaperclipBrokenIcon } from './PaperclipBrokenIcon';
 export { PauseBoldIcon } from './PauseBoldIcon';
 export { Pen2BrokenIcon } from './Pen2BrokenIcon';
@@ -135,6 +136,7 @@ export { StarBrokenIcon } from './StarBrokenIcon';
 export { StopBrokenIcon } from './StopBrokenIcon';
 export { SunBrokenIcon } from './SunBrokenIcon';
 export { TagBoldIcon } from './TagBoldIcon';
+export { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 export { TicketBrokenIcon } from './TicketBrokenIcon';
 export { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
 export { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
@@ -262,6 +264,7 @@ import { MicrophoneBrokenIcon } from './MicrophoneBrokenIcon';
 import { MinusSquareBrokenIcon } from './MinusSquareBrokenIcon';
 import { MoonBrokenIcon } from './MoonBrokenIcon';
 import { NotesBrokenIcon } from './NotesBrokenIcon';
+import { PaletteBrokenIcon } from './PaletteBrokenIcon';
 import { PaperclipBrokenIcon } from './PaperclipBrokenIcon';
 import { PauseBoldIcon } from './PauseBoldIcon';
 import { Pen2BrokenIcon } from './Pen2BrokenIcon';
@@ -295,6 +298,7 @@ import { StarBrokenIcon } from './StarBrokenIcon';
 import { StopBrokenIcon } from './StopBrokenIcon';
 import { SunBrokenIcon } from './SunBrokenIcon';
 import { TagBoldIcon } from './TagBoldIcon';
+import { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 import { TicketBrokenIcon } from './TicketBrokenIcon';
 import { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
 import { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
@@ -421,6 +425,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'minus-square-broken': MinusSquareBrokenIcon,
   'moon-broken': MoonBrokenIcon,
   'notes-broken': NotesBrokenIcon,
+  'palette-broken': PaletteBrokenIcon,
   'paperclip-broken': PaperclipBrokenIcon,
   'pause-bold': PauseBoldIcon,
   'pen-2-broken': Pen2BrokenIcon,
@@ -454,6 +459,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'stop-broken': StopBrokenIcon,
   'sun-broken': SunBrokenIcon,
   'tag-bold': TagBoldIcon,
+  'text-square-broken': TextSquareBrokenIcon,
   'ticket-broken': TicketBrokenIcon,
   'transmission-broken': TransmissionBrokenIcon,
   'trash-bin-trash-broken': TrashBinTrashBrokenIcon,

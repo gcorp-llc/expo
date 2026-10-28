@@ -4,6 +4,8 @@ import { useStore } from './use-store';
 export function useColorScheme(): 'light' | 'dark' {
   const systemColorScheme = useNativeColorScheme();
   const themeMode = useStore((state) => state.themeMode);
+  // Subscription ensures components re-render when selected accent color changes
+  useStore((state) => state.selectedColorTheme);
 
   if (themeMode === 'system') {
     return (systemColorScheme === 'dark' ? 'dark' : 'light');
