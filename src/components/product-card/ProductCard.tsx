@@ -1,19 +1,23 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, AccessibilityInfo } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Product } from '@/constants/mock-data';
-import { useStore } from '@/hooks/use-store';
+import React, { useMemo, useState, useCallback } from "react";
+import { View, Text, TouchableOpacity, AccessibilityInfo } from "react-native";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+} from "react-native-reanimated";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Product } from "@/constants/mock-data";
+import { useStore } from "@/hooks/use-store";
 
-import { ProductImage } from './ProductImage';
-import { DiscountBadge } from './DiscountBadge';
-import { FavoriteButton } from './FavoriteButton';
-import { SaleCountdown } from './SaleCountdown';
-import { RatingBadge } from './RatingBadge';
-import { PriceSection } from './PriceSection';
-import { AddToCartButton } from './AddToCartButton';
-import { styles } from './ProductCard.styles';
+import { ProductImage } from "./ProductImage";
+import { DiscountBadge } from "./DiscountBadge";
+import { FavoriteButton } from "./FavoriteButton";
+import { SaleCountdown } from "./SaleCountdown";
+import { RatingBadge } from "./RatingBadge";
+import { PriceSection } from "./PriceSection";
+import { AddToCartButton } from "./AddToCartButton";
+import { styles } from "./ProductCard.styles";
 
 export interface ProductCardProps {
   product: Product;
@@ -23,11 +27,18 @@ export interface ProductCardProps {
   style?: any; // To support inline style overrides such as CARD_WIDTH
 }
 
-export const ProductCard = ({ product, onPress, flat = false, testID, style: styleOverride }: ProductCardProps) => {
-  const colorScheme = useColorScheme() ?? 'light';
+export const ProductCard = ({
+  product,
+  onPress,
+  flat = false,
+  testID,
+  style: styleOverride,
+}: ProductCardProps) => {
+  const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
-  const { language, favorites, toggleFavorite, addToCart, cartItems } = useStore();
-  const isRTL = language === 'fa';
+  const { language, favorites, toggleFavorite, addToCart, cartItems } =
+    useStore();
+  const isRTL = language === "fa";
   const isFavorite = favorites.includes(product.id);
   const isInCart = cartItems.some((item) => item.id === product.id);
 
@@ -52,13 +63,18 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
     setSaleExpired(true);
   }, []);
 
-  const hasCountdown = product.hasActiveSale && product.saleEndDate && !saleExpired;
+  const hasCountdown =
+    product.hasActiveSale && product.saleEndDate && !saleExpired;
   const hasDiscount = product.discountPercentage && !saleExpired;
 
   // Accessibility label
   const accessibilityLabel = useMemo(() => {
-    const discountText = hasDiscount ? `, ${product.discountPercentage}% off` : '';
-    const ratingText = product.rating ? `, Rating ${product.rating} out of 5` : '';
+    const discountText = hasDiscount
+      ? `, ${product.discountPercentage}% off`
+      : "";
+    const ratingText = product.rating
+      ? `, Rating ${product.rating} out of 5`
+      : "";
     return `${product.name} by ${product.seller}, $${product.price}${discountText}${ratingText}`;
   }, [product, hasDiscount]);
 
@@ -71,7 +87,10 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
   }, [product.id, addToCart]);
 
   return (
-    <Animated.View style={[styles.containerWrapper, styleOverride, animatedStyle]} testID={testID}>
+    <Animated.View
+      style={[styles.containerWrapper, styleOverride, animatedStyle]}
+      testID={testID}
+    >
       <TouchableOpacity
         activeOpacity={1}
         onPress={onPress}
@@ -79,27 +98,33 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
         onPressOut={handlePressOut}
         accessible={true}
         accessibilityLabel={accessibilityLabel}
-        accessibilityRole="button"
-        accessibilityHint={isRTL ? "دوبار ضربه بزنید برای مشاهده جزئیات محصول" : "Double tap to view product details"}
+        accessibilityHint={
+          isRTL
+            ? "دوبار ضربه بزنید برای مشاهده جزئیات محصول"
+            : "Double tap to view product details"
+        }
         style={[
           styles.container,
           {
-            backgroundColor: colorScheme === 'light' ? '#FFFFFF' : colors.card,
+            backgroundColor: colorScheme === "light" ? "#FFFFFF" : colors.card,
             borderColor: colors.border,
             borderWidth: flat ? 1 : 0,
             shadowOpacity: flat ? 0 : 0.05,
             elevation: flat ? 0 : 3,
-          }
+          },
         ]}
       >
         {/* Product Image Section */}
         <ProductImage
           uri={product.image}
-          cardBgColor={colorScheme === 'light' ? '#FFFFFF' : colors.card}
+          cardBgColor={colorScheme === "light" ? "#FFFFFF" : colors.card}
         >
           {/* Floating Discount Badge */}
           {Boolean(hasDiscount) && (
-            <DiscountBadge percentage={product.discountPercentage!} isRTL={isRTL} />
+            <DiscountBadge
+              percentage={product.discountPercentage!}
+              isRTL={isRTL}
+            />
           )}
 
           {/* Floating Favorite Button */}
@@ -120,10 +145,21 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
         </ProductImage>
 
         {/* Product Content Details Area */}
-        <View style={[styles.content, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+        <View
+          style={[
+            styles.content,
+            { alignItems: isRTL ? "flex-end" : "flex-start" },
+          ]}
+        >
           {/* Product Title */}
           <Text
-            style={[styles.title, { color: colorScheme === 'light' ? '#1F2937' : colors.text, textAlign: isRTL ? 'right' : 'left' }]}
+            style={[
+              styles.title,
+              {
+                color: colorScheme === "light" ? "#1F2937" : colors.text,
+                textAlign: isRTL ? "right" : "left",
+              },
+            ]}
             numberOfLines={2}
           >
             {product.name}
@@ -132,7 +168,14 @@ export const ProductCard = ({ product, onPress, flat = false, testID, style: sty
           {/* Short Description */}
           {Boolean(product.description) && (
             <Text
-              style={[styles.description, { color: colorScheme === 'light' ? '#6B7280' : colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}
+              style={[
+                styles.description,
+                {
+                  color:
+                    colorScheme === "light" ? "#6B7280" : colors.textSecondary,
+                  textAlign: isRTL ? "right" : "left",
+                },
+              ]}
               numberOfLines={2}
             >
               {product.description}

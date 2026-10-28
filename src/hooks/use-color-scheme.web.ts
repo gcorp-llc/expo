@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react';
-import { useColorScheme as useRNColorScheme } from 'react-native';
+import { useEffect, useState } from "react";
+import { useColorScheme as useRNColorScheme } from "react-native";
+import { useStore } from "./use-store";
 
 /**
- * To support static rendering, this value needs to be re-calculated on the client side for web
+ * Custom color scheme hook supporting Zustand themeMode and accent colors on web
  */
-export function useColorScheme() {
+export function useColorScheme(): "light" | "dark" {
   const [hasHydrated, setHasHydrated] = useState(false);
+  const systemColorScheme = useRNColorScheme();
+  const themeMode = useStore((state) => state.themeMode);
+  // Subscription ensures components re-render when selected accent color changes
+  useStore((state) => state.selectedColorTheme);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setHasHydrated(true);
-    }, 0);
-    return () => clearTimeout(timeout);
+    setHasHydrated(true);
   }, []);
 
-  const colorScheme = useRNColorScheme();
-
-  if (hasHydrated) {
-    return colorScheme;
+  if (themeMode === "system") {
+    return systemColorScheme === "dark" ? "dark" : "light";
   }
 
-  return 'light';
+  return themeMode === "dark" ? "dark" : "light";
 }

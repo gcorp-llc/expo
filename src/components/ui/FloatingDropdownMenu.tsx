@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,19 +7,19 @@ import {
   Pressable,
   Modal,
   Dimensions,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   Easing,
-} from 'react-native-reanimated';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { Iconify } from '@/components/ui/Iconify';
+} from "react-native-reanimated";
+import { Colors } from "@/constants/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Iconify } from "@/components/ui/Iconify";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export interface DropdownOption {
   value: string;
@@ -51,7 +51,7 @@ export const FloatingDropdownMenu = ({
   isRTL = true,
   topOffset,
 }: FloatingDropdownMenuProps) => {
-  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
+  const colorScheme = (useColorScheme() ?? "dark") as "light" | "dark";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const scale = useSharedValue(0.95);
@@ -90,7 +90,7 @@ export const FloatingDropdownMenu = ({
       animationType="none"
       statusBarTranslucent
     >
-      <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
+      <View style={[StyleSheet.absoluteFill, { pointerEvents: "box-none" }]}>
         <Pressable style={styles.backdrop} onPress={onClose} />
 
         <Animated.View
@@ -100,7 +100,7 @@ export const FloatingDropdownMenu = ({
               backgroundColor: colors.card,
               borderColor: colors.border,
               top: calculatedTop,
-              [isRTL ? 'right' : 'left']: 16,
+              [isRTL ? "right" : "left"]: 16,
             },
             cardAnimatedStyle,
           ]}
@@ -110,7 +110,7 @@ export const FloatingDropdownMenu = ({
               <TouchableOpacity
                 style={[
                   styles.headerRow,
-                  { flexDirection: isRTL ? 'row-reverse' : 'row' },
+                  { flexDirection: isRTL ? "row-reverse" : "row" },
                 ]}
                 onPress={() => {
                   onHeaderPress?.();
@@ -121,40 +121,48 @@ export const FloatingDropdownMenu = ({
                 <View
                   style={[
                     styles.headerRightGroup,
-                    { flexDirection: isRTL ? 'row-reverse' : 'row' },
+                    { flexDirection: isRTL ? "row-reverse" : "row" },
                   ]}
                 >
                   {headerIcon && (
                     <Iconify icon={headerIcon} size={22} color={colors.tint} />
                   )}
-                  <Text style={[styles.headerTitle, { color: colors.text }]}>{headerTitle}</Text>
+                  <Text style={[styles.headerTitle, { color: colors.text }]}>
+                    {headerTitle}
+                  </Text>
                 </View>
 
                 <Iconify
                   icon={
                     isRTL
-                      ? 'solar:alt-arrow-left-broken'
-                      : 'solar:alt-arrow-right-broken'
+                      ? "solar:alt-arrow-left-broken"
+                      : "solar:alt-arrow-right-broken"
                   }
                   size={18}
                   color={colors.textSecondary}
                 />
               </TouchableOpacity>
-              <View style={[styles.divider, { backgroundColor: colors.border }]} />
+              <View
+                style={[styles.divider, { backgroundColor: colors.border }]}
+              />
             </>
           )}
 
           <View style={styles.optionsList}>
             {options.map((item) => {
-              const textColor = item.isDestructive ? colors.destructive : colors.text;
-              const iconColor = item.isDestructive ? colors.destructive : colors.textSecondary;
+              const textColor = item.isDestructive
+                ? colors.destructive
+                : colors.text;
+              const iconColor = item.isDestructive
+                ? colors.destructive
+                : colors.textSecondary;
 
               return (
                 <TouchableOpacity
                   key={item.value}
                   style={[
                     styles.optionRow,
-                    { flexDirection: isRTL ? 'row-reverse' : 'row' },
+                    { flexDirection: isRTL ? "row-reverse" : "row" },
                   ]}
                   onPress={() => {
                     onSelectOption(item.value);
@@ -167,7 +175,7 @@ export const FloatingDropdownMenu = ({
                   <Text
                     style={[
                       styles.optionLabel,
-                      { color: textColor, textAlign: isRTL ? 'right' : 'left' },
+                      { color: textColor, textAlign: isRTL ? "right" : "left" },
                     ]}
                   >
                     {item.label}
@@ -185,17 +193,17 @@ export const FloatingDropdownMenu = ({
 const styles = StyleSheet.create({
   backdrop: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: "rgba(0, 0, 0, 0.35)",
   },
   menuCard: {
-    position: 'absolute',
+    position: "absolute",
     width: Math.min(SCREEN_WIDTH * 0.72, 280),
-    backgroundColor: '#282535',
+    backgroundColor: "#282535",
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    borderColor: "rgba(255, 255, 255, 0.08)",
     paddingVertical: 8,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.35,
     shadowRadius: 18,
@@ -205,21 +213,21 @@ const styles = StyleSheet.create({
   headerRow: {
     paddingHorizontal: 16,
     paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerRightGroup: {
-    alignItems: 'center',
+    alignItems: "center",
     gap: 10,
   },
   headerTitle: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
     marginVertical: 4,
   },
   optionsList: {
@@ -228,12 +236,12 @@ const styles = StyleSheet.create({
   optionRow: {
     paddingHorizontal: 16,
     paddingVertical: 11,
-    alignItems: 'center',
+    alignItems: "center",
     gap: 12,
   },
   optionLabel: {
     fontSize: 15,
-    fontWeight: '600',
+    fontWeight: "600",
     flex: 1,
   },
 });

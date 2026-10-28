@@ -1,6 +1,5 @@
 import "../../i18n";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { activateKeepAwakeAsync } from "expo-keep-awake";
 import { Stack } from "expo-router";
 import {
   DarkTheme,
@@ -10,8 +9,14 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, Platform, StatusBar as RNStatusBar } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Platform,
+  StatusBar as RNStatusBar,
+} from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFonts } from "expo-font";
 import "react-native-reanimated";
 
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -20,7 +25,7 @@ import { FloatingDrawer } from "@/components/ui/FloatingDrawer";
 import { SearchSlide } from "@/components/ui/SearchSlide";
 import { CustomToastProvider } from "@/components/ui/CustomToast";
 import { CustomModalProvider } from "@/components/ui/CustomModal";
-import { Colors } from "@/constants/theme";
+import { Colors, APP_FONT_OPTIONS } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
 
@@ -43,16 +48,17 @@ export default function RootLayout() {
   const colorScheme = useColorScheme() ?? "light";
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const { language } = useStore();
+  const { language, fontFamily, fontSizeLevel } = useStore();
   const [hasHydrated, setHasHydrated] = useState(
     useStore.persist.hasHydrated(),
   );
 
-  // useEffect(() => {
-  //   if (__DEV__) {
-  //     activateKeepAwakeAsync().catch(() => {});
-  //   }
-  // }, []);
+  const [fontsLoaded, fontError] = useFonts({
+    Vazirmatn: require("../../assets/fonts/Vazirmatn.ttf"),
+    Shabnam: require("../../assets/fonts/Shabnam.ttf"),
+    Sahel: require("../../assets/fonts/Sahel.ttf"),
+    IranNastaliq: require("../../assets/fonts/IranNastaliq.ttf"),
+  });
 
   useEffect(() => {
     const unsubscribe = useStore.persist.onFinishHydration(() => {
@@ -62,16 +68,66 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (hasHydrated) {
+    if (hasHydrated && (fontsLoaded || fontError)) {
       SplashScreen.hideAsync();
     }
-  }, [hasHydrated]);
+  }, [hasHydrated, fontsLoaded, fontError]);
 
   useEffect(() => {
     if (Platform.OS === "android") {
       RNStatusBar.setBackgroundColor(colors.statusBarBackground);
     }
   }, [colors.statusBarBackground]);
+
+  // Dynamic Web CSS Injection for Persian Font Families & Font Sizing
+  useEffect(() => {
+    if (Platform.OS === "web" && typeof document !== "undefined") {
+      let styleEl = document.getElementById(
+        "kutik-font-styles",
+      ) as HTMLStyleElement | null;
+      if (!styleEl) {
+        styleEl = document.createElement("style");
+        styleEl.id = "kutik-font-styles";
+        document.head.appendChild(styleEl);
+      }
+
+      const fontOption = APP_FONT_OPTIONS.find((f) => f.id === fontFamily);
+      const fontCSS =
+        fontOption?.fontFamilyStyle || "'Vazirmatn', system-ui, sans-serif";
+      const scaleVal = (fontSizeLevel || 9) / 9;
+
+      styleEl.innerHTML = `
+        @font-face {
+          font-family: 'Vazirmatn';
+          src: url('/assets/fonts/Vazirmatn.ttf') format('truetype');
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'Shabnam';
+          src: url('/assets/fonts/Shabnam.ttf') format('truetype');
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'Sahel';
+          src: url('/assets/fonts/Sahel.ttf') format('truetype');
+          font-display: swap;
+        }
+        @font-face {
+          font-family: 'IranNastaliq';
+          src: url('/assets/fonts/IranNastaliq.ttf') format('truetype');
+          font-display: swap;
+        }
+
+        body, #root, [class*="r-"], text, button, input, textarea {
+          font-family: ${fontCSS} !important;
+        }
+
+        :root {
+          --app-font-scale: ${scaleVal};
+        }
+      `;
+    }
+  }, [fontFamily, fontSizeLevel]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -121,8 +177,8 @@ export default function RootLayout() {
                 height: insets.top,
                 backgroundColor: colors.statusBarBackground,
                 zIndex: 9999,
+                pointerEvents: "none",
               }}
-              pointerEvents="none"
             />
             <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
           </View>
