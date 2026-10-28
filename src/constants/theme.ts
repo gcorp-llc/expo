@@ -67,18 +67,6 @@ export const APP_FONT_OPTIONS: FontOption[] = [
     }),
   },
   {
-    id: 'nastaliq',
-    nameFa: 'نستعلیق',
-    nameEn: 'Nastaliq',
-    descFa: 'خوشنویسی اصیل ایرانی، عروس خطوط کهن پارسی',
-    descEn: 'Authentic Iranian calligraphy, the bride of Persian scripts',
-    sampleFa: 'گاه‌شمار اصیل ایرانی سرو • ۲۵۸۵ شاهنشاهی (نمونه خط)',
-    fontFamilyStyle: Platform.select({
-      web: "'IranNastaliq', 'Nastaliq', 'Vazirmatn', cursive, sans-serif",
-      default: 'IranNastaliq, Nastaliq, sans-serif',
-    }),
-  },
-  {
     id: 'shabnam',
     nameFa: 'شبنم',
     nameEn: 'Shabnam',

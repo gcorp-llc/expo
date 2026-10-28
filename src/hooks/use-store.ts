@@ -6,7 +6,7 @@ import { zustandStorage } from "@/lib/storage";
 
 export type Language = "en" | "fa";
 export type ThemeMode = "light" | "dark" | "system";
-export type AppFontFamily = "vazir" | "nastaliq" | "shabnam" | "sahel" | "system";
+export type AppFontFamily = "vazir" | "shabnam" | "sahel" | "system";
 export type PrivacyValue = "everyone" | "friends" | "nobody";
 
 export interface CartItem {

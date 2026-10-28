@@ -19,7 +19,7 @@ export default function VerifyScreen() {
   const isRTL = language === 'fa';
 
   const [code, setCode] = useState('');
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
   const fadeAnim = useSharedValue(0);
 

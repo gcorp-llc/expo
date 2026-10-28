@@ -1,0 +1,16 @@
+diff --git a/build/global-state/router-store.d.ts b/build/global-state/router-store.d.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c9e828c4101f7504ccd2b4f3bae4a68442fa17a8
+--- /dev/null
++++ b/build/global-state/router-store.d.ts
+@@ -0,0 +1 @@
++export declare const store: any;
+diff --git a/build/global-state/router-store.js b/build/global-state/router-store.js
+new file mode 100644
+index 0000000000000000000000000000000000000000..b71f8bf160254bf3283e7330d9c16c4da97b59f3
+--- /dev/null
++++ b/build/global-state/router-store.js
+@@ -0,0 +1,3 @@
++"use strict";
++Object.defineProperty(exports, "__esModule", { value: true });
++exports.store = null;

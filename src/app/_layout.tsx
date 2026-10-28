@@ -57,7 +57,6 @@ export default function RootLayout() {
     Vazirmatn: require("../../assets/fonts/Vazirmatn.ttf"),
     Shabnam: require("../../assets/fonts/Shabnam.ttf"),
     Sahel: require("../../assets/fonts/Sahel.ttf"),
-    IranNastaliq: require("../../assets/fonts/IranNastaliq.ttf"),
   });
 
   useEffect(() => {
@@ -75,7 +74,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (Platform.OS === "android") {
-      RNStatusBar.setBackgroundColor(colors.statusBarBackground);
+      (RNStatusBar as any).setBackgroundColor?.(colors.statusBarBackground);
     }
   }, [colors.statusBarBackground]);
 
@@ -110,11 +109,6 @@ export default function RootLayout() {
         @font-face {
           font-family: 'Sahel';
           src: url('/assets/fonts/Sahel.ttf') format('truetype');
-          font-display: swap;
-        }
-        @font-face {
-          font-family: 'IranNastaliq';
-          src: url('/assets/fonts/IranNastaliq.ttf') format('truetype');
           font-display: swap;
         }
 
