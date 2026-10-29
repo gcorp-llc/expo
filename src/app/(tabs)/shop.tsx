@@ -75,8 +75,19 @@ export default function TabShopScreen() {
   const [activeTab, setActiveTab] = useState<TabType>('products');
   const [isStorePickerVisible, setIsStorePickerVisible] = useState(false);
 
-  // Product Filter State
+  // Product Selection Filter State (From Card Action Chips)
   const [selectedProductFilter, setSelectedProductFilter] = useState<any | null>(null);
+
+  // Advanced Product Filter Modal State
+  const [isProductFilterModalOpen, setIsProductFilterModalOpen] = useState(false);
+  const [productSortBy, setProductSortBy] = useState<'latest' | 'bestselling' | 'popular' | 'profitable' | 'discount'>('latest');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [priceMin, setPriceMin] = useState<string>('');
+  const [priceMax, setPriceMax] = useState<string>('');
+  const [stockFilter, setStockFilter] = useState<'all' | 'in_stock'>('all');
+  const [onlyDiscountedFilter, setOnlyDiscountedFilter] = useState(false);
+  const [featuredOnlyFilter, setFeaturedOnlyFilter] = useState(false);
+  const [conditionFilter, setConditionFilter] = useState<'all' | 'new' | 'used'>('all');
 
   // Product Menu & Action Modals
   const [selectedProductForMenu, setSelectedProductForMenu] = useState<any | null>(null);
@@ -103,6 +114,19 @@ export default function TabShopScreen() {
   const [deactivatedProductIds, setDeactivatedProductIds] = useState<string[]>([]);
   const [disabledCommentsProductIds, setDisabledCommentsProductIds] = useState<string[]>([]);
 
+  // Time Period Filter Modal State (for Stats and Finance Tabs)
+  const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<'1d' | '3d' | '7d' | '15d' | '30d' | 'custom'>('7d');
+  const [startDate, setStartDate] = useState(isRTL ? '۱۴۰۳/۱۲/۰۱' : '2025-02-01');
+  const [endDate, setEndDate] = useState(isRTL ? '۱۴۰۳/۱۲/۱۵' : '2025-02-15');
+
+  // Finance Tab Specific Filters
+  const [financeTypeFilter, setFinanceTypeFilter] = useState<'all' | 'cash' | 'installments'>('all');
+  const [installmentDueFilter, setInstallmentDueFilter] = useState<'all' | 'upcoming' | 'overdue'>('all');
+
+  // Requests Tab Filter State
+  const [requestFilter, setRequestFilter] = useState<'latest' | 'unanswered'>('latest');
+
   // Reply Box State
   const [replyingMsgId, setReplyingMsgId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
@@ -111,8 +135,68 @@ export default function TabShopScreen() {
   const currentStore = stores.find((s) => s.id === activeStoreId) || stores[0];
 
   const allDisplayProducts = useMemo(() => {
-    return [...customProducts, ...PRODUCTS];
-  }, [customProducts]);
+    let prods = [...customProducts, ...PRODUCTS];
+
+    // Filter by selected category
+    if (selectedCategory !== 'all') {
+      prods = prods.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
+    }
+
+    // Price range
+    if (priceMin) {
+      const minVal = parseFloat(priceMin);
+      if (!isNaN(minVal)) prods = prods.filter(p => p.price >= minVal);
+    }
+    if (priceMax) {
+      const maxVal = parseFloat(priceMax);
+      if (!isNaN(maxVal)) prods = prods.filter(p => p.price <= maxVal);
+    }
+
+    // Stock filter
+    if (stockFilter === 'in_stock') {
+      prods = prods.filter(p => (p.stockQuantity ?? 10) > 0);
+    }
+
+    // Only discounted
+    if (onlyDiscountedFilter) {
+      prods = prods.filter(p => p.hasActiveSale || p.discountPercentage || (p.oldPrice && p.oldPrice > p.price));
+    }
+
+    // Featured only
+    if (featuredOnlyFilter) {
+      prods = prods.filter(p => (p as any).isFeatured || (p as any).isPopular);
+    }
+
+    // Condition filter
+    if (conditionFilter !== 'all') {
+      prods = prods.filter(p => (p as any).condition === conditionFilter || (!(p as any).condition && conditionFilter === 'new'));
+    }
+
+    // Sorting
+    return prods.sort((a, b) => {
+      if (productSortBy === 'latest') return (b.id.localeCompare(a.id));
+      if (productSortBy === 'bestselling') return ((b.salesCount || 0) - (a.salesCount || 0));
+      if (productSortBy === 'popular') return (parseFloat(String(b.rating || '4.5')) - parseFloat(String(a.rating || '4.5')));
+      if (productSortBy === 'profitable') return (b.price - a.price);
+      if (productSortBy === 'discount') {
+        const discA = a.discountPercentage || (a.oldPrice ? Math.round(((a.oldPrice - a.price) / a.oldPrice) * 100) : 0);
+        const discB = b.discountPercentage || (b.oldPrice ? Math.round(((b.oldPrice - b.price) / b.oldPrice) * 100) : 0);
+        return discB - discA;
+      }
+      return 0;
+    });
+  }, [customProducts, selectedCategory, priceMin, priceMax, stockFilter, onlyDiscountedFilter, featuredOnlyFilter, conditionFilter, productSortBy]);
+
+  const handleResetProductFilters = () => {
+    setProductSortBy('latest');
+    setSelectedCategory('all');
+    setPriceMin('');
+    setPriceMax('');
+    setStockFilter('all');
+    setOnlyDiscountedFilter(false);
+    setFeaturedOnlyFilter(false);
+    setConditionFilter('all');
+  };
 
   // Inventory & Stats calculation
   const stats = useMemo(() => {
@@ -437,7 +521,47 @@ export default function TabShopScreen() {
         <Animated.View entering={FadeInDown.duration(400)} style={styles.tabContent}>
           {activeTab === 'products' && (
             <View style={styles.productsList}>
-              {allDisplayProducts.map((product) => {
+              {/* Filter Bar Header for Products Tab */}
+              <View style={[styles.tabSubHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                <Text style={[styles.tabSubHeaderTitle, { color: colors.text }]}>
+                  {isRTL ? `محصولات فروشگاه (${allDisplayProducts.length})` : `Products (${allDisplayProducts.length})`}
+                </Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.filterTriggerButton,
+                    {
+                      backgroundColor: (productSortBy !== 'latest' || selectedCategory !== 'all' || priceMin || priceMax || stockFilter !== 'all' || onlyDiscountedFilter || featuredOnlyFilter || conditionFilter !== 'all') ? colors.tint + '18' : colors.card,
+                      borderColor: (productSortBy !== 'latest' || selectedCategory !== 'all' || priceMin || priceMax || stockFilter !== 'all' || onlyDiscountedFilter || featuredOnlyFilter || conditionFilter !== 'all') ? colors.tint : colors.border,
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                    },
+                  ]}
+                  onPress={() => setIsProductFilterModalOpen(true)}
+                  activeOpacity={0.8}
+                >
+                  <Iconify icon="solar:tuning-square-2-broken" size={20} color={colors.tint} />
+                  <Text style={[styles.filterTriggerText, { color: colors.tint }]}>
+                    {isRTL ? 'فیلتر محصولات' : 'Filter Products'}
+                  </Text>
+                  {(productSortBy !== 'latest' || selectedCategory !== 'all' || priceMin || priceMax || stockFilter !== 'all' || onlyDiscountedFilter || featuredOnlyFilter || conditionFilter !== 'all') && (
+                    <View style={[styles.activeFilterDot, { backgroundColor: colors.tint }]} />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              {allDisplayProducts.length === 0 ? (
+                <View style={[styles.emptyContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Iconify icon="solar:box-minimalistic-broken" size={48} color={colors.textSecondary} />
+                  <Text style={[styles.emptyTitle, { color: colors.text }]}>{isRTL ? 'محصولی یافت نشد' : 'No products found'}</Text>
+                  <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
+                    {isRTL ? 'با این فیلترها محصولی پیدا نشد، می‌توانید فیلترها را بازنشانی کنید.' : 'Try adjusting your filters.'}
+                  </Text>
+                  <TouchableOpacity style={[styles.resetFilterBtn, { backgroundColor: colors.tint }]} onPress={handleResetProductFilters}>
+                    <Text style={styles.resetFilterBtnText}>{isRTL ? 'بازنشانی فیلترها' : 'Reset Filters'}</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                allDisplayProducts.map((product) => {
                 const isDeactivated = deactivatedProductIds.includes(product.id);
                 const isDisabledComms = disabledCommentsProductIds.includes(product.id);
 
@@ -558,17 +682,48 @@ export default function TabShopScreen() {
                     </View>
                   </TouchableOpacity>
                 );
-              })}
+              }))}
             </View>
           )}
 
           {activeTab === 'stats' && (
             <View style={styles.statsContent}>
+              {/* Sub-header with Time Filter Trigger */}
+              <View style={[styles.tabSubHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 12 }]}>
+                <Text style={[styles.tabSubHeaderTitle, { color: colors.text }]}>
+                  {isRTL ? 'تحلیل و آمار عملکرد' : 'Performance Analytics'}
+                </Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.timeFilterTriggerButton,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.border,
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                    },
+                  ]}
+                  onPress={() => setIsTimeModalOpen(true)}
+                  activeOpacity={0.8}
+                >
+                  <Iconify icon="solar:clock-circle-broken" size={20} color={colors.tint} />
+                  <Text style={[styles.timeFilterTriggerText, { color: colors.tint }]}>
+                    {selectedPeriod === '1d' && (isRTL ? 'بازه: ۱ روز' : 'Period: 1 Day')}
+                    {selectedPeriod === '3d' && (isRTL ? 'بازه: ۳ روز' : 'Period: 3 Days')}
+                    {selectedPeriod === '7d' && (isRTL ? 'بازه: ۷ روز' : 'Period: 7 Days')}
+                    {selectedPeriod === '15d' && (isRTL ? 'بازه: ۱۵ روز' : 'Period: 15 Days')}
+                    {selectedPeriod === '30d' && (isRTL ? 'بازه: ۳۰ روز' : 'Period: 30 Days')}
+                    {selectedPeriod === 'custom' && (isRTL ? 'بازه: سفارشی' : 'Period: Custom')}
+                  </Text>
+                  <Iconify icon="solar:alt-arrow-down-broken" size={16} color={colors.tint} />
+                </TouchableOpacity>
+              </View>
+
               <View style={[styles.chartContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <Text style={[styles.sectionTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
                   {selectedProductFilter
                     ? (isRTL ? `روند فروش اختصاصی «${selectedProductFilter.name}»` : `Sales Trend: ${selectedProductFilter.name}`)
-                    : (isRTL ? 'روند فروش کلی کل فروشگاه' : 'Overall Store Weekly Sales Trend')}
+                    : (isRTL ? 'روند فروش کلی کل فروشگاه' : 'Overall Store Sales Trend')}
                 </Text>
                 <LineChart
                   data={{
@@ -607,114 +762,355 @@ export default function TabShopScreen() {
 
           {activeTab === 'finance' && (
             <View style={styles.financeList}>
-              {[1, 2, 3, 4].map((i) => (
-                <View key={i} style={[styles.financeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <View style={[styles.financeHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                    <Text style={[styles.financeProduct, { color: colors.text }]}>
-                      {selectedProductFilter
-                        ? (isRTL ? `سفارش ${selectedProductFilter.name} (#${1024 + i})` : `Order ${selectedProductFilter.name} (#${1024 + i})`)
-                        : (isRTL ? `فاکتور سفارش شماره ${1024 + i}` : `Order #${1024 + i}`)}
-                    </Text>
-                    <Text style={[styles.financeAmount, { color: colors.tint }]}>
-                      ${selectedProductFilter ? (selectedProductFilter.price * i).toFixed(2) : (120 * i).toFixed(2)}
-                    </Text>
-                  </View>
-                  <View style={[styles.financeBuyer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                    <Image source={{ uri: `https://i.pravatar.cc/100?u=buyer-${i}` }} style={{ width: 34, height: 34, borderRadius: 17 }} />
-                    <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
-                      <Text style={[styles.buyerName, { color: colors.text }]}>{isRTL ? 'خریدار تاییدشده' : 'Verified Buyer'}</Text>
-                      <Text style={[styles.financeDate, { color: colors.textSecondary }]}>{isRTL ? '۲ ساعت پیش' : '2 hours ago'}</Text>
-                    </View>
-                    <View style={[styles.statusBadge, { backgroundColor: colors.success + '18' }]}>
-                      <Text style={[styles.statusText, { color: colors.success }]}>{isRTL ? 'تکمیل شده' : 'Completed'}</Text>
-                    </View>
+              {/* Header with Time Period Filter Button */}
+              <View style={[styles.tabSubHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 10 }]}>
+                <Text style={[styles.tabSubHeaderTitle, { color: colors.text }]}>
+                  {isRTL ? 'گزارشات و تراکنش‌های فروش' : 'Sales & Transactions'}
+                </Text>
+
+                <TouchableOpacity
+                  style={[
+                    styles.timeFilterTriggerButton,
+                    {
+                      backgroundColor: colors.card,
+                      borderColor: colors.border,
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                    },
+                  ]}
+                  onPress={() => setIsTimeModalOpen(true)}
+                  activeOpacity={0.8}
+                >
+                  <Iconify icon="solar:clock-circle-broken" size={20} color={colors.tint} />
+                  <Text style={[styles.timeFilterTriggerText, { color: colors.tint }]}>
+                    {selectedPeriod === '1d' && (isRTL ? 'بازه: ۱ روز' : '1 Day')}
+                    {selectedPeriod === '3d' && (isRTL ? 'بازه: ۳ روز' : '3 Days')}
+                    {selectedPeriod === '7d' && (isRTL ? 'بازه: ۷ روز' : '7 Days')}
+                    {selectedPeriod === '15d' && (isRTL ? 'بازه: ۱۵ روز' : '15 Days')}
+                    {selectedPeriod === '30d' && (isRTL ? 'بازه: ۳۰ روز' : '30 Days')}
+                    {selectedPeriod === 'custom' && (isRTL ? 'بازه: سفارشی' : 'Custom')}
+                  </Text>
+                  <Iconify icon="solar:alt-arrow-down-broken" size={16} color={colors.tint} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Installments & Sales Filter Chips */}
+              <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 12 }]}>
+                {[
+                  { id: 'all', label_fa: 'همه فروش‌ها', label_en: 'All Sales' },
+                  { id: 'cash', label_fa: 'فروش نقدی', label_en: 'Cash Sales' },
+                  { id: 'installments', label_fa: 'فروش اقساطی', label_en: 'Installment Sales' },
+                ].map((ft) => {
+                  const isSelected = financeTypeFilter === ft.id;
+                  return (
+                    <TouchableOpacity
+                      key={ft.id}
+                      onPress={() => setFinanceTypeFilter(ft.id as any)}
+                      style={[
+                        styles.filterChip,
+                        {
+                          backgroundColor: isSelected ? colors.tint : colors.surface,
+                          borderColor: isSelected ? colors.tint : colors.border,
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                        {isRTL ? ft.label_fa : ft.label_en}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Sub-chips for Installment Due Dates when Installments or All selected */}
+              {financeTypeFilter === 'installments' && (
+                <View style={[styles.installmentSubFilterRow, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: colors.textSecondary }}>
+                    {isRTL ? 'سررسید اقساط:' : 'Due Dates:'}
+                  </Text>
+                  <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 6, flex: 1, justifyContent: 'flex-end' }}>
+                    {[
+                      { id: 'all', label_fa: 'همه', label_en: 'All' },
+                      { id: 'upcoming', label_fa: 'پیش‌رو (نزدیک)', label_en: 'Upcoming' },
+                      { id: 'overdue', label_fa: 'معوقه / سررسیدشده', label_en: 'Overdue' },
+                    ].map((due) => {
+                      const isSelected = installmentDueFilter === due.id;
+                      return (
+                        <TouchableOpacity
+                          key={due.id}
+                          onPress={() => setInstallmentDueFilter(due.id as any)}
+                          style={[
+                            styles.dueSubChip,
+                            {
+                              backgroundColor: isSelected ? colors.tint + '20' : colors.surface,
+                              borderColor: isSelected ? colors.tint : colors.border,
+                            },
+                          ]}
+                        >
+                          <Text style={{ fontSize: 11, fontWeight: '800', color: isSelected ? colors.tint : colors.textSecondary }}>
+                            {isRTL ? due.label_fa : due.label_en}
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })}
                   </View>
                 </View>
-              ))}
+              )}
+
+              {/* Transaction List */}
+              {[
+                { id: 1, isInstallment: false, buyer: 'علی محمدی', amount: '$240', date: '۲ ساعت پیش', status: 'تکمیل شده', due: null },
+                { id: 2, isInstallment: true, buyer: 'مریم ابراهیمی', amount: '$650 (قسط ۲ از ۴)', date: 'امروز', status: 'اقساط فعال', due: 'سررسید: ۱۵ اسفند (۴ روز دیگر)', overdue: false },
+                { id: 3, isInstallment: true, buyer: 'حسین رضایی', amount: '$1,200 (قسط ۳ از ۶)', date: 'دیروز', status: 'قسط معوقه', due: 'سررسید: ۲۸ بهمن (تاخیر دارد)', overdue: true },
+                { id: 4, isInstallment: false, buyer: 'سارا احمدی', amount: '$180', date: '۳ روز پیش', status: 'تکمیل شده', due: null },
+              ]
+                .filter((item) => {
+                  if (financeTypeFilter === 'cash' && item.isInstallment) return false;
+                  if (financeTypeFilter === 'installments' && !item.isInstallment) return false;
+                  if (financeTypeFilter === 'installments') {
+                    if (installmentDueFilter === 'upcoming' && item.overdue) return false;
+                    if (installmentDueFilter === 'overdue' && !item.overdue) return false;
+                  }
+                  return true;
+                })
+                .map((order) => (
+                  <View key={order.id} style={[styles.financeCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <View style={[styles.financeHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                      <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={[styles.financeProduct, { color: colors.text }]}>
+                          {selectedProductFilter
+                            ? (isRTL ? `سفارش ${selectedProductFilter.name} (#${1024 + order.id})` : `Order ${selectedProductFilter.name} (#${1024 + order.id})`)
+                            : (isRTL ? `فاکتور سفارش شماره ${1024 + order.id}` : `Order #${1024 + order.id}`)}
+                        </Text>
+                        {order.isInstallment && (
+                          <View style={[styles.statusBadge, { backgroundColor: colors.tint + '18' }]}>
+                            <Text style={[styles.statusText, { color: colors.tint }]}>{isRTL ? 'فروش اقساطی' : 'Installment'}</Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={[styles.financeAmount, { color: colors.tint }]}>{order.amount}</Text>
+                    </View>
+
+                    <View style={[styles.financeBuyer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                      <Image source={{ uri: `https://i.pravatar.cc/100?u=buyer-${order.id}` }} style={{ width: 34, height: 34, borderRadius: 17 }} />
+                      <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                        <Text style={[styles.buyerName, { color: colors.text }]}>{order.buyer}</Text>
+                        <Text style={[styles.financeDate, { color: colors.textSecondary }]}>{order.date}</Text>
+                      </View>
+
+                      <View
+                        style={[
+                          styles.statusBadge,
+                          {
+                            backgroundColor: order.overdue
+                              ? colors.destructive + '18'
+                              : order.isInstallment
+                              ? colors.warning + '18'
+                              : colors.success + '18',
+                          },
+                        ]}
+                      >
+                        <Text
+                          style={[
+                            styles.statusText,
+                            {
+                              color: order.overdue ? colors.destructive : order.isInstallment ? colors.warning : colors.success,
+                            },
+                          ]}
+                        >
+                          {order.status}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {/* Installment Due Date Alert Row */}
+                    {order.isInstallment && order.due && (
+                      <View
+                        style={[
+                          styles.dueDateAlertBox,
+                          {
+                            backgroundColor: order.overdue ? colors.destructive + '12' : colors.warning + '12',
+                            borderColor: order.overdue ? colors.destructive + '30' : colors.warning + '30',
+                            flexDirection: isRTL ? 'row-reverse' : 'row',
+                          },
+                        ]}
+                      >
+                        <Iconify
+                          icon={order.overdue ? "solar:danger-bold" : "solar:calendar-mark-broken"}
+                          size={16}
+                          color={order.overdue ? colors.destructive : colors.warning}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            fontWeight: '800',
+                            color: order.overdue ? colors.destructive : colors.warning,
+                            flex: 1,
+                            textAlign: isRTL ? 'right' : 'left',
+                          }}
+                        >
+                          {order.due}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                ))}
             </View>
           )}
 
           {activeTab === 'messages' && (
             <View style={styles.messagesList}>
-              {(selectedProductFilter ? [selectedProductFilter] : allDisplayProducts.slice(0, 3)).map((product) => {
-                const msgId = `req-${product.id}`;
-                const isReplying = replyingMsgId === msgId;
-                const prevSent = sentReplies[msgId];
+              {/* Header & Filter Chips for Requests Tab */}
+              <View style={[styles.tabSubHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 10 }]}>
+                <Text style={[styles.tabSubHeaderTitle, { color: colors.text }]}>
+                  {isRTL ? 'درخواست‌ها و سوالات خریداران' : 'Buyer Requests & Inquiries'}
+                </Text>
+              </View>
 
-                return (
-                  <View key={product.id} style={[styles.messageCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <View style={[styles.messageHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                      <Image source={{ uri: product.image }} style={styles.msgProductThumb} />
-                      <View style={[styles.msgInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', width: '100%' }}>
-                          <Text style={[styles.msgProductName, { color: colors.text }]}>{product.name}</Text>
-                          <Text style={{ fontSize: 11, color: colors.textSecondary }}>12:30</Text>
+              <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 12 }]}>
+                {[
+                  { id: 'latest', label_fa: 'آخرین درخواست‌ها', label_en: 'Latest Requests' },
+                  { id: 'unanswered', label_fa: 'پاسخ داده نشده', label_en: 'Unanswered' },
+                ].map((rf) => {
+                  const isSelected = requestFilter === rf.id;
+                  return (
+                    <TouchableOpacity
+                      key={rf.id}
+                      onPress={() => setRequestFilter(rf.id as any)}
+                      style={[
+                        styles.filterChip,
+                        {
+                          backgroundColor: isSelected ? colors.tint : colors.surface,
+                          borderColor: isSelected ? colors.tint : colors.border,
+                          flexDirection: isRTL ? 'row-reverse' : 'row',
+                          alignItems: 'center',
+                          gap: 6,
+                        },
+                      ]}
+                    >
+                      <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                        {isRTL ? rf.label_fa : rf.label_en}
+                      </Text>
+                      {rf.id === 'unanswered' && (
+                        <View style={[styles.unreadCountBadge, { backgroundColor: isSelected ? '#fff' : colors.destructive }]}>
+                          <Text style={[styles.unreadCountText, { color: isSelected ? colors.tint : '#fff' }]}>
+                            {allDisplayProducts.slice(0, 3).filter(p => !sentReplies[`req-${p.id}`]).length}
+                          </Text>
                         </View>
-                        <Text style={[styles.msgText, { color: colors.textSecondary }]} numberOfLines={2}>
-                          {isRTL ? 'سلام، آیا این محصول موجود است و امکان ارسال فوری دارد؟' : 'Hi, is this product in stock for fast delivery?'}
-                        </Text>
-                      </View>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Message Items Filtered */}
+              {(() => {
+                const targetProducts = selectedProductFilter ? [selectedProductFilter] : allDisplayProducts.slice(0, 3);
+                const filteredProducts = targetProducts.filter((product) => {
+                  const msgId = `req-${product.id}`;
+                  const isAnswered = !!sentReplies[msgId];
+                  if (requestFilter === 'unanswered' && isAnswered) return false;
+                  return true;
+                });
+
+                if (filteredProducts.length === 0) {
+                  return (
+                    <View style={[styles.emptyContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                      <Iconify icon="solar:chat-round-check-broken" size={48} color={colors.success} />
+                      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+                        {isRTL ? 'همه درخواست‌ها پاسخ داده شده‌اند' : 'All inquiries replied!'}
+                      </Text>
+                      <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
+                        {isRTL ? 'هیچ درخواست پاسخ داده نشده‌ای در این لیست وجود ندارد.' : 'No pending unanswered inquiries found.'}
+                      </Text>
                     </View>
+                  );
+                }
 
-                    {prevSent && (
-                      <View style={[styles.sentReplyBox, { backgroundColor: colors.tint + '15', borderColor: colors.tint + '30' }]}>
-                        <Text style={[styles.sentReplyLabel, { color: colors.tint }]}>{isRTL ? 'پاسخ ارسال‌شده شما:' : 'Your Sent Reply:'}</Text>
-                        <Text style={[styles.sentReplyText, { color: colors.text }]}>{prevSent}</Text>
-                      </View>
-                    )}
+                return filteredProducts.map((product) => {
+                  const msgId = `req-${product.id}`;
+                  const isReplying = replyingMsgId === msgId;
+                  const prevSent = sentReplies[msgId];
 
-                    {isReplying ? (
-                      <View style={styles.replyBoxContainer}>
-                        <TextInput
-                          style={[
-                            styles.replyInput,
-                            {
-                              color: colors.text,
-                              backgroundColor: colors.surface,
-                              borderColor: colors.border,
-                              textAlign: isRTL ? 'right' : 'left',
-                            },
-                          ]}
-                          placeholder={isRTL ? 'پاسخ خود را بنویسید...' : 'Write your response...'}
-                          placeholderTextColor={colors.textSecondary}
-                          value={replyText}
-                          onChangeText={setReplyText}
-                          multiline
-                        />
-                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, justifyContent: 'flex-end' }}>
-                          <TouchableOpacity
-                            style={[styles.cancelReplyBtn, { backgroundColor: colors.surface }]}
-                            onPress={() => {
-                              setReplyingMsgId(null);
-                              setReplyText('');
-                            }}
-                          >
-                            <Text style={[styles.cancelReplyText, { color: colors.textSecondary }]}>{isRTL ? 'انصراف' : 'Cancel'}</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity
-                            style={[styles.sendReplyBtn, { backgroundColor: colors.tint }]}
-                            onPress={() => handleSendReply(msgId)}
-                          >
-                            <Iconify icon="solar:plain-bold" size={16} color="#fff" />
-                            <Text style={styles.sendReplyText}>{isRTL ? 'ارسال پاسخ' : 'Send'}</Text>
-                          </TouchableOpacity>
+                  return (
+                    <View key={product.id} style={[styles.messageCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                      <View style={[styles.messageHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                        <Image source={{ uri: product.image }} style={styles.msgProductThumb} />
+                        <View style={[styles.msgInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', width: '100%' }}>
+                            <Text style={[styles.msgProductName, { color: colors.text }]}>{product.name}</Text>
+                            <Text style={{ fontSize: 11, color: colors.textSecondary }}>12:30</Text>
+                          </View>
+                          <Text style={[styles.msgText, { color: colors.textSecondary }]} numberOfLines={2}>
+                            {isRTL ? 'سلام، آیا این محصول موجود است و امکان ارسال فوری دارد؟' : 'Hi, is this product in stock for fast delivery?'}
+                          </Text>
                         </View>
                       </View>
-                    ) : (
-                      <TouchableOpacity
-                        style={[styles.replyButton, { backgroundColor: colors.tint }]}
-                        onPress={() => {
-                          setReplyingMsgId(msgId);
-                          setReplyText('');
-                        }}
-                      >
-                        <Text style={styles.replyButtonText}>{isRTL ? 'پاسخ به درخواست خریدار' : 'Reply to Inquiry'}</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                );
-              })}
+
+                      {prevSent ? (
+                        <View style={[styles.sentReplyBox, { backgroundColor: colors.tint + '15', borderColor: colors.tint + '30' }]}>
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                            <Iconify icon="solar:check-circle-bold" size={16} color={colors.tint} />
+                            <Text style={[styles.sentReplyLabel, { color: colors.tint }]}>{isRTL ? 'پاسخ ارسال‌شده شما:' : 'Your Sent Reply:'}</Text>
+                          </View>
+                          <Text style={[styles.sentReplyText, { color: colors.text }]}>{prevSent}</Text>
+                        </View>
+                      ) : null}
+
+                      {isReplying ? (
+                        <View style={styles.replyBoxContainer}>
+                          <TextInput
+                            style={[
+                              styles.replyInput,
+                              {
+                                color: colors.text,
+                                backgroundColor: colors.surface,
+                                borderColor: colors.border,
+                                textAlign: isRTL ? 'right' : 'left',
+                              },
+                            ]}
+                            placeholder={isRTL ? 'پاسخ خود را بنویسید...' : 'Write your response...'}
+                            placeholderTextColor={colors.textSecondary}
+                            value={replyText}
+                            onChangeText={setReplyText}
+                            multiline
+                          />
+                          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, justifyContent: 'flex-end' }}>
+                            <TouchableOpacity
+                              style={[styles.cancelReplyBtn, { backgroundColor: colors.surface }]}
+                              onPress={() => {
+                                setReplyingMsgId(null);
+                                setReplyText('');
+                              }}
+                            >
+                              <Text style={[styles.cancelReplyText, { color: colors.textSecondary }]}>{isRTL ? 'انصراف' : 'Cancel'}</Text>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                              style={[styles.sendReplyBtn, { backgroundColor: colors.tint }]}
+                              onPress={() => handleSendReply(msgId)}
+                            >
+                              <Iconify icon="solar:plain-bold" size={16} color="#fff" />
+                              <Text style={styles.sendReplyText}>{isRTL ? 'ارسال پاسخ' : 'Send'}</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : (
+                        <TouchableOpacity
+                          style={[styles.replyButton, { backgroundColor: prevSent ? colors.surface : colors.tint }]}
+                          onPress={() => {
+                            setReplyingMsgId(msgId);
+                            setReplyText(prevSent || '');
+                          }}
+                        >
+                          <Text style={[styles.replyButtonText, { color: prevSent ? colors.text : '#fff' }]}>
+                            {prevSent ? (isRTL ? 'ویرایش یا ارسال پاسخ مجدد' : 'Edit Reply') : (isRTL ? 'پاسخ به درخواست خریدار' : 'Reply to Inquiry')}
+                          </Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  );
+                });
+              })()}
             </View>
           )}
         </Animated.View>
@@ -904,6 +1300,343 @@ export default function TabShopScreen() {
             </TouchableOpacity>
           </View>
         </View>
+      </Modal>
+
+      {/* Time Period Picker Slide Modal (for Stats & Finance) */}
+      <Modal visible={isTimeModalOpen} transparent animationType="slide" onRequestClose={() => setIsTimeModalOpen(false)}>
+        <TouchableOpacity style={styles.cleanModalOverlay} activeOpacity={1} onPress={() => setIsTimeModalOpen(false)}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Iconify icon="solar:clock-circle-broken" size={24} color={colors.tint} />
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  {isRTL ? 'انتخاب بازه زمانی' : 'Select Time Period'}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsTimeModalOpen(false)}>
+                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 16, paddingVertical: 10 }}>
+              {/* Preset Periods */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'بازه‌های آماده:' : 'Preset Durations:'}
+                </Text>
+                <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  {[
+                    { id: '1d', label_fa: '۱ روز', label_en: '1 Day' },
+                    { id: '3d', label_fa: '۳ روز', label_en: '3 Days' },
+                    { id: '7d', label_fa: '۷ روز', label_en: '7 Days' },
+                    { id: '15d', label_fa: '۱۵ روز', label_en: '15 Days' },
+                    { id: '30d', label_fa: '۳۰ روز', label_en: '30 Days' },
+                  ].map((p) => {
+                    const isSelected = selectedPeriod === p.id;
+                    return (
+                      <TouchableOpacity
+                        key={p.id}
+                        onPress={() => setSelectedPeriod(p.id as any)}
+                        style={[
+                          styles.filterChip,
+                          {
+                            backgroundColor: isSelected ? colors.tint : colors.surface,
+                            borderColor: isSelected ? colors.tint : colors.border,
+                            paddingHorizontal: 16,
+                            paddingVertical: 10,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                          {isRTL ? p.label_fa : p.label_en}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* Custom Date Range Picker */}
+              <View style={styles.filterSectionGroup}>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={[styles.filterSectionLabel, { color: colors.text }]}>
+                    {isRTL ? 'انتخاب بازه تاریخ دلخواه (از تاریخ تا تاریخ):' : 'Custom Date Range:'}
+                  </Text>
+                  <Text style={{ fontSize: 11, color: colors.tint, fontWeight: '700' }}>
+                    {isRTL ? 'تقویم شمسی' : 'Gregorian Calendar'}
+                  </Text>
+                </View>
+
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10, marginTop: 4 }}>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'از تاریخ:' : 'From Date:'}
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.formInput,
+                        {
+                          color: colors.text,
+                          borderColor: selectedPeriod === 'custom' ? colors.tint : colors.border,
+                          backgroundColor: colors.surface,
+                          textAlign: isRTL ? 'right' : 'left',
+                        },
+                      ]}
+                      value={startDate}
+                      onChangeText={(t) => {
+                        setStartDate(t);
+                        setSelectedPeriod('custom');
+                      }}
+                      placeholder={isRTL ? '۱۴۰۳/۱۲/۰۱' : '2025-02-01'}
+                      placeholderTextColor={colors.textSecondary}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'تا تاریخ:' : 'To Date:'}
+                    </Text>
+                    <TextInput
+                      style={[
+                        styles.formInput,
+                        {
+                          color: colors.text,
+                          borderColor: selectedPeriod === 'custom' ? colors.tint : colors.border,
+                          backgroundColor: colors.surface,
+                          textAlign: isRTL ? 'right' : 'left',
+                        },
+                      ]}
+                      value={endDate}
+                      onChangeText={(t) => {
+                        setEndDate(t);
+                        setSelectedPeriod('custom');
+                      }}
+                      placeholder={isRTL ? '۱۴۰۳/۱۲/۱۵' : '2025-02-15'}
+                      placeholderTextColor={colors.textSecondary}
+                    />
+                  </View>
+                </View>
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={[styles.addStoreBtn, { backgroundColor: colors.tint, marginTop: 10 }]}
+              onPress={() => setIsTimeModalOpen(false)}
+            >
+              <Text style={styles.addStoreBtnText}>{isRTL ? 'اعمال و تایید بازه زمانی' : 'Apply Time Period'}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      {/* Product Filter Slide Modal */}
+      <Modal visible={isProductFilterModalOpen} transparent animationType="slide" onRequestClose={() => setIsProductFilterModalOpen(false)}>
+        <TouchableOpacity style={styles.cleanModalOverlay} activeOpacity={1} onPress={() => setIsProductFilterModalOpen(false)}>
+          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, maxHeight: '88%' }]}>
+            <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Iconify icon="solar:tuning-square-2-broken" size={24} color={colors.tint} />
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  {isRTL ? 'فیلتر و گروه‌بندی محصولات' : 'Product Filters'}
+                </Text>
+              </View>
+
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 12 }}>
+                <TouchableOpacity onPress={handleResetProductFilters}>
+                  <Text style={{ fontSize: 13, fontWeight: '800', color: colors.tint }}>
+                    {isRTL ? 'بازنشانی' : 'Reset'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setIsProductFilterModalOpen(false)}>
+                  <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 18, paddingVertical: 10 }}>
+              {/* 1. Display & Sort By (نمایش بر اساس) */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'نمایش و مرتب‌سازی بر اساس:' : 'Sort By:'}
+                </Text>
+                <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  {[
+                    { id: 'latest', label_fa: 'آخرین‌ها', label_en: 'Latest' },
+                    { id: 'bestselling', label_fa: 'پرفروش‌ترین‌ها', label_en: 'Best Sellers' },
+                    { id: 'popular', label_fa: 'محبوب‌ترین‌ها', label_en: 'Most Popular' },
+                    { id: 'profitable', label_fa: 'پر سود‌ترین‌ها', label_en: 'Most Profitable' },
+                    { id: 'discount', label_fa: 'بیشترین تخفیف', label_en: 'Highest Discount' },
+                  ].map((s) => {
+                    const isSelected = productSortBy === s.id;
+                    return (
+                      <TouchableOpacity
+                        key={s.id}
+                        onPress={() => setProductSortBy(s.id as any)}
+                        style={[
+                          styles.filterChip,
+                          {
+                            backgroundColor: isSelected ? colors.tint : colors.surface,
+                            borderColor: isSelected ? colors.tint : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                          {isRTL ? s.label_fa : s.label_en}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* 2. Categories & Grouping (دسته بندی‌ها و گروه‌بندی‌ها) */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'دسته‌بندی و گروه محصولات:' : 'Category & Grouping:'}
+                </Text>
+                <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  {[
+                    { id: 'all', label_fa: 'همه دسته‌ها', label_en: 'All Categories' },
+                    { id: 'electronics', label_fa: 'گجت و الکترونیک', label_en: 'Electronics' },
+                    { id: 'fashion', label_fa: 'پوشاک و مد', label_en: 'Fashion' },
+                    { id: 'digital', label_fa: 'کالای دیجیتال', label_en: 'Digital Goods' },
+                    { id: 'home', label_fa: 'خانه و سبک زندگی', label_en: 'Home & Living' },
+                  ].map((cat) => {
+                    const isSelected = selectedCategory === cat.id;
+                    return (
+                      <TouchableOpacity
+                        key={cat.id}
+                        onPress={() => setSelectedCategory(cat.id)}
+                        style={[
+                          styles.filterChip,
+                          {
+                            backgroundColor: isSelected ? colors.tint : colors.surface,
+                            borderColor: isSelected ? colors.tint : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                          {isRTL ? cat.label_fa : cat.label_en}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* 3. Price Range (از فلان قیمت تا فلان قیمت) */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'محدوده قیمت ($):' : 'Price Range ($):'}
+                </Text>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10 }}>
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'از قیمت ($)' : 'Min Price ($)'}
+                    </Text>
+                    <TextInput
+                      style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                      placeholder="0"
+                      placeholderTextColor={colors.textSecondary}
+                      keyboardType="numeric"
+                      value={priceMin}
+                      onChangeText={setPriceMin}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1, gap: 4 }}>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'تا قیمت ($)' : 'Max Price ($)'}
+                    </Text>
+                    <TextInput
+                      style={[styles.formInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface, textAlign: 'left' }]}
+                      placeholder="10000"
+                      placeholderTextColor={colors.textSecondary}
+                      keyboardType="numeric"
+                      value={priceMax}
+                      onChangeText={setPriceMax}
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* 4. Stock Filter (موجودی) */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'وضعیت موجودی:' : 'Stock Availability:'}
+                </Text>
+                <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                  {[
+                    { id: 'all', label_fa: 'همه کالاها', label_en: 'All Items' },
+                    { id: 'in_stock', label_fa: 'فقط کالاهای موجود', label_en: 'In Stock Only' },
+                  ].map((st) => {
+                    const isSelected = stockFilter === st.id;
+                    return (
+                      <TouchableOpacity
+                        key={st.id}
+                        onPress={() => setStockFilter(st.id as any)}
+                        style={[
+                          styles.filterChip,
+                          {
+                            backgroundColor: isSelected ? colors.tint : colors.surface,
+                            borderColor: isSelected ? colors.tint : colors.border,
+                          },
+                        ]}
+                      >
+                        <Text style={[styles.filterChipText, { color: isSelected ? '#fff' : colors.text }]}>
+                          {isRTL ? st.label_fa : st.label_en}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+
+              {/* 5. Customary Quick Toggles (سایر فیلترهای مرسوم) */}
+              <View style={styles.filterSectionGroup}>
+                <Text style={[styles.filterSectionLabel, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
+                  {isRTL ? 'سایر فیلترها:' : 'Other Filters:'}
+                </Text>
+                <View style={{ gap: 10 }}>
+                  <TouchableOpacity
+                    style={[styles.toggleFilterRow, { backgroundColor: colors.surface, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                    onPress={() => setOnlyDiscountedFilter(!onlyDiscountedFilter)}
+                  >
+                    <Iconify
+                      icon={onlyDiscountedFilter ? "solar:check-square-bold" : "solar:square-broken"}
+                      size={22}
+                      color={onlyDiscountedFilter ? colors.tint : colors.textSecondary}
+                    />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'فقط کالاهای تخفیف‌دار و حراجی' : 'Discounted Items Only'}
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[styles.toggleFilterRow, { backgroundColor: colors.surface, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                    onPress={() => setFeaturedOnlyFilter(!featuredOnlyFilter)}
+                  >
+                    <Iconify
+                      icon={featuredOnlyFilter ? "solar:check-square-bold" : "solar:square-broken"}
+                      size={22}
+                      color={featuredOnlyFilter ? colors.tint : colors.textSecondary}
+                    />
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: colors.text, flex: 1, textAlign: isRTL ? 'right' : 'left' }}>
+                      {isRTL ? 'فقط محصولات ویژه و پیشنهادی' : 'Featured Products Only'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+
+            <TouchableOpacity
+              style={[styles.addStoreBtn, { backgroundColor: colors.tint, marginTop: 10 }]}
+              onPress={() => setIsProductFilterModalOpen(false)}
+            >
+              <Text style={styles.addStoreBtnText}>{isRTL ? 'اعمال فیلترها' : 'Apply Filters'}</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
       </Modal>
 
       {/* Item 6: Store Switcher Modal with transparent background overlay so it doesn't darken the screen image */}
@@ -1303,5 +2036,125 @@ const styles = StyleSheet.create({
   menuOptionText: {
     fontSize: 15,
     fontWeight: '700',
+  },
+
+  tabSubHeaderRow: {
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  tabSubHeaderTitle: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  filterTriggerButton: {
+    height: 38,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    position: 'relative',
+  },
+  filterTriggerText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  activeFilterDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  emptyContainer: {
+    padding: 24,
+    borderRadius: 20,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 10,
+    marginVertical: 10,
+  },
+  emptyTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  emptySub: {
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  resetFilterBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+    marginTop: 6,
+  },
+  resetFilterBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+
+  filterSectionGroup: {
+    gap: 8,
+  },
+  filterSectionLabel: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  chipsWrap: {
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  filterChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  timeFilterTriggerButton: {
+    height: 38,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  timeFilterTriggerText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  filterChipText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  toggleFilterRow: {
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 14,
+    alignItems: 'center',
+    gap: 10,
+  },
+  installmentSubFilterRow: {
+    padding: 10,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+  },
+  dueSubChip: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  dueDateAlertBox: {
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 4,
   },
 });
