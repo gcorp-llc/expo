@@ -30,11 +30,11 @@ export const FilterDropdown = ({ visible, onClose, onSelect, selectedValue, isRT
         Animated.timing(opacity, {
           toValue: 1,
           duration: 300,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.spring(translateY, {
           toValue: 0,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
           tension: 50,
           friction: 8,
         }),
@@ -44,12 +44,12 @@ export const FilterDropdown = ({ visible, onClose, onSelect, selectedValue, isRT
         Animated.timing(opacity, {
           toValue: 0,
           duration: 200,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
         Animated.timing(translateY, {
           toValue: SCREEN_HEIGHT,
           duration: 250,
-          useNativeDriver: true,
+          useNativeDriver: Platform.OS !== 'web',
         }),
       ]).start();
     }
