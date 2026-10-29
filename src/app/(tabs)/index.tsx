@@ -27,6 +27,7 @@ import { FlashList } from '@shopify/flash-list';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { productService } from '@/services/api';
+import { PageBackground } from '@/components/ui/PageBackground';
 import Animated, {
   useSharedValue,
   useAnimatedScrollHandler,
@@ -255,6 +256,7 @@ export default function HomeScreen() {
   return (
     <>
       <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <PageBackground />
         <ModernHeader scrollY={scrollY} />
 
         <AnimatedFlashList
@@ -559,7 +561,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   categoriesContainer: {
-    paddingRight: Spacing.md,
+    paddingHorizontal: Spacing.md,
     gap: 10,
     paddingBottom: 4,
   },

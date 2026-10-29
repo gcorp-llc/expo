@@ -17,6 +17,7 @@ import { Image } from "expo-image";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { mobileCartService, mobileOrderService, productService } from "@/services/api";
 import { PageLoader } from "@/components/ui/Loading";
+import { FloatingIconButton } from "@/components/ui/FloatingIconButton";
 import Animated, {
   FadeInDown,
   FadeInUp,
@@ -149,17 +150,10 @@ export default function CartScreen() {
         ]}
       >
         <View style={[styles.headerContent, { flexDirection: isRTL ? "row-reverse" : "row" }]}>
-          <TouchableOpacity
+          <FloatingIconButton
+            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
             onPress={() => router.back()}
-            style={styles.floatingHeaderBtn}
-            activeOpacity={0.7}
-          >
-            {isRTL ? (
-              <AltArrowRightBrokenIcon size={22} color={colors.text} />
-            ) : (
-              <AltArrowLeftBrokenIcon size={22} color={colors.text} />
-            )}
-          </TouchableOpacity>
+          />
 
           <View style={{ alignItems: "center" }}>
             <Text style={[styles.headerTitle, { color: colors.text }]}>
@@ -174,13 +168,11 @@ export default function CartScreen() {
           </View>
 
           {cartItems.length > 0 ? (
-            <TouchableOpacity
+            <FloatingIconButton
+              icon="solar:trash-bin-trash-broken"
+              color={colors.destructive}
               onPress={handleClearCart}
-              style={styles.floatingHeaderBtn}
-              activeOpacity={0.7}
-            >
-              <TrashBinTrashBrokenIcon size={20} color={colors.destructive} />
-            </TouchableOpacity>
+            />
           ) : (
             <View style={{ width: 42 }} />
           )}
