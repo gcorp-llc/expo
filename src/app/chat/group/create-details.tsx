@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Iconify } from '@/components/ui/Iconify';
 import { Image } from 'expo-image';
 import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
+import { TelegramImagePickerModal } from '@/components/ui/TelegramImagePickerModal';
 import * as ImagePicker from 'expo-image-picker';
 
 export default function CreateGroupDetailsScreen() {
@@ -21,16 +22,37 @@ export default function CreateGroupDetailsScreen() {
 
   const [groupName, setGroupName] = useState('');
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [pickerModalVisible, setPickerModalVisible] = useState(false);
 
-  const handlePickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+  const handlePickImage = () => {
+    setPickerModalVisible(true);
+  };
+
+  const pickFromCamera = async () => {
+    setPickerModalVisible(false);
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.8,
     });
+    if (!result.canceled && result.assets?.[0]?.uri) {
+      setAvatar(result.assets[0].uri);
+    }
+  };
 
-    if (!result.canceled) {
+  const pickFromGallery = async () => {
+    setPickerModalVisible(false);
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled && result.assets?.[0]?.uri) {
       setAvatar(result.assets[0].uri);
     }
   };
@@ -95,6 +117,15 @@ export default function CreateGroupDetailsScreen() {
             <Iconify icon="solar:check-read-bold" size={28} color="#fff" />
          </TouchableOpacity>
       </View>
+
+      <TelegramImagePickerModal
+        visible={pickerModalVisible}
+        onClose={() => setPickerModalVisible(false)}
+        onPickCamera={pickFromCamera}
+        onPickGallery={pickFromGallery}
+        title={isRTL ? 'تصویر گروه' : 'Group Image'}
+        isRTL={isRTL}
+      />
     </View>
   );
 }

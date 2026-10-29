@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
+import { useProfileStore } from "@/hooks/use-profile-store";
 import { Image } from "expo-image";
 import { Iconify } from "@/components/ui/Iconify";
 import { SearchDropdown } from "./SearchDropdown";
@@ -95,6 +96,8 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
     cartItems,
     addRecentSearch,
   } = useStore();
+
+  const { avatar, name } = useProfileStore();
 
   const totalCartCount = (cartItems || []).reduce(
     (acc, item) => acc + (item.quantity || 1),
@@ -182,7 +185,7 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
         >
           <View style={styles.avatarContainer}>
             <Image
-              source={{ uri: "https://i.pravatar.cc/150?u=kutik" }}
+              source={{ uri: avatar || "https://i.pravatar.cc/150?u=kutik" }}
               style={[styles.avatar, { borderColor: colors.tint }]}
               contentFit="cover"
             />
@@ -214,7 +217,7 @@ export const ModernHeader = ({ scrollY }: ModernHeaderProps) => {
                 { color: colors.text, textAlign: isRTL ? "right" : "left" },
               ]}
             >
-              {isRTL ? "کاربر کوتیک" : "KuTik User"}
+              {name || (isRTL ? "کاربر کوتیک" : "KuTik User")}
             </Text>
           </View>
         </Pressable>

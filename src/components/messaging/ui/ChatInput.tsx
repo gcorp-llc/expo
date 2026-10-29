@@ -1,5 +1,7 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { Keyboard, Platform, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Iconify } from '@/components/ui/Iconify';
 import { ReplyPreview } from '../messages/ReplyPreview';
 import { EmojiPanel } from './EmojiPanel';
@@ -21,6 +23,8 @@ export const ChatInput = ({
   replyTo,
   onCancelReply,
 }: ChatInputProps) => {
+  const colorScheme = useColorScheme() ?? 'light';
+  const colors = Colors[colorScheme];
   const [text, setText] = useState('');
   const [showEmoji, setShowEmoji] = useState(false);
   const inputRef = useRef<any>(null);
@@ -55,7 +59,7 @@ export const ChatInput = ({
   return (
     <View style={styles.container}>
       {replyTo && (
-        <View style={styles.replyWrapper}>
+        <View style={[styles.replyWrapper, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <ReplyPreview
             name={replyTo.name}
             message={replyTo.message}
@@ -69,22 +73,29 @@ export const ChatInput = ({
         <View
           style={[
             styles.inputContainer,
-            { flexDirection: isRTL ? 'row-reverse' : 'row' },
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.border,
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+            },
           ]}
         >
           <TouchableOpacity style={styles.iconButton} onPress={toggleEmoji} activeOpacity={0.7}>
             <Iconify
               icon={showEmoji ? 'solar:keyboard-broken' : 'solar:smile-circle-broken'}
               size={24}
-              color="#A09CBA"
+              color={colors.textSecondary}
             />
           </TouchableOpacity>
 
           <TextInput
             ref={inputRef}
-            style={[styles.input, { textAlign: isRTL ? 'right' : 'left' }]}
+            style={[
+              styles.input,
+              { color: colors.text, textAlign: isRTL ? 'right' : 'left' },
+            ]}
             placeholder={placeholder || (isRTL ? 'پیام' : 'Message')}
-            placeholderTextColor="#8C88A6"
+            placeholderTextColor={colors.textSecondary}
             multiline
             value={text}
             onChangeText={handleChangeText}
@@ -93,14 +104,14 @@ export const ChatInput = ({
           />
 
           <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
-            <Iconify icon="solar:paperclip-broken" size={24} color="#A09CBA" />
+            <Iconify icon="solar:paperclip-broken" size={24} color={colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
           onPress={text.trim().length > 0 ? handleSend : undefined}
           activeOpacity={0.8}
-          style={styles.actionButton}
+          style={[styles.actionButton, { backgroundColor: colors.tint }]}
         >
           <Iconify
             icon={text.trim().length > 0 ? 'solar:plain-bold' : 'solar:camera-broken'}

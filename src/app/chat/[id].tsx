@@ -47,7 +47,7 @@ export default function ChatDetailScreen() {
   const chatId = searchParams.id;
   const { productId, productTitle, productPrice, productImage } = searchParams;
   const router = useRouter();
-  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
+  const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const { language } = useStore();
   const isRTL = language === 'fa';

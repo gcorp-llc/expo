@@ -20,6 +20,7 @@ import Animated, {
 import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore, Language, ThemeMode } from "@/hooks/use-store";
+import { useProfileStore } from "@/hooks/use-profile-store";
 import { useRouter } from "expo-router";
 import { Image } from "expo-image";
 import { Iconify } from "@/components/ui/Iconify";
@@ -39,6 +40,8 @@ export const FloatingDrawer = () => {
     themeMode,
     setThemeMode,
   } = useStore();
+
+  const { avatar, name } = useProfileStore();
 
   const translateY = useSharedValue(SCREEN_HEIGHT);
 
@@ -253,7 +256,7 @@ export const FloatingDrawer = () => {
                   ]}
                 >
                   <Text style={[styles.userName, { color: colors.text }]}>
-                    {t.userName}
+                    {name || t.userName}
                   </Text>
                   <Text
                     style={[styles.userStatus, { color: colors.textSecondary }]}
@@ -262,7 +265,7 @@ export const FloatingDrawer = () => {
                   </Text>
                 </View>
                 <Image
-                  source={{ uri: "https://i.pravatar.cc/150?u=zeteb" }}
+                  source={{ uri: avatar || "https://i.pravatar.cc/150?u=zeteb" }}
                   style={styles.avatar}
                 />
               </View>

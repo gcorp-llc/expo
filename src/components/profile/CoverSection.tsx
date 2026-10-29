@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Text, Modal } from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Text } from 'react-native';
 import { useModalStore } from '@/hooks/use-modal-store';
+import { TelegramImagePickerModal } from '@/components/ui/TelegramImagePickerModal';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated from 'react-native-reanimated';
@@ -182,41 +183,22 @@ export const CoverSection = ({
         )}
       </View>
 
-      {/* Requirement 12: Strictly 2 options modal without cancel button */}
-      <Modal visible={pickerModalVisible} transparent animationType="slide" onRequestClose={() => setPickerModalVisible(false)} statusBarTranslucent>
-        <TouchableOpacity style={styles.modalOverlay} activeOpacity={1} onPress={() => setPickerModalVisible(false)}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View style={styles.indicator} />
-            <Text style={[styles.modalTitle, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}>
-              {pickerType === 'avatar'
-                ? (isRTL ? 'تغییر تصویر اواتار' : 'Update Avatar')
-                : (isRTL ? 'تغییر تصویر کاور' : 'Update Cover Image')}
-            </Text>
-
-            <View style={{ gap: 10, marginTop: 14 }}>
-              <TouchableOpacity
-                style={[styles.twoOptionBtn, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
-                onPress={pickFromCamera}
-              >
-                <Iconify icon="solar:camera-minimalistic-broken" size={24} color={colors.tint} />
-                <Text style={[styles.twoOptionText, { color: colors.text }]}>
-                  {isRTL ? 'تصویر از دوربین' : 'Camera Photo'}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.twoOptionBtn, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
-                onPress={pickFromGallery}
-              >
-                <Iconify icon="solar:gallery-wide-line-duotone" size={24} color={colors.tint} />
-                <Text style={[styles.twoOptionText, { color: colors.text }]}>
-                  {isRTL ? 'تصویر از گالری' : 'Gallery Photo'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </Modal>
+      <TelegramImagePickerModal
+        visible={pickerModalVisible}
+        onClose={() => setPickerModalVisible(false)}
+        onPickCamera={pickFromCamera}
+        onPickGallery={pickFromGallery}
+        title={
+          pickerType === 'avatar'
+            ? isRTL
+              ? 'تغییر تصویر آواتار'
+              : 'Update Avatar'
+            : isRTL
+            ? 'تغییر تصویر کاور'
+            : 'Update Cover Image'
+        }
+        isRTL={isRTL}
+      />
     </View>
   );
 };
@@ -311,29 +293,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 3,
-  },
-
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.25)', justifyContent: 'flex-end' },
-  indicator: {
-    width: 40,
-    height: 4,
-    backgroundColor: 'rgba(128,128,128,0.25)',
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginBottom: 12,
-  },
-  modalContent: { borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 22, borderWidth: 1 },
-  modalTitle: { fontSize: 17, fontWeight: '900' },
-  twoOptionBtn: {
-    height: 56,
-    borderRadius: 18,
-    borderWidth: 1,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-    gap: 12,
-  },
-  twoOptionText: {
-    fontSize: 15,
-    fontWeight: '800',
   },
 });
