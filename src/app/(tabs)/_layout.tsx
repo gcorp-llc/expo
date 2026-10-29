@@ -113,13 +113,9 @@ export default function TabLayout() {
     tabBarInactiveTintColor: colors.textSecondary,
     tabBarShowLabel: true,
     tabBarLabelStyle: styles.tabBarLabel,
-    tabBarStyle: [
-      styles.tabBar,
-      {
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
-      },
-    ],
+    tabBarStyle: {
+      display: 'none',
+    },
     tabBarItemStyle: styles.tabBarItem,
     tabBarButton: (props: any) => (
       <HapticTab {...props} android_ripple={null} activeOpacity={1} />

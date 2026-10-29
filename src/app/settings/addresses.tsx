@@ -19,16 +19,20 @@ import Animated, { FadeInDown, FadeIn, FadeOut } from "react-native-reanimated";
 import { Iconify } from "@/components/ui/Iconify";
 import { FloatingIconButton } from "@/components/ui/FloatingIconButton";
 
-// Import react-native-maps فقط برای موبایل
+// Import react-native-maps فقط برای موبایل با guard کامل
 let MapView: any = null;
 let Marker: any = null;
 let PROVIDER_DEFAULT: any = null;
 
 if (Platform.OS !== "web") {
-  const maps = require("react-native-maps");
-  MapView = maps.default;
-  Marker = maps.Marker;
-  PROVIDER_DEFAULT = maps.PROVIDER_DEFAULT;
+  try {
+    const maps = require("react-native-maps");
+    MapView = maps.default || maps;
+    Marker = maps.Marker;
+    PROVIDER_DEFAULT = maps.PROVIDER_DEFAULT;
+  } catch (e) {
+    console.warn("Failed to load react-native-maps:", e);
+  }
 }
 
 export interface AddressItem {
@@ -266,7 +270,7 @@ export default function AddressesScreen() {
             <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 12 }}>
               {/* Map View Picker - فقط برای موبایل */}
               <View style={[styles.mapContainer, { borderColor: colors.border }]}>
-                {Platform.OS !== "web" && MapView ? (
+                {Platform.OS !== "web" && MapView && Marker ? (
                   <>
                     <MapView
                       provider={PROVIDER_DEFAULT}
