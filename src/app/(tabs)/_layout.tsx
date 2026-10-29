@@ -157,7 +157,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="favorites"
           options={{
-            title: isRTL ? 'علاقه‌مندی' : 'Wishlist',
+            title: isRTL ? 'علاقه‌مندی‌ها' : 'Favorites',
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
@@ -172,7 +172,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="sell"
           options={{
-            title: isRTL ? 'ثبت آگهی' : 'Sell',
+            title: isRTL ? 'افزودن آگهی' : 'Sell',
             tabBarIcon: ({ color, focused }) => (
               <TabIcon 
                 focused={focused} 
