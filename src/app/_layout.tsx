@@ -25,6 +25,7 @@ import { FloatingDrawer } from "@/components/ui/FloatingDrawer";
 import { SearchSlide } from "@/components/ui/SearchSlide";
 import { CustomToastProvider } from "@/components/ui/CustomToast";
 import { CustomModalProvider } from "@/components/ui/CustomModal";
+import { BottomToolbar } from "@/components/ui/BottomToolbar";
 import { Colors, APP_FONT_OPTIONS } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useStore } from "@/hooks/use-store";
@@ -169,6 +170,7 @@ export default function RootLayout() {
                 <FloatingDrawer />
                 <CustomToastProvider />
                 <CustomModalProvider />
+                <BottomToolbar />
               </>
             )}
 

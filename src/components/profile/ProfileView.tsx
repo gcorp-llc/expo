@@ -252,7 +252,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
               <TouchableOpacity
                 key={s.id}
                 style={[styles.storeItemRow, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
-                onPress={() => router.push('/shop')}
+                onPress={() => router.push('/(tabs)/shop')}
               >
                 <Image source={{ uri: s.avatar }} style={styles.storeAvatar} />
                 <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 2 }}>
