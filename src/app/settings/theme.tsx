@@ -8,7 +8,13 @@ import { Iconify } from '@/components/ui/Iconify';
 import { useRouter } from 'expo-router';
 import { PageBackground } from '@/components/ui/PageBackground';
 import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 
 // Persian digit conversion helper
 const toPersianDigits = (n: number | string): string => {
@@ -38,6 +44,61 @@ export default function ThemeSettingsScreen() {
   } = useStore();
 
   const isRTL = language === 'fa';
+
+  // Telegram-style theme transition animation
+  const rippleScale = useSharedValue(0);
+  const rippleOpacity = useSharedValue(0);
+  const rippleX = useSharedValue(screenWidth / 2);
+  const rippleY = useSharedValue(300);
+  const rippleColor = useSharedValue(colors.tint);
+
+  const triggerThemeTransition = (
+    targetColor: string,
+    event?: any,
+    callback?: () => void
+  ) => {
+    let px = screenWidth / 2;
+    let py = 300;
+    if (event?.nativeEvent) {
+      px = event.nativeEvent.pageX || px;
+      py = event.nativeEvent.pageY || py;
+    }
+
+    rippleX.value = px;
+    rippleY.value = py;
+    rippleColor.value = targetColor;
+
+    rippleScale.value = 0;
+    rippleOpacity.value = 0.75;
+
+    if (callback) {
+      callback();
+    }
+
+    rippleScale.value = withTiming(5, {
+      duration: 450,
+      easing: Easing.out(Easing.quad),
+    });
+    rippleOpacity.value = withTiming(0, {
+      duration: 450,
+      easing: Easing.out(Easing.quad),
+    });
+  };
+
+  const animatedRippleStyle = useAnimatedStyle(() => {
+    return {
+      position: 'absolute',
+      left: rippleX.value - 120,
+      top: rippleY.value - 120,
+      width: 240,
+      height: 240,
+      borderRadius: 120,
+      backgroundColor: rippleColor.value,
+      transform: [{ scale: rippleScale.value }],
+      opacity: rippleOpacity.value,
+      zIndex: 9999,
+    };
+  });
 
   // Responsive column calculation
   let numColumns = 2;
@@ -71,6 +132,9 @@ export default function ThemeSettingsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
+      {/* Telegram-style smooth theme ripple overlay */}
+      <Animated.View style={animatedRippleStyle} pointerEvents="none" />
+
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 12, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <FloatingIconButton
@@ -79,7 +143,7 @@ export default function ThemeSettingsScreen() {
         />
         <View style={styles.headerTextWrap}>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
-            {isRTL ? 'تنظیمات تقویم سرو' : 'Theme & Appearance'}
+            {isRTL ? 'شخصی‌سازی' : 'Customization'}
           </Text>
           <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
             {isRTL ? 'شخصی‌سازی، پوسته و اعلانات' : 'Customization & Themes'}
@@ -122,7 +186,10 @@ export default function ThemeSettingsScreen() {
                       },
                     ],
                   ]}
-                  onPress={() => setThemeMode(mode.id)}
+                  onPress={(e) => {
+                    const previewColor = mode.id === 'light' ? '#6366F1' : mode.id === 'dark' ? '#3B82F6' : colors.tint;
+                    triggerThemeTransition(previewColor, e, () => setThemeMode(mode.id));
+                  }}
                   activeOpacity={0.8}
                 >
                   <Iconify
@@ -177,7 +244,9 @@ export default function ThemeSettingsScreen() {
                       borderColor: isSelected ? colors.tint : colors.border,
                     },
                   ]}
-                  onPress={() => setSelectedColorTheme(item.hex)}
+                  onPress={(e) => {
+                    triggerThemeTransition(item.hex, e, () => setSelectedColorTheme(item.hex));
+                  }}
                   activeOpacity={0.75}
                 >
                   <View style={[styles.colorCardInner, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
