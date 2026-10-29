@@ -56,14 +56,14 @@ export default function CartScreen() {
   const [appliedDiscount, setAppliedDiscount] = useState(0); // e.g. 10% or fixed amount
   const [discountError, setDiscountError] = useState("");
 
-  // 1. Fetch Cart
-  const { data: cartItems = [], isLoading: isCartLoading } = useQuery({
-    queryKey: ["cart"],
-    queryFn: mobileCartService.getCart,
-  });
+  // 1. Subscribe directly to Zustand cart state for instant reactivity
+  const cartItems = useStore((state) => state.cartItems);
+  const updateCartQuantity = useStore((state) => state.updateCartQuantity);
+  const removeFromCart = useStore((state) => state.removeFromCart);
+  const clearCart = useStore((state) => state.clearCart);
 
   // 2. Fetch Products to display rich product info (title, image, price)
-  const { data: allProducts = [] } = useQuery({
+  const { data: allProducts = [], isLoading: isProductsLoading } = useQuery({
     queryKey: ["products"],
     queryFn: productService.getProducts,
   });
@@ -71,11 +71,13 @@ export default function CartScreen() {
   // Map product details onto cart items
   const productsMap = new Map(allProducts.map((p: any) => [p.id, p]));
 
-  const enrichedCartItems = cartItems.map((item: any) => {
-    const product = productsMap.get(item.product_id);
+  const enrichedCartItems = cartItems.map((item) => {
+    const product = productsMap.get(item.id);
     return {
-      ...item,
-      title: product?.name || (isRTL ? `محصول ${item.product_id.substring(0, 6)}` : `Product ${item.product_id.substring(0, 6)}`),
+      item_id: item.id,
+      product_id: item.id,
+      quantity: item.quantity,
+      title: product?.name || (isRTL ? `محصول ${item.id.substring(0, 6)}` : `Product ${item.id.substring(0, 6)}`),
       image: product?.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
       unitPrice: product?.price || 120, // fallback sample price
     };
@@ -92,32 +94,19 @@ export default function CartScreen() {
   const freeShippingThreshold = 300;
   const freeShippingProgress = Math.min(1, subtotal / freeShippingThreshold);
 
-  // Mutations
-  const updateQtyMutation = useMutation({
-    mutationFn: ({ itemId, qty }: { itemId: string; qty: number }) => {
-      if (qty <= 0) {
-        return mobileCartService.removeCartItem(itemId);
-      }
-      return mobileCartService.updateCartItem(itemId, qty);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-    onError: (err: any) => {
-      setStatusMsg(err.message);
-    },
-  });
+  const handleUpdateQty = (itemId: string, qty: number) => {
+    if (qty <= 0) {
+      removeFromCart(itemId);
+    } else {
+      updateCartQuantity(itemId, qty);
+    }
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+  };
 
-  const clearCartMutation = useMutation({
-    mutationFn: async () => {
-      for (const item of cartItems) {
-        await mobileCartService.removeCartItem(item.item_id);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["cart"] });
-    },
-  });
+  const handleClearCart = () => {
+    clearCart();
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+  };
 
   const handleProceedToCheckout = () => {
     router.push({
@@ -139,7 +128,7 @@ export default function CartScreen() {
     }
   };
 
-  if (isCartLoading) {
+  if (isProductsLoading) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <PageLoader text={isRTL ? "در حال بارگذاری سبد خرید..." : "Loading cart..."} />
@@ -186,7 +175,7 @@ export default function CartScreen() {
 
           {cartItems.length > 0 ? (
             <TouchableOpacity
-              onPress={() => clearCartMutation.mutate()}
+              onPress={handleClearCart}
               style={styles.floatingHeaderBtn}
               activeOpacity={0.7}
             >
@@ -313,9 +302,7 @@ export default function CartScreen() {
                         ]}
                       >
                         <TouchableOpacity
-                          onPress={() =>
-                            updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity - 1 })
-                          }
+                          onPress={() => handleUpdateQty(item.item_id, item.quantity - 1)}
                           style={styles.qtyActionBtn}
                           activeOpacity={0.6}
                         >
@@ -325,9 +312,7 @@ export default function CartScreen() {
                         <Text style={[styles.qtyNumber, { color: colors.text }]}>{item.quantity}</Text>
 
                         <TouchableOpacity
-                          onPress={() =>
-                            updateQtyMutation.mutate({ itemId: item.item_id, qty: item.quantity + 1 })
-                          }
+                          onPress={() => handleUpdateQty(item.item_id, item.quantity + 1)}
                           style={styles.qtyActionBtn}
                           activeOpacity={0.6}
                         >
@@ -343,7 +328,7 @@ export default function CartScreen() {
                   </View>
 
                   <TouchableOpacity
-                    onPress={() => updateQtyMutation.mutate({ itemId: item.item_id, qty: 0 })}
+                    onPress={() => handleUpdateQty(item.item_id, 0)}
                     style={styles.deleteBtn}
                     activeOpacity={0.6}
                   >
