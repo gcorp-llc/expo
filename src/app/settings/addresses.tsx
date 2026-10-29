@@ -291,14 +291,19 @@ export default function AddressesScreen() {
                       </Text>
                     </View>
                   </>
+                ) : Platform.OS === 'web' ? (
+                  <iframe
+                    title="map"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${coords.longitude - 0.01}%2C${coords.latitude - 0.01}%2C${coords.longitude + 0.01}%2C${coords.latitude + 0.01}&layer=mapnik&marker=${coords.latitude}%2C${coords.longitude}`}
+                  />
                 ) : (
                   <View style={styles.webMapPlaceholder}>
                     <Iconify icon="solar:map-point-broken" size={40} color={colors.textSecondary} />
                     <Text style={[styles.webMapText, { color: colors.textSecondary }]}>
-                      {isRTL ? "نقشه در وب پشتیبانی نمی‌شود" : "Map not available on web"}
-                    </Text>
-                    <Text style={[styles.webMapSubtext, { color: colors.textSecondary }]}>
-                      {isRTL ? "لطفاً از اپلیکیشن موبایل استفاده کنید" : "Please use mobile app"}
+                      {isRTL ? "نقشه در این سیستم پشتیبانی نمی‌شود" : "Map not available"}
                     </Text>
                   </View>
                 )}

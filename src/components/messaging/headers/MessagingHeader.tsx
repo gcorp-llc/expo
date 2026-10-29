@@ -33,7 +33,7 @@ export const MessagingHeader = ({
   onTitlePress,
   showBack = false,
 }: MessagingHeaderProps) => {
-  const colorScheme = (useColorScheme() ?? 'dark') as 'light' | 'dark';
+  const colorScheme = useColorScheme() ?? 'light';
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -67,8 +67,8 @@ export const MessagingHeader = ({
             style={[
               styles.searchBarFloating,
               {
-                backgroundColor: '#282535',
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: colors.card,
+                borderColor: colors.border,
                 flexDirection: isRTL ? 'row-reverse' : 'row',
               },
             ]}
@@ -81,8 +81,8 @@ export const MessagingHeader = ({
             <TextInput
               autoFocus
               placeholder={isRTL ? 'جستجو در گفتگو...' : 'Search in chat...'}
-              placeholderTextColor="#A09CBA"
-              style={[styles.searchInput, { color: '#FFFFFF', textAlign: isRTL ? 'right' : 'left' }]}
+              placeholderTextColor={colors.textSecondary}
+              style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
               value={searchQuery}
               onChangeText={(text) => {
                 setSearchQuery(text);
@@ -109,8 +109,8 @@ export const MessagingHeader = ({
                 {avatarUri ? (
                   <Image source={{ uri: avatarUri }} style={styles.avatar} contentFit="cover" />
                 ) : (
-                  <View style={styles.avatarPlaceholder}>
-                    <Iconify icon="solar:user-bold" size={20} color="#FFFFFF" />
+                  <View style={[styles.avatarPlaceholder, { backgroundColor: colors.surface }]}>
+                    <Iconify icon="solar:user-bold" size={20} color={colors.tint} />
                   </View>
                 )}
 
@@ -195,12 +195,12 @@ const createStyles = (colors: any, isRTL: boolean) =>
     title: {
       fontSize: 16,
       fontWeight: '800',
-      color: '#FFFFFF',
+      color: colors.text,
     },
     subtitle: {
       fontSize: 11.5,
       fontWeight: '500',
-      color: '#A09CBA',
+      color: colors.textSecondary,
       marginTop: 1,
     },
     searchBarFloating: {

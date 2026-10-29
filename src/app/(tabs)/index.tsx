@@ -160,16 +160,18 @@ export default function HomeScreen() {
   const suggestionScrollRef = useRef<any>(null);
   const suggestionIndex = useRef(0);
 
+  const reversedCategories = useMemo(() => [...CATEGORIES].reverse(), []);
+
   const categoryOptions: Option[] = useMemo(
     () => [
       { label: isRTL ? 'همه' : 'All', value: 'All', icon: 'solar:widget-2-broken' },
-      ...CATEGORIES.map((cat) => ({
+      ...reversedCategories.map((cat) => ({
         label: isRTL ? CATEGORY_TRANSLATIONS[cat.name] || cat.name : cat.name,
         value: cat.name,
         icon: CATEGORY_ICONS[cat.name] || cat.icon || 'solar:box-broken',
       })),
     ],
-    [isRTL]
+    [isRTL, reversedCategories]
   );
 
   useEffect(() => {
@@ -336,7 +338,7 @@ export default function HomeScreen() {
                       colors={colors}
                       onPress={() => handleCategorySelect('All')}
                     />
-                    {CATEGORIES.map((cat, index) => (
+                    {reversedCategories.map((cat, index) => (
                       <Animated.View
                         key={cat.id}
                         entering={FadeInRight.delay(index * 60).duration(400)}
