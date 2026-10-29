@@ -10,7 +10,8 @@ import { useStore } from '@/hooks/use-store';
 import { useRouter } from 'expo-router';
 import { Image } from 'expo-image';
 import { Iconify } from '@/components/ui/Iconify';
-import Animated, { FadeInDown, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
+import Animated, { FadeInDown, FadeInRight, FadeOutRight, useSharedValue, useAnimatedScrollHandler, useAnimatedStyle, interpolate, Extrapolate } from 'react-native-reanimated';
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -123,11 +124,15 @@ export default function FavoritesScreen() {
         ]}
       >
         {isSearchVisible ? (
-          <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+          <Animated.View
+            entering={FadeInRight.duration(250)}
+            exiting={FadeOutRight.duration(200)}
+            style={[styles.searchBar, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+          >
             <Iconify icon="solar:magnifer-broken" size={20} color={colors.textSecondary} />
             <TextInput
               style={[styles.searchInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
-              placeholder={isRTL ? 'جستجو در علاقه مندی‌ها...' : 'Search favorites...'}
+              placeholder={isRTL ? 'جستجو در علاقه‌مندی‌ها...' : 'Search favorites...'}
               placeholderTextColor={colors.textSecondary}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -149,18 +154,14 @@ export default function FavoritesScreen() {
                 {isRTL ? 'بستن' : 'Close'}
               </Text>
             </Pressable>
-          </View>
+          </Animated.View>
         ) : (
           <View style={[styles.headerRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <View style={{ flex: 1 }} />
-            <TouchableOpacity
-              style={styles.headerIconButton}
+            <FloatingIconButton
+              icon="solar:magnifer-broken"
               onPress={() => setSearchVisible(true)}
-              activeOpacity={0.7}
-              hitSlop={8}
-            >
-              <Iconify icon="solar:magnifer-broken" size={24} color={colors.text} />
-            </TouchableOpacity>
+            />
           </View>
         )}
       </Animated.View>

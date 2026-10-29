@@ -52,7 +52,7 @@ export default function NotificationsScreen() {
             {isRTL ? 'اعلان‌ها' : 'Notifications'}
           </Text>
           <FloatingIconButton
-            icon="solar:settings-broken"
+            icon="solar:settings-minimalistic-broken"
             onPress={() => router.push('/settings/notification-settings')}
           />
         </View>

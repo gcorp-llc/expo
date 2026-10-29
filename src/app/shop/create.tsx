@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Iconify } from '@/components/ui/Iconify';
 import { Image } from 'expo-image';
 import { PageBackground } from '@/components/ui/PageBackground';
+import { FloatingIconButton } from '@/components/ui/FloatingIconButton';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import { SelectionModal, Option } from '@/components/ui/SelectionModal';
@@ -148,17 +149,10 @@ export default function CreateShopScreen() {
       {/* Modern Standard Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={[styles.headerContent, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <TouchableOpacity
+          <FloatingIconButton
+            icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
             onPress={() => router.back()}
-            style={styles.floatingHeaderBtn}
-            activeOpacity={0.8}
-          >
-            <Iconify
-              icon={isRTL ? 'solar:alt-arrow-right-broken' : 'solar:alt-arrow-left-broken'}
-              size={22}
-              color={colors.text}
-            />
-          </TouchableOpacity>
+          />
 
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             {isRTL ? 'ثبت فروشگاه جدید' : 'Create New Shop'}

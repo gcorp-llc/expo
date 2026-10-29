@@ -99,14 +99,22 @@ export const BottomToolbar = () => {
   const { language, isAuthenticated, isGuest } = useStore();
   const isRTL = language === 'fa';
 
-  // Do not show BottomToolbar on settings, auth, or modal screens
-  if (
-    !pathname ||
-    pathname.startsWith('/settings') ||
-    pathname.startsWith('/auth') ||
-    pathname === '/modal' ||
-    (pathname === '/' && !isAuthenticated && !isGuest)
-  ) {
+  // Only show BottomToolbar on main tab screens
+  const isMainTab =
+    pathname === '/' ||
+    pathname === '/(tabs)' ||
+    pathname === '/(tabs)/index' ||
+    pathname === '/home' ||
+    pathname === '/(tabs)/favorites' ||
+    pathname === '/favorites' ||
+    pathname === '/(tabs)/sell' ||
+    pathname === '/sell' ||
+    pathname === '/(tabs)/chat' ||
+    pathname === '/chat' ||
+    pathname === '/(tabs)/shop' ||
+    pathname === '/shop';
+
+  if (!isMainTab || (!isAuthenticated && !isGuest)) {
     return null;
   }
 
@@ -114,7 +122,7 @@ export const BottomToolbar = () => {
     {
       key: 'home',
       route: '/(tabs)',
-      isMatch: pathname === '/' || pathname === '/(tabs)' || pathname === '/home',
+      isMatch: pathname === '/' || pathname === '/(tabs)' || pathname === '/(tabs)/index' || pathname === '/home',
       label: isRTL ? 'خانه' : 'Home',
       icon: 'solar:home-angle-broken',
       activeIcon: 'solar:home-angle-bold-duotone',
@@ -138,7 +146,7 @@ export const BottomToolbar = () => {
     {
       key: 'chat',
       route: '/(tabs)/chat',
-      isMatch: pathname === '/(tabs)/chat' || pathname === '/chat' || pathname.startsWith('/chat/'),
+      isMatch: pathname === '/(tabs)/chat' || pathname === '/chat',
       label: isRTL ? 'پیام‌ها' : 'Messages',
       icon: 'solar:chat-line-broken',
       activeIcon: 'solar:chat-line-bold-duotone',
@@ -147,7 +155,7 @@ export const BottomToolbar = () => {
     {
       key: 'shop',
       route: '/(tabs)/shop',
-      isMatch: pathname === '/(tabs)/shop' || pathname === '/shop' || pathname.startsWith('/shop/'),
+      isMatch: pathname === '/(tabs)/shop' || pathname === '/shop',
       label: isRTL ? 'فروشگاه' : 'Shop',
       icon: 'solar:bag-smile-outline',
       activeIcon: 'solar:bag-smile-bold-duotone',
@@ -181,12 +189,7 @@ export const BottomToolbar = () => {
             },
           ]}
         />
-        <View
-          style={[
-            styles.tabContent,
-            { flexDirection: isRTL ? 'row-reverse' : 'row' },
-          ]}
-        >
+        <View style={styles.tabContent}>
           {tabs.map((tab) => {
             const focused = tab.isMatch;
             const color = focused ? colors.tint : colors.textSecondary;
