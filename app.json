@@ -54,7 +54,8 @@
       "expo-status-bar",
       "expo-web-browser",
       "@sentry/react-native",
-      "expo-font"
+      "expo-font",
+      "expo-build-properties"
     ],
     "experiments": {
       "typedRoutes": true,
