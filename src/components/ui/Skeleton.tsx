@@ -11,10 +11,14 @@ interface SkeletonProps {
 
 export const Skeleton = ({ width, height, borderRadius = 8, style }: SkeletonProps) => {
   const colorScheme = useColorScheme() ?? 'light';
-  const opacity = useRef(new Animated.Value(0.3)).current;
+  const opacityAnim = useRef<Animated.Value | null>(null);
+  if (!opacityAnim.current) {
+    opacityAnim.current = new Animated.Value(0.3);
+  }
+  const opacity = opacityAnim.current;
 
   useEffect(() => {
-    Animated.loop(
+    const animation = Animated.loop(
       Animated.sequence([
         Animated.timing(opacity, {
           toValue: 0.7,
@@ -27,7 +31,9 @@ export const Skeleton = ({ width, height, borderRadius = 8, style }: SkeletonPro
           useNativeDriver: Platform.OS !== 'web',
         }),
       ])
-    ).start();
+    );
+    animation.start();
+    return () => animation.stop();
   }, [opacity]);
 
   return (

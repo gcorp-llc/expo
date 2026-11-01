@@ -29,8 +29,14 @@ export const GuestRestrictionOverlay: React.FC<GuestRestrictionOverlayProps> = (
     transform: [{ scale: scale.value }],
   }));
 
-  const handlePressIn = () => { scale.value = withSpring(0.96); };
-  const handlePressOut = () => { scale.value = withSpring(1); };
+  const handlePressIn = () => {
+    'worklet';
+    scale.value = withSpring(0.96);
+  };
+  const handlePressOut = () => {
+    'worklet';
+    scale.value = withSpring(1);
+  };
 
   const handleLogin = () => {
     if (onLogin) {

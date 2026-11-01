@@ -30,6 +30,9 @@ cp .env.example .env
 # اجرای مترو سرور
 pnpm start
 
+# بیلد استاتیک وب با Expo Router
+pnpm run web:export
+
 # اجرای مستقیم روی شبیه‌ساز یا دستگاه متصل
 pnpm run android
 pnpm run ios

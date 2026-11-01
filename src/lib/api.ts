@@ -79,7 +79,7 @@ export class CardianiApiError extends Error {
     message: string,
     public status?: number,
     public code?: string,
-    public data?: any
+    public data?: unknown
   ) {
     super(message);
     this.name = 'CardianiApiError';
