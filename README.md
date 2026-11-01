@@ -1,131 +1,86 @@
-# اپلیکیشن موبایل Cardiani (`apps/mobile`)
+# پلتفرم یکپارچه کاردیانی (Cardiani Platform)
 
-این پروژه اپلیکیشن موبایل پلتفرم Cardiani است که با استفاده از **Expo** و **React Native** توسعه یافته است.
-
----
-
-## ۱. ویژگی‌ها و استقلال پروژه
-
-اپلیکیشن موبایل Cardiani به‌گونه‌ای طراحی شده که:
-1. **داخل Monorepo:** بدون تداخل با سایر بخش‌ها اجرا شود.
-2. **به‌صورت کاملاً مستقل:** بدون نیاز به ریشه monorepo یا وابستگی‌های `workspace:*` قابلیت نصب (`pnpm install`)، اجرا و build دارد.
-3. **قابلیت استخراج (Standalone Export):** به راحتی می‌توان این پوشه را به یک مخزن (Repository) مجزای گیت‌هاب منتقل کرد و در صورت نیاز مجدداً به monorepo ادغام نمود.
-
-تایپ‌ها (`@cardiani/types`) و سرویس‌گیرنده‌ی API (`@cardiani/api-client`) در مسیر `apps/mobile/lib/` محلی‌سازی شده‌اند و از طریق path aliasهای تنظیم‌شده در `tsconfig.json` و `babel.config.js` فراخوانی می‌شوند.
+پروژه کاردیانی شامل اکوسیستم جامع اپلیکیشن موبایل (Android و iOS)، وب‌سایت و پنل مدیریت (Next.js 15) و پکیج‌های کلاینت اشتراکی است.
 
 ---
 
-## ۲. پیش‌نیازها و نصب
+## ۱. ساختار مونو‌ریپو (Monorepo Architecture)
 
-* **Node.js:** نسخه `>=24.20.0`
-* **pnpm:** نسخه `>=10.0.0`
-* **Expo CLI:** به همراه ابزار Expo Go یا شبیه‌ساز (Emulator/Simulator)
+- **`apps/mobile` (یا ریشه پروژه موبایل):** اپلیکیشن موبایل کاردیانی با Expo SDK 58، React Native 0.88، NativeWind v5، Zustand، React Query، Stripe، Sentry و SecureStore.
+- **`apps/web`:** وب‌سایت و داشبورد اداری بر بستر Next.js 15 App Router، React 19، Tailwind CSS و چیدمان فارسی (RTL).
+- **`packages/shared`:** اسکیماهای اعتبارسنجی Zod، تایپ‌های کلاینت و کلاینت HTTP بدون وابستگی به DOM/RN.
+- **`packages/i18n`:** واژه‌نامه‌های محلی‌سازی‌شده فارسی و انگلیسی.
+- **`docs/`:** راهنماهای دقیق ۸ گانه استقرار، بیلد اندروید، بیلد iOS، داکر، پرداخت و انتشار.
 
-### راه اندازی مستقل
+---
 
-```powershell
-# ورود به پوشه mobile
-cd apps/mobile
+## ۲. دستورهای شروع سریع (Quick Start)
 
-# نصب وابستگی‌ها
+### نصب پیش‌نیازها و پکیج‌ها
+```bash
+# نصب وابستگی‌های کل مخزن
 pnpm install
 
-# بررسی تایپ‌ها و کیفیت کد
+# کپی فایل تنظیمات محیطی نمونه
+cp .env.example .env
+```
+
+### اجرای اپلیکیشن موبایل (Expo)
+```bash
+# اجرای مترو سرور
+pnpm start
+
+# اجرای مستقیم روی شبیه‌ساز یا دستگاه متصل
+pnpm run android
+pnpm run ios
+```
+
+### اجرای وب‌سایت و پنل وب (Next.js)
+```bash
+pnpm -F @cardiani/web dev
+```
+سپس مرورگر را باز کرده و به نشانی `http://localhost:3000` مراجعه فرمایید.
+
+---
+
+## ۳. بررسی کیفیت، تست و سلامت پروژه
+
+```bash
+# اعتبارسنجی انواع داده‌ها با تایپ‌اسکریپت در کل مخزن
 pnpm run type-check
+
+# اجرای تست‌های واحد (Vitest)
+pnpm run test
+
+# بررسی هماهنگی پکیج‌ها با استاندارد رسمی Expo
+pnpm run doctor
+
+# بررسی ساختار کد
 pnpm run lint
 ```
 
 ---
 
-## ۳. نحوه اتصال به بک‌اند (Backend Connection)
+## ۴. دستورهای بیلد خروجی موبایل
 
-فایل `.env.example` را به `.env` کپی کنید:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-### نکات مهم آدرس‌دهی بک‌اند در موبایل:
-* **دستگاه واقعی (Physical Device):** از آدرس `localhost` استفاده نکنید! آدرس IP شبکه محلی کامپیوتر خود را وارد کنید (مثلاً `http://192.168.1.100:8080/api/v1`).
-* **شبیه‌ساز اندروید (Android Emulator):** برای اشاره به بک‌اند روی سیستم میزبان، از IP ویژه `10.0.2.2` استفاده کنید (مثلاً `http://10.0.2.2:8080/api/v1`).
-* **شبیه‌ساز iOS (iOS Simulator):** می‌توانید از `http://localhost:8080/api/v1` استفاده کنید.
+| هدف | پلتفرم | دستور اجرا | نوع خروجی |
+|---|---|---|---|
+| تست داخلی | Android | `pnpm run build:android:preview` | فایل نصبی APK |
+| انتشار نهایی | Android | `pnpm run build:android:prod` | بسته AAB برای گوگل پلی |
+| تست شبیه‌ساز | iOS | `pnpm run build:ios:preview` | Simulator Build / Ad Hoc |
+| انتشار نهایی | iOS | `pnpm run build:ios:prod` | بیلد App Store Connect |
 
 ---
 
-## ۴. اجرا و ساخت (Run & Build)
+## ۵. راهنماهای تفصیلی در پوشه `docs/`
 
-```powershell
-# اجرای سرور توسعه Expo
-pnpm start
-
-# اجرا روی شبیه‌ساز اندروید
-pnpm run android
-
-# اجرا روی شبیه‌ساز iOS
-pnpm run ios
-
-# خروجی گرفتن ثابت (Expo Export Test)
-npx expo export
-```
-
----
-
-## ۵. استخراج به مخزن مجزا (Standalone Repository Extraction)
-
-برای انتقال اپلیکیشن موبایل به یک ریپوزیتوری کاملاً مستقل در GitHub، دستورات نیتیو PowerShell زیر را در ریشه monorepo اجرا کنید:
-
-### روش ۱: استفاده از `git subtree` (پیش‌فرض)
-
-```powershell
-# ایجاد شاخه مستقل از پوشه apps/mobile
-git subtree split --prefix=apps/mobile -b mobile-standalone
-
-# ایجاد یک ریپوزیتوری جدید و push کردن شاخه
-mkdir ..\cardiani-mobile-repo
-cd ..\cardiani-mobile-repo
-git init
-git pull ..\cardiani-monorepo mobile-standalone
-git remote add origin https://github.com/gcorp-llc/cardiani-mobile.git
-git push -u origin main
-```
-
-### روش ۲: استفاده از `git filter-repo` (در صورت نیاز به تاریخچه کامل)
-
-```powershell
-# کپی پروژه به پوشه جدید
-Copy-Item -Recurse -Force . ..\cardiani-mobile-standalone
-cd ..\cardiani-mobile-standalone
-
-# فیلتر کردن و نگه داشتن فقط مسیر apps/mobile
-git filter-repo --subdirectory-filter apps/mobile
-git remote add origin https://github.com/gcorp-llc/cardiani-mobile.dir.git
-git push -u origin main
-```
-
-### بازگرداندن و به‌روزرسانی در Monorepo
-
-در صورت اعمال تغییرات در ریپوی مجزا و نیاز به دریافت تغییرات در Monorepo:
-
-```powershell
-# دریافت تغییرات از ریپوی مجزا به پوشه apps/mobile
-git subtree pull --prefix=apps/mobile https://github.com/gcorp-llc/cardiani-mobile.git main --squash
-```
-
----
-
-## ۶. چک‌لیست تست دستی پس از استخراج
-
-پس از استخراج کد به ریپوزیتوری یا مسیر موقت جدید، مراحل زیر را برای اطمینان از سلامت پروژه بررسی کنید:
-
-- [ ] اجرای `pnpm install` بدون خطا یا هشدار درباره `workspace:*` یا فایل‌های بیرون از پوشه.
-- [ ] اجرای `pnpm run type-check` و عدم وجود خطای تایپ‌اسکریپت.
-- [ ] اجرای `pnpm run lint` و عدم وجود خطای سبک کد.
-- [ ] اجرای `npx expo export` و خروجی موفق در پوشه `dist`.
-- [ ] تست اتصال API به بک‌اند با تنظیم متغیر `EXPO_PUBLIC_API_URL` روی IP محلی یا شبیه‌ساز.
-
----
-
-## ۷. یادداشت درباره همگام‌سازی کدهای کپی‌شده (Code Drift Notice)
-
-تایپ‌ها (`lib/types`) و سرویس‌گیرنده (`lib/api-client`) به‌صورت محلی در این ریپوزیتوری قرار گرفته‌اند.
-> **هشدار:** در صورت تغییر در قراردادهای API یا مدل‌های داده‌ای بک‌اند/monorepo، حتماً فایل‌های موجود در `lib/types` و `lib/api-client` را به‌روزرسانی کنید تا از ناهماهنگی (Code Drift) بین کلاینت موبایل و بک‌اند جلوگیری شود.
+برای مطالعه جزئیات بیشتر به مستندات مرتبط مراجعه فرمایید:
+1. [`docs/00-overview.md`](docs/00-overview.md): نمای کلی معماری و جریان داده‌ها.
+2. [`docs/01-setup.md`](docs/01-setup.md): پیش‌نیازهای نرم‌افزاری و راه‌اندازی محیط توسعه.
+3. [`docs/02-android.md`](docs/02-android.md): راهنمای بیلد محلی Gradle و انتشار گوگل پلی و Keystore.
+4. [`docs/03-ios.md`](docs/03-ios.md): راهنمای ساخت IPA، اکانت اپل، TestFlight و بیلد ابری بدون مک.
+5. [`docs/04-web.md`](docs/04-web.md): استقرار Next.js، داکر، تنظیمات وب‌سرور و سئو.
+6. [`docs/05-cardiani-integration.md`](docs/05-cardiani-integration.md): مشخصات API، پرداخت Stripe و پوش نوتیفیکیشن.
+7. [`docs/06-release.md`](docs/06-release.md): چرخه انتشار، نگارش و به‌روزرسانی آنلاین OTA.
+8. [`docs/07-troubleshooting.md`](docs/07-troubleshooting.md): عیب‌یابی خطاهای متداول مترو، گرادل و ماژول‌های نیتیو.
+9. [`docs/08-manual-testing-checklist.md`](docs/08-manual-testing-checklist.md): چک‌لیست تست دستی روی دستگاه واقعی و موارد تست‌نشده.
