@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -70,30 +70,35 @@ export default function CartScreen() {
   });
 
   // Map product details onto cart items
-  const productsMap = new Map(allProducts.map((p: any) => [p.id, p]));
+  const productsMap = useMemo(() => new Map(allProducts.map((p: any) => [p.id, p])), [allProducts]);
 
-  const enrichedCartItems = cartItems.map((item) => {
-    const product = productsMap.get(item.id);
-    return {
-      item_id: item.id,
-      product_id: item.id,
-      quantity: item.quantity,
-      title: product?.name || (isRTL ? `محصول ${item.id.substring(0, 6)}` : `Product ${item.id.substring(0, 6)}`),
-      image: product?.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
-      unitPrice: product?.price || 120, // fallback sample price
-    };
-  });
+  const enrichedCartItems = useMemo(() => {
+    return cartItems.map((item) => {
+      const product = productsMap.get(item.id);
+      return {
+        item_id: item.id,
+        product_id: item.id,
+        quantity: Math.max(1, Number(item.quantity) || 1),
+        title: product?.name || (isRTL ? `محصول ${String(item.id).substring(0, 6)}` : `Product ${String(item.id).substring(0, 6)}`),
+        image: product?.image || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80",
+        unitPrice: Number(product?.price) || 120,
+      };
+    });
+  }, [cartItems, productsMap, isRTL]);
 
-  // Calculations
-  const subtotal = enrichedCartItems.reduce(
-    (acc: number, item: any) => acc + item.unitPrice * item.quantity,
-    0
-  );
-  const discountAmount = (subtotal * appliedDiscount) / 100;
-  const shippingFee = subtotal > 300 || subtotal === 0 ? 0 : 15;
-  const grandTotal = Math.max(0, subtotal - discountAmount + shippingFee);
+  // Calculations memoized for efficiency
+  const subtotal = useMemo(() => {
+    return enrichedCartItems.reduce(
+      (acc: number, item: any) => acc + item.unitPrice * item.quantity,
+      0
+    );
+  }, [enrichedCartItems]);
+
+  const discountAmount = useMemo(() => (subtotal * appliedDiscount) / 100, [subtotal, appliedDiscount]);
+  const shippingFee = useMemo(() => (subtotal > 300 || subtotal === 0 ? 0 : 15), [subtotal]);
+  const grandTotal = useMemo(() => Math.max(0, subtotal - discountAmount + shippingFee), [subtotal, discountAmount, shippingFee]);
   const freeShippingThreshold = 300;
-  const freeShippingProgress = Math.min(1, subtotal / freeShippingThreshold);
+  const freeShippingProgress = useMemo(() => Math.min(1, subtotal / freeShippingThreshold), [subtotal]);
 
   const handleUpdateQty = (itemId: string, qty: number) => {
     if (qty <= 0) {
