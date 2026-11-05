@@ -175,8 +175,9 @@ export default function HomeScreen() {
   );
 
   useEffect(() => {
+    if (isLoading || products.length === 0) return;
     const interval = setInterval(() => {
-      if (suggestionScrollRef.current && !isLoading && products.length > 0) {
+      if (suggestionScrollRef.current) {
         suggestionIndex.current = (suggestionIndex.current + 1) % Math.min(3, products.length);
         suggestionScrollRef.current.scrollTo({
           x: suggestionIndex.current * (SUGGESTION_WIDTH + Spacing.lg),
@@ -215,16 +216,17 @@ export default function HomeScreen() {
     scrollY.value = event.contentOffset.y;
   });
 
+  const normalizedQuery = useMemo(() => searchQuery.trim().toLowerCase(), [searchQuery]);
+
   const filteredProducts = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
     return products.filter((product: any) => {
       const name = (product.name || '').toLowerCase();
-      const matchesSearch = !q || name.includes(q);
+      const matchesSearch = !normalizedQuery || name.includes(normalizedQuery);
       const matchesCategory =
         selectedCategory === 'All' || product.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [products, searchQuery, selectedCategory]);
+  }, [products, normalizedQuery, selectedCategory]);
 
   const showSkeletons = isLoading || isSearchLoading;
   const hotProducts = products.slice(0, 3);

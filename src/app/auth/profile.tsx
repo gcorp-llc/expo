@@ -53,9 +53,9 @@ export default function ProfileScreen() {
       isAuthenticated: true,
       isGuest: false,
       user: {
-        firstName: data.firstName,
-        lastName: data.lastName || '',
-        phoneNumber: phone || '',
+        firstName: data.firstName.trim(),
+        lastName: (data.lastName || '').trim(),
+        phoneNumber: (phone || '').trim(),
       }
     });
     router.replace('/(tabs)');
