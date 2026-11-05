@@ -19,31 +19,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.30.3
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npm ci --legacy-peer-deps
 
-      - name: Check Workspace Types
-        run: |
-          pnpm -F @cardiani/shared type-check
-          pnpm -F cardiani-mobile type-check
-          pnpm -F @cardiani/web type-check
+      - name: Check Types
+        run: npm run type-check
 
       - name: Run Lint
-        run: pnpm run lint
+        run: npm run lint
 
       - name: Run Unit Tests
-        run: pnpm run test
+        run: npm test
 
       - name: Run Expo Doctor
         run: npx expo-doctor
-
-      - name: Build Web Application
-        run: pnpm -F @cardiani/web build
 
   eas-build:
     name: Optional EAS Trigger

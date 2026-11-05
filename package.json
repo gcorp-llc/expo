@@ -116,7 +116,8 @@
         "expo",
         "expo-updates",
         "@expo/metro-runtime",
-        "@expo/ui"
+        "@expo/ui",
+        "react-native-safe-area-context"
       ]
     }
   }
