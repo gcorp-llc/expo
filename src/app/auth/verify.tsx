@@ -32,10 +32,25 @@ export default function VerifyScreen() {
   }));
 
   useEffect(() => {
+    let timeoutId: any;
     if (code.length === 5) {
-      setTimeout(handleVerify, 500);
+      timeoutId = setTimeout(handleVerify, 500);
     }
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [code]);
+
+  const normalizeDigits = (str: string) => {
+    return str
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776))
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632))
+      .replace(/[^0-9]/g, '');
+  };
+
+  const handleCodeChange = (text: string) => {
+    setCode(normalizeDigits(text));
+  };
 
   const handleVerify = () => {
     router.push({
@@ -111,7 +126,7 @@ export default function VerifyScreen() {
               keyboardType="number-pad"
               maxLength={5}
               value={code}
-              onChangeText={setCode}
+              onChangeText={handleCodeChange}
               autoFocus
             />
           </TouchableOpacity>

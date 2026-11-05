@@ -106,6 +106,9 @@ export default function CheckoutScreen() {
   // Order Placement
   const placeOrderMutation = useMutation({
     mutationFn: async () => {
+      if (cartItems.length === 0) {
+        throw new Error(isRTL ? "سبد خرید شما خالی است" : "Your cart is empty");
+      }
       // Execute checkout order
       const res = await mobileOrderService.checkout(selectedAddressId, params.promoCode);
       return res;
@@ -388,8 +391,11 @@ export default function CheckoutScreen() {
 
           <TouchableOpacity
             onPress={() => placeOrderMutation.mutate()}
-            disabled={placeOrderMutation.isPending}
-            style={[styles.payButton, { backgroundColor: colors.tint }]}
+            disabled={placeOrderMutation.isPending || cartItems.length === 0}
+            style={[
+              styles.payButton,
+              { backgroundColor: colors.tint, opacity: cartItems.length === 0 ? 0.6 : 1 },
+            ]}
             activeOpacity={0.85}
           >
             {placeOrderMutation.isPending ? (

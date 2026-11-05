@@ -539,7 +539,7 @@ export default function TabShopScreen() {
                   onPress={() => setIsProductFilterModalOpen(true)}
                   activeOpacity={0.8}
                 >
-                  <Iconify icon="solar:tuning-square-2-broken" size={20} color={colors.tint} />
+                  <Iconify icon="solar:tuning-square-broken" size={20} color={colors.tint} />
                   <Text style={[styles.filterTriggerText, { color: colors.tint }]}>
                     {isRTL ? 'فیلتر محصولات' : 'Filter Products'}
                   </Text>
@@ -935,7 +935,7 @@ export default function TabShopScreen() {
                         ]}
                       >
                         <Iconify
-                          icon={order.overdue ? "solar:danger-bold" : "solar:calendar-mark-broken"}
+                          icon={order.overdue ? "solar:danger-triangle-broken" : "solar:calendar-mark-broken"}
                           size={16}
                           color={order.overdue ? colors.destructive : colors.warning}
                         />
@@ -1435,7 +1435,7 @@ export default function TabShopScreen() {
           <View style={[styles.modalContent, { backgroundColor: colors.card, borderColor: colors.border, maxHeight: '88%' }]}>
             <View style={[styles.modalHeaderRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
-                <Iconify icon="solar:tuning-square-2-broken" size={24} color={colors.tint} />
+                <Iconify icon="solar:tuning-square-broken" size={24} color={colors.tint} />
                 <Text style={[styles.modalTitle, { color: colors.text }]}>
                   {isRTL ? 'فیلتر و گروه‌بندی محصولات' : 'Product Filters'}
                 </Text>

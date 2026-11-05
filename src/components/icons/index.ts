@@ -24,6 +24,7 @@ export { BookmarkBoldIcon } from './BookmarkBoldIcon';
 export { BoxBrokenIcon } from './BoxBrokenIcon';
 export { BoxMinimalisticBrokenIcon } from './BoxMinimalisticBrokenIcon';
 export { BroomBrokenIcon } from './BroomBrokenIcon';
+export { CalendarMarkBrokenIcon } from './CalendarMarkBrokenIcon';
 export { CalendarMinimalisticBrokenIcon } from './CalendarMinimalisticBrokenIcon';
 export { CameraBoldIcon } from './CameraBoldIcon';
 export { CameraBrokenIcon } from './CameraBrokenIcon';
@@ -56,6 +57,7 @@ export { CloseCircleBoldIcon } from './CloseCircleBoldIcon';
 export { CloseCircleBrokenIcon } from './CloseCircleBrokenIcon';
 export { CodeBoldIcon } from './CodeBoldIcon';
 export { CopyBrokenIcon } from './CopyBrokenIcon';
+export { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 export { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
 export { DeliveryBoldIcon } from './DeliveryBoldIcon';
 export { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
@@ -135,6 +137,7 @@ export { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 export { StarBrokenIcon } from './StarBrokenIcon';
 export { StopBrokenIcon } from './StopBrokenIcon';
 export { SunBrokenIcon } from './SunBrokenIcon';
+export { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 export { TagBoldIcon } from './TagBoldIcon';
 export { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 export { TicketBrokenIcon } from './TicketBrokenIcon';
@@ -186,6 +189,7 @@ import { BookmarkBoldIcon } from './BookmarkBoldIcon';
 import { BoxBrokenIcon } from './BoxBrokenIcon';
 import { BoxMinimalisticBrokenIcon } from './BoxMinimalisticBrokenIcon';
 import { BroomBrokenIcon } from './BroomBrokenIcon';
+import { CalendarMarkBrokenIcon } from './CalendarMarkBrokenIcon';
 import { CalendarMinimalisticBrokenIcon } from './CalendarMinimalisticBrokenIcon';
 import { CameraBoldIcon } from './CameraBoldIcon';
 import { CameraBrokenIcon } from './CameraBrokenIcon';
@@ -218,6 +222,7 @@ import { CloseCircleBoldIcon } from './CloseCircleBoldIcon';
 import { CloseCircleBrokenIcon } from './CloseCircleBrokenIcon';
 import { CodeBoldIcon } from './CodeBoldIcon';
 import { CopyBrokenIcon } from './CopyBrokenIcon';
+import { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 import { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
 import { DeliveryBoldIcon } from './DeliveryBoldIcon';
 import { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
@@ -297,6 +302,7 @@ import { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 import { StarBrokenIcon } from './StarBrokenIcon';
 import { StopBrokenIcon } from './StopBrokenIcon';
 import { SunBrokenIcon } from './SunBrokenIcon';
+import { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 import { TagBoldIcon } from './TagBoldIcon';
 import { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 import { TicketBrokenIcon } from './TicketBrokenIcon';
@@ -347,6 +353,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'box-broken': BoxBrokenIcon,
   'box-minimalistic-broken': BoxMinimalisticBrokenIcon,
   'broom-broken': BroomBrokenIcon,
+  'calendar-mark-broken':CalendarMarkBrokenIcon,
   'calendar-minimalistic-broken': CalendarMinimalisticBrokenIcon,
   'camera-bold': CameraBoldIcon,
   'camera-broken': CameraBrokenIcon,
@@ -379,6 +386,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'close-circle-broken': CloseCircleBrokenIcon,
   'code-bold': CodeBoldIcon,
   'copy-broken': CopyBrokenIcon,
+  'danger-triangle-broken':DangerTriangleBrokenIcon,
   'danger-circle-bold': DangerCircleBoldIcon,
   'delivery-bold': DeliveryBoldIcon,
   'delivery-broken': DeliveryBrokenIcon,
@@ -439,6 +447,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'question-circle-bold': QuestionCircleBoldIcon,
   'refresh-broken': RefreshBrokenIcon,
   'reply-bold': ReplyBoldIcon,
+  'tuning-square-broken':TuningSquareBrokenIcon,
   'settings-bold': SettingsBoldIcon,
   'settings-broken': SettingsBrokenIcon,
   'settings-minimalistic-bold': SettingsMinimalisticBoldIcon,

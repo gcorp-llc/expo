@@ -20,6 +20,18 @@
       ],
       "@cardiani/api-client/*": [
         "./lib/api-client/*"
+      ],
+      "@cardiani/shared": [
+        "./src/shared/index.ts"
+      ],
+      "@cardiani/shared/*": [
+        "./src/shared/*"
+      ],
+      "@cardiani/i18n": [
+        "./src/i18n-pkg/index.ts"
+      ],
+      "@cardiani/i18n/*": [
+        "./src/i18n-pkg/*"
       ]
     }
   },

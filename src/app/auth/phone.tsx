@@ -29,11 +29,23 @@ export default function PhoneScreen() {
     opacity: fadeAnim.value,
   }));
 
+  const normalizeDigits = (str: string) => {
+    return str
+      .replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 1776))
+      .replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 1632))
+      .replace(/[^0-9]/g, '');
+  };
+
+  const handlePhoneChange = (text: string) => {
+    setPhoneNumber(normalizeDigits(text));
+  };
+
   const handleNext = () => {
-    if (phoneNumber.length >= 10) {
+    const cleanNumber = normalizeDigits(phoneNumber);
+    if (cleanNumber.length >= 10) {
       router.push({
         pathname: '/auth/verify',
-        params: { phone: `${countryCode}${phoneNumber}` }
+        params: { phone: `${countryCode}${cleanNumber}` }
       });
     }
   };
@@ -88,7 +100,7 @@ export default function PhoneScreen() {
                 placeholderTextColor={colors.textSecondary + '60'}
                 keyboardType="phone-pad"
                 value={phoneNumber}
-                onChangeText={setPhoneNumber}
+                onChangeText={handlePhoneChange}
                 autoFocus
               />
             </View>
