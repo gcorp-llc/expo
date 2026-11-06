@@ -18,6 +18,7 @@ export { BagHeartBrokenIcon } from './BagHeartBrokenIcon';
 export { BagSmileBoldDuotoneIcon } from './BagSmileBoldDuotoneIcon';
 export { BagSmileOutlineIcon } from './BagSmileOutlineIcon';
 export { BasketballBrokenIcon } from './BasketballBrokenIcon';
+export { BellBoldIcon } from './BellBoldIcon';
 export { BellBrokenIcon } from './BellBrokenIcon';
 export { BookBrokenIcon } from './BookBrokenIcon';
 export { BookmarkBoldIcon } from './BookmarkBoldIcon';
@@ -40,6 +41,7 @@ export { CaseMinimalisticBrokenIcon } from './CaseMinimalisticBrokenIcon';
 export { CaseRoundBrokenIcon } from './CaseRoundBrokenIcon';
 export { ChatLineBoldDuotoneIcon } from './ChatLineBoldDuotoneIcon';
 export { ChatLineBrokenIcon } from './ChatLineBrokenIcon';
+export { ChatRoundCheckBrokenIcon } from './ChatRoundCheckBrokenIcon';
 export { ChatRoundLineBoldIcon } from './ChatRoundLineBoldIcon';
 export { ChatSquareBoldIcon } from './ChatSquareBoldIcon';
 export { ChatSquareBrokenIcon } from './ChatSquareBrokenIcon';
@@ -57,8 +59,8 @@ export { CloseCircleBoldIcon } from './CloseCircleBoldIcon';
 export { CloseCircleBrokenIcon } from './CloseCircleBrokenIcon';
 export { CodeBoldIcon } from './CodeBoldIcon';
 export { CopyBrokenIcon } from './CopyBrokenIcon';
-export { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 export { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
+export { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 export { DeliveryBoldIcon } from './DeliveryBoldIcon';
 export { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
 export { DocumentTextBrokenIcon } from './DocumentTextBrokenIcon';
@@ -137,12 +139,12 @@ export { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 export { StarBrokenIcon } from './StarBrokenIcon';
 export { StopBrokenIcon } from './StopBrokenIcon';
 export { SunBrokenIcon } from './SunBrokenIcon';
-export { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 export { TagBoldIcon } from './TagBoldIcon';
 export { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 export { TicketBrokenIcon } from './TicketBrokenIcon';
 export { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
 export { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
+export { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 export { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 export { UserBoldIcon } from './UserBoldIcon';
 export { UserBrokenIcon } from './UserBrokenIcon';
@@ -183,6 +185,7 @@ import { BagHeartBrokenIcon } from './BagHeartBrokenIcon';
 import { BagSmileBoldDuotoneIcon } from './BagSmileBoldDuotoneIcon';
 import { BagSmileOutlineIcon } from './BagSmileOutlineIcon';
 import { BasketballBrokenIcon } from './BasketballBrokenIcon';
+import { BellBoldIcon } from './BellBoldIcon';
 import { BellBrokenIcon } from './BellBrokenIcon';
 import { BookBrokenIcon } from './BookBrokenIcon';
 import { BookmarkBoldIcon } from './BookmarkBoldIcon';
@@ -205,6 +208,7 @@ import { CaseMinimalisticBrokenIcon } from './CaseMinimalisticBrokenIcon';
 import { CaseRoundBrokenIcon } from './CaseRoundBrokenIcon';
 import { ChatLineBoldDuotoneIcon } from './ChatLineBoldDuotoneIcon';
 import { ChatLineBrokenIcon } from './ChatLineBrokenIcon';
+import { ChatRoundCheckBrokenIcon } from './ChatRoundCheckBrokenIcon';
 import { ChatRoundLineBoldIcon } from './ChatRoundLineBoldIcon';
 import { ChatSquareBoldIcon } from './ChatSquareBoldIcon';
 import { ChatSquareBrokenIcon } from './ChatSquareBrokenIcon';
@@ -222,8 +226,8 @@ import { CloseCircleBoldIcon } from './CloseCircleBoldIcon';
 import { CloseCircleBrokenIcon } from './CloseCircleBrokenIcon';
 import { CodeBoldIcon } from './CodeBoldIcon';
 import { CopyBrokenIcon } from './CopyBrokenIcon';
-import { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 import { DangerCircleBoldIcon } from './DangerCircleBoldIcon';
+import { DangerTriangleBrokenIcon } from './DangerTriangleBrokenIcon';
 import { DeliveryBoldIcon } from './DeliveryBoldIcon';
 import { DeliveryBrokenIcon } from './DeliveryBrokenIcon';
 import { DocumentTextBrokenIcon } from './DocumentTextBrokenIcon';
@@ -302,12 +306,12 @@ import { StarBoldDuotoneIcon } from './StarBoldDuotoneIcon';
 import { StarBrokenIcon } from './StarBrokenIcon';
 import { StopBrokenIcon } from './StopBrokenIcon';
 import { SunBrokenIcon } from './SunBrokenIcon';
-import { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 import { TagBoldIcon } from './TagBoldIcon';
 import { TextSquareBrokenIcon } from './TextSquareBrokenIcon';
 import { TicketBrokenIcon } from './TicketBrokenIcon';
 import { TransmissionBrokenIcon } from './TransmissionBrokenIcon';
 import { TrashBinTrashBrokenIcon } from './TrashBinTrashBrokenIcon';
+import { TuningSquareBrokenIcon } from './TuningSquareBrokenIcon';
 import { UserBlockBrokenIcon } from './UserBlockBrokenIcon';
 import { UserBoldIcon } from './UserBoldIcon';
 import { UserBrokenIcon } from './UserBrokenIcon';
@@ -347,13 +351,14 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'bag-smile-bold-duotone': BagSmileBoldDuotoneIcon,
   'bag-smile-outline': BagSmileOutlineIcon,
   'basketball-broken': BasketballBrokenIcon,
+  'bell-bold': BellBoldIcon,
   'bell-broken': BellBrokenIcon,
   'book-broken': BookBrokenIcon,
   'bookmark-bold': BookmarkBoldIcon,
   'box-broken': BoxBrokenIcon,
   'box-minimalistic-broken': BoxMinimalisticBrokenIcon,
   'broom-broken': BroomBrokenIcon,
-  'calendar-mark-broken':CalendarMarkBrokenIcon,
+  'calendar-mark-broken': CalendarMarkBrokenIcon,
   'calendar-minimalistic-broken': CalendarMinimalisticBrokenIcon,
   'camera-bold': CameraBoldIcon,
   'camera-broken': CameraBrokenIcon,
@@ -369,6 +374,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'case-round-broken': CaseRoundBrokenIcon,
   'chat-line-bold-duotone': ChatLineBoldDuotoneIcon,
   'chat-line-broken': ChatLineBrokenIcon,
+  'chat-round-check-broken': ChatRoundCheckBrokenIcon,
   'chat-round-line-bold': ChatRoundLineBoldIcon,
   'chat-square-bold': ChatSquareBoldIcon,
   'chat-square-broken': ChatSquareBrokenIcon,
@@ -386,8 +392,8 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'close-circle-broken': CloseCircleBrokenIcon,
   'code-bold': CodeBoldIcon,
   'copy-broken': CopyBrokenIcon,
-  'danger-triangle-broken':DangerTriangleBrokenIcon,
   'danger-circle-bold': DangerCircleBoldIcon,
+  'danger-triangle-broken': DangerTriangleBrokenIcon,
   'delivery-bold': DeliveryBoldIcon,
   'delivery-broken': DeliveryBrokenIcon,
   'document-text-broken': DocumentTextBrokenIcon,
@@ -447,7 +453,6 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'question-circle-bold': QuestionCircleBoldIcon,
   'refresh-broken': RefreshBrokenIcon,
   'reply-bold': ReplyBoldIcon,
-  'tuning-square-broken':TuningSquareBrokenIcon,
   'settings-bold': SettingsBoldIcon,
   'settings-broken': SettingsBrokenIcon,
   'settings-minimalistic-bold': SettingsMinimalisticBoldIcon,
@@ -472,6 +477,7 @@ export const ICON_MAP: Record<string, React.FC<IconProps>> = {
   'ticket-broken': TicketBrokenIcon,
   'transmission-broken': TransmissionBrokenIcon,
   'trash-bin-trash-broken': TrashBinTrashBrokenIcon,
+  'tuning-square-broken': TuningSquareBrokenIcon,
   'user-block-broken': UserBlockBrokenIcon,
   'user-bold': UserBoldIcon,
   'user-broken': UserBrokenIcon,
