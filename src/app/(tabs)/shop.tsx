@@ -399,7 +399,7 @@ export default function TabShopScreen() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 140 }]}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.scrollContent, { paddingBottom: 40 }]}>
         
         {/* 1. STORE NAME CARD */}
         <Animated.View entering={FadeInDown.duration(500)} style={[styles.profileCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
@@ -1701,24 +1701,35 @@ export default function TabShopScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   expandedHeaderArea: {
+    backgroundColor: 'transparent',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
   backHeaderBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 16,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   fullWidthStoreSelector: {
-    height: 58,
-    borderRadius: 20,
+    height: 52,
+    borderRadius: 18,
     borderWidth: 1,
     paddingHorizontal: 14,
     alignItems: 'center',
     gap: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
   },
   storeIconBox: {
     width: 40,

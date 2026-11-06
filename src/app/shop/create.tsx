@@ -169,7 +169,7 @@ export default function CreateShopScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scrollContent, { paddingBottom: 120 }]}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: 36 }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Cover & Logo Section */}

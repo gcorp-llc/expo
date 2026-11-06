@@ -166,7 +166,7 @@ export default function SettingsIndexScreen() {
           </Text>
           <View style={styles.itemsGroup}>
             <SettingItem icon="solar:help-broken" label={isRTL ? 'راهنما' : 'Help Center'} onPress={() => router.push('/settings/help')} />
-            <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کوتیک' : 'About Kutik'} />
+            <SettingItem icon="solar:info-circle-broken" label={isRTL ? 'درباره کوتیک' : 'About Kutik'} onPress={() => router.push('/settings/about' as any)} />
           </View>
         </Animated.View>
 
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 100,
+    paddingBottom: 36,
     gap: 24,
   },
   section: {

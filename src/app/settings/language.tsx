@@ -18,9 +18,9 @@ export default function LanguageSettingsScreen() {
   const { language, setLanguage } = useStore();
   const isRTL = language === 'fa';
 
-  const languages: { id: Language; name: string; nativeName: string; flag: string }[] = [
-    { id: 'fa', name: 'Persian', nativeName: 'فارسی', flag: '🇮🇷' },
-    { id: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
+  const languages: { id: Language; name: string; nativeName: string; icon: string }[] = [
+    { id: 'fa', name: 'Persian', nativeName: 'فارسی', icon: 'solar:letter-broken' },
+    { id: 'en', name: 'English', nativeName: 'English', icon: 'solar:letter-broken' },
   ];
 
   const handleSelectLanguage = (lang: Language) => {
@@ -31,7 +31,7 @@ export default function LanguageSettingsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <PageBackground />
 
-      <View style={[styles.header, { paddingTop: insets.top + 16, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+      <View style={[styles.header, { paddingTop: insets.top + 8, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         <FloatingIconButton
           icon={isRTL ? "solar:alt-arrow-right-broken" : "solar:alt-arrow-left-broken"}
           onPress={() => router.back()}
@@ -58,7 +58,9 @@ export default function LanguageSettingsScreen() {
                 activeOpacity={0.7}
               >
                 <View style={[styles.itemLeft, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-                  <Text style={styles.flagText}>{lang.flag}</Text>
+                  <View style={[styles.langIconBox, { backgroundColor: isSelected ? colors.tint + '18' : colors.surface, borderColor: colors.border }]}>
+                    <Iconify icon={lang.icon} size={22} color={isSelected ? colors.tint : colors.textSecondary} />
+                  </View>
                   <View style={[styles.textWrap, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
                     <Text style={[styles.nativeText, { color: colors.text }]}>{lang.nativeName}</Text>
                     <Text style={[styles.nameText, { color: colors.textSecondary }]}>{lang.name}</Text>
@@ -90,26 +92,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingBottom: 16,
+    backgroundColor: 'transparent',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  backBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-  },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '800',
   },
   scrollContent: {
     paddingHorizontal: 20,
-    paddingBottom: 120,
+    paddingBottom: 36,
     gap: 16,
   },
   card: {
@@ -135,8 +130,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
   },
-  flagText: {
-    fontSize: 26,
+  langIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   textWrap: {
     gap: 2,

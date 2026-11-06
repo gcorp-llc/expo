@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
   floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
-  scrollContent: { padding: 16 },
+  scrollContent: { padding: 16, paddingBottom: 24 },
   row: { paddingHorizontal: 16, height: 60, borderRadius: 16, alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   left: { alignItems: 'center', gap: 12 },
   label: { fontSize: 16, fontWeight: '500' },

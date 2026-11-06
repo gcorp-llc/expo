@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   headerTitle: { fontSize: 18, fontWeight: "800" },
-  scrollContent: { padding: 16, gap: 16 },
+  scrollContent: { padding: 16, gap: 16, paddingBottom: 24 },
   addressCard: {
     padding: 16,
     borderRadius: 20,

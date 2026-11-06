@@ -256,24 +256,27 @@ export default function ChatDetailScreen() {
       {showPinned && !searchQuery && (
         <View style={[styles.pinnedContainer, { top: insets.top + 70 }]}>
           {productTitle ? (
-            <View style={[styles.productContextCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.productContextCard, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
               {productImage ? (
                 <Image source={{ uri: productImage }} style={styles.productContextImage} contentFit="cover" />
               ) : null}
               <View style={[styles.productContextInfo, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
-                <Text style={[styles.productContextLabel, { color: colors.tint }]}>
-                  {isRTL ? 'گفتگو درباره محصول:' : 'Inquiry about product:'}
-                </Text>
+                <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 6 }}>
+                  <Iconify icon="solar:bag-smile-outline" size={14} color={colors.tint} />
+                  <Text style={[styles.productContextLabel, { color: colors.tint }]}>
+                    {isRTL ? 'محصول مورد استعلام' : 'Product Inquiry'}
+                  </Text>
+                </View>
                 <Text style={[styles.productContextTitle, { color: colors.text }]} numberOfLines={1}>
                   {productTitle}
                 </Text>
                 {productPrice ? (
-                  <Text style={[styles.productContextPrice, { color: colors.textSecondary }]}>
+                  <Text style={[styles.productContextPrice, { color: colors.tint }]}>
                     ${Number(productPrice).toLocaleString()}
                   </Text>
                 ) : null}
               </View>
-              <TouchableOpacity onPress={() => setShowPinned(false)} style={{ padding: 4 }}>
+              <TouchableOpacity onPress={() => setShowPinned(false)} style={{ padding: 6 }}>
                 <Iconify icon="solar:close-circle-broken" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -299,7 +302,7 @@ export default function ChatDetailScreen() {
             keyExtractor={(item: any) => item.id}
             renderItem={renderItem}
             {...({ estimatedItemSize: 100 } as any)}
-            contentContainerStyle={[styles.listContent, { paddingTop: searchQuery ? insets.top + 80 : insets.top + 130 }]}
+            contentContainerStyle={[styles.listContent, { paddingTop: searchQuery ? insets.top + 80 : insets.top + 130, paddingBottom: 16 }]}
             onScroll={onScroll}
             scrollEventThrottle={16}
             showsVerticalScrollIndicator={false}

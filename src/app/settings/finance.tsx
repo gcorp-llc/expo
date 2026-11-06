@@ -26,9 +26,27 @@ export default function FinanceScreen() {
   const [iban, setIban] = useState(finance.iban);
   const [isEditingIban, setIsEditingIban] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'sales' | 'payouts' | 'fees'>('all');
+  const [isTopUpModalVisible, setIsTopUpModalVisible] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState('1000000');
+  const [activeInstallmentTab, setActiveInstallmentTab] = useState<'all' | 'paid' | 'remaining' | 'due'>('all');
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString(isRTL ? 'fa-IR' : 'en-US');
+  };
+
+  const handleTopUpWallet = () => {
+    const num = parseInt(topUpAmount.replace(/[^0-9]/g, ''), 10);
+    if (!num || num <= 0) return;
+    updateFinance({ balance: finance.balance + num });
+    setIsTopUpModalVisible(false);
+    showModal({
+      title: isRTL ? 'کیف پول شارژ شد 🎉' : 'Wallet Recharged 🎉',
+      message: isRTL
+        ? `مبلغ ${formatCurrency(num)} تومان با موفقیت به موجودی کیف پول شما افزوده شد.`
+        : `Successfully added ${formatCurrency(num)} TOMAN to your wallet.`,
+      icon: 'solar:check-circle-bold',
+      buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }]
+    });
   };
 
   const handleSaveIban = () => {
@@ -159,14 +177,158 @@ export default function FinanceScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.withdrawBtn} onPress={handleWithdraw} activeOpacity={0.88}>
-            <Iconify icon="solar:card-transfer-broken" size={20} color={colors.tint} />
-            <Text style={[styles.withdrawText, { color: colors.tint }]}>{isRTL ? 'تسویه حساب فوری و واریز به شبا' : 'Instant Settlement'}</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 10, marginTop: 4 }}>
+            <TouchableOpacity style={[styles.withdrawBtn, { flex: 1 }]} onPress={handleWithdraw} activeOpacity={0.88}>
+              <Iconify icon="solar:card-transfer-broken" size={20} color={colors.tint} />
+              <Text style={[styles.withdrawText, { color: colors.tint }]}>{isRTL ? 'تسویه و واریز به شبا' : 'Instant Settlement'}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.topUpBtn, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+              onPress={() => setIsTopUpModalVisible(true)}
+              activeOpacity={0.88}
+            >
+              <Iconify icon="solar:add-circle-bold" size={20} color="#fff" />
+              <Text style={styles.topUpBtnText}>{isRTL ? 'شارژ کیف‌پول' : 'Top-up'}</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* Installment Hub Card (خرید و فروش اقساطی) */}
+        <Animated.View entering={FadeInDown.duration(450).delay(150)} style={[styles.installmentHubCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <View style={[styles.installmentHubHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+              <View style={[styles.installmentHubIcon, { backgroundColor: colors.tint + '18' }]}>
+                <Iconify icon="solar:wallet-money-bold" size={22} color={colors.tint} />
+              </View>
+              <View style={{ alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                <Text style={[styles.installmentHubTitle, { color: colors.text }]}>
+                  {isRTL ? 'خرید و فروش اقساطی' : 'Installment Commerce'}
+                </Text>
+                <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                  {isRTL ? 'گزارش تفصیلی وضعیت اقساط و سررسیدها' : 'Installment tracking and maturities'}
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.activePill, { backgroundColor: colors.success + '18' }]}>
+              <Text style={{ fontSize: 11, fontWeight: '800', color: colors.success }}>
+                {isRTL ? '۴ طرح فعال' : '4 Active'}
+              </Text>
+            </View>
+          </View>
+
+          {/* Quick Metrics Bar */}
+          <View style={[styles.installmentMetricsGrid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'اقساط پرداخت شده' : 'Paid'}</Text>
+              <Text style={[styles.metricVal, { color: colors.success }]}>۱۲,۴۰۰,۰۰۰</Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? '۸ قسط کامل' : '8 settled'}</Text>
+            </View>
+
+            <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'اقساط باقی‌مانده' : 'Remaining'}</Text>
+              <Text style={[styles.metricVal, { color: colors.warning }]}>۱۸,۶۰۰,۰۰۰</Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? '۶ قسط باقی' : '6 pending'}</Text>
+            </View>
+
+            <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'نزدیک‌ترین سررسید' : 'Next Due'}</Text>
+              <Text style={[styles.metricVal, { color: colors.tint }]}>۱۵ اسفند</Text>
+              <Text style={{ fontSize: 10, color: colors.destructive }}>{isRTL ? '۳ روز دیگر' : 'In 3 days'}</Text>
+            </View>
+          </View>
+
+          {/* Installment Filter Chips */}
+          <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 10 }]}>
+            {[
+              { id: 'all', labelFa: 'همه اقساط', labelEn: 'All' },
+              { id: 'paid', labelFa: 'پرداخت شده', labelEn: 'Paid' },
+              { id: 'remaining', labelFa: 'باقی‌مانده', labelEn: 'Remaining' },
+              { id: 'due', labelFa: 'سررسید نزدیک', labelEn: 'Upcoming Due' },
+            ].map((st) => {
+              const isSelected = activeInstallmentTab === st.id;
+              return (
+                <TouchableOpacity
+                  key={st.id}
+                  onPress={() => setActiveInstallmentTab(st.id as any)}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: isSelected ? colors.tint : colors.surface,
+                      borderColor: isSelected ? colors.tint : colors.border,
+                      paddingHorizontal: 12,
+                      paddingVertical: 6,
+                    },
+                  ]}
+                >
+                  <Text style={{ fontSize: 11, fontWeight: '800', color: isSelected ? '#fff' : colors.text }}>
+                    {isRTL ? st.labelFa : st.labelEn}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Installments List */}
+          <View style={{ gap: 8, marginTop: 12 }}>
+            {[
+              { id: 'inst-1', title: 'گوشی موبایل گلکسی S24 اولترا', total: '۴۵,۰۰۰,۰۰۰ تومان', part: 'قسط ۲ از ۶', amount: '۷,۵۰۰,۰۰۰ تومان', due: 'سررسید: ۱۵ اسفند ۱۴۰۳', isPaid: false, isDueSoon: true },
+              { id: 'inst-2', title: 'لپ‌تاپ گیمینگ ایسوس TUF', total: '۶۸,۰۰۰,۰۰۰ تومان', part: 'قسط ۱ از ۴', amount: '۱۷,۰۰۰,۰۰۰ تومان', due: 'پرداخت شده در ۱ اسفند', isPaid: true, isDueSoon: false },
+              { id: 'inst-3', title: 'ساعت هوشمند اپل واچ اولترا', total: '۳۲,۰۰۰,۰۰۰ تومان', part: 'قسط ۳ از ۴', amount: '۸,۰۰۰,۰۰۰ تومان', due: 'سررسید: ۲۵ اسفند ۱۴۰۳', isPaid: false, isDueSoon: false },
+            ]
+              .filter(item => {
+                if (activeInstallmentTab === 'paid') return item.isPaid;
+                if (activeInstallmentTab === 'remaining') return !item.isPaid;
+                if (activeInstallmentTab === 'due') return item.isDueSoon;
+                return true;
+              })
+              .map(inst => (
+                <View
+                  key={inst.id}
+                  style={[
+                    styles.installmentRowItem,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: inst.isDueSoon ? colors.destructive + '40' : colors.border,
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                    },
+                  ]}
+                >
+                  <View style={[styles.instStatusIcon, { backgroundColor: inst.isPaid ? colors.success + '18' : inst.isDueSoon ? colors.destructive + '18' : colors.warning + '18' }]}>
+                    <Iconify
+                      icon={inst.isPaid ? "solar:check-circle-bold" : inst.isDueSoon ? "solar:calendar-mark-broken" : "solar:clock-circle-broken"}
+                      size={18}
+                      color={inst.isPaid ? colors.success : inst.isDueSoon ? colors.destructive : colors.warning}
+                    />
+                  </View>
+                  <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 2 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }} numberOfLines={1}>{inst.title}</Text>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>{inst.part} • {inst.due}</Text>
+                  </View>
+                  <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end', gap: 2 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: colors.tint }}>{inst.amount}</Text>
+                    <Text style={{ fontSize: 10, color: inst.isPaid ? colors.success : inst.isDueSoon ? colors.destructive : colors.textSecondary, fontWeight: '700' }}>
+                      {inst.isPaid ? (isRTL ? 'تسویه شده' : 'Paid') : inst.isDueSoon ? (isRTL ? 'سررسید نزدیک' : 'Due Soon') : (isRTL ? 'باقی‌مانده' : 'Pending')}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+          </View>
         </Animated.View>
 
         {/* Quick Actions Grid */}
         <Animated.View entering={FadeInDown.duration(400).delay(200)} style={styles.quickActionsGrid}>
+          <TouchableOpacity
+            style={[styles.actionTile, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => setIsTopUpModalVisible(true)}
+            activeOpacity={0.8}
+          >
+            <View style={[styles.actionTileIcon, { backgroundColor: colors.tint + '15' }]}>
+              <Iconify icon="solar:wallet-money-bold" size={22} color={colors.tint} />
+            </View>
+            <Text style={[styles.actionTileTitle, { color: colors.text }]}>{isRTL ? 'شارژ کیف‌پول' : 'Top-up'}</Text>
+          </TouchableOpacity>
+
           <TouchableOpacity
             style={[styles.actionTile, { backgroundColor: colors.card, borderColor: colors.border }]}
             onPress={() => setIsEditingIban(prev => !prev)}
@@ -314,6 +476,64 @@ export default function FinanceScreen() {
           ))}
         </View>
       </ScrollView>
+
+      {/* Wallet Top-Up Modal */}
+      {isTopUpModalVisible && (
+        <View style={styles.topUpModalBackdrop}>
+          <View style={[styles.topUpModalContent, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 12 }]}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Iconify icon="solar:wallet-money-bold" size={24} color={colors.tint} />
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  {isRTL ? 'افزایش موجودی کیف پول' : 'Charge Wallet'}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setIsTopUpModalVisible(false)}>
+                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: 13, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left', marginBottom: 14 }}>
+              {isRTL
+                ? 'مبلغ مورد نظر خود را جهت شارژ آنی کیف پول کوتیک وارد نمایید:'
+                : 'Enter amount to instantly charge your KuTik wallet:'}
+            </Text>
+
+            <View style={[styles.topUpInputWrap, { backgroundColor: colors.surface, borderColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <TextInput
+                style={[styles.topUpInput, { color: colors.text, textAlign: isRTL ? 'right' : 'left' }]}
+                keyboardType="numeric"
+                value={topUpAmount}
+                onChangeText={setTopUpAmount}
+                placeholder="1000000"
+                placeholderTextColor={colors.textSecondary}
+              />
+              <Text style={{ fontSize: 13, fontWeight: '800', color: colors.tint }}>{isRTL ? 'تومان' : 'TOMAN'}</Text>
+            </View>
+
+            {/* Quick Presets */}
+            <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row', marginVertical: 12 }]}>
+              {['۵۰۰,۰۰۰', '۱,۰۰۰,۰۰۰', '۲,۰۰۰,۰۰۰', '۵,۰۰۰,۰۰۰'].map((preset) => (
+                <TouchableOpacity
+                  key={preset}
+                  onPress={() => setTopUpAmount(preset.replace(/,/g, '').replace(/[٠-٩۰-۹]/g, (d) => String(d.charCodeAt(0) & 0xf)))}
+                  style={[styles.chip, { backgroundColor: colors.surface, borderColor: colors.border }]}
+                >
+                  <Text style={{ fontSize: 12, fontWeight: '800', color: colors.text }}>{preset} {isRTL ? 'ت' : 'T'}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={[styles.confirmTopUpBtn, { backgroundColor: colors.tint }]}
+              onPress={handleTopUpWallet}
+            >
+              <Iconify icon="solar:card-transfer-broken" size={20} color="#fff" />
+              <Text style={styles.confirmTopUpBtnText}>{isRTL ? 'پرداخت و شارژ آنی' : 'Pay & Top-Up'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -324,7 +544,7 @@ const styles = StyleSheet.create({
   headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
   floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
-  scrollContent: { padding: 16, gap: 16, paddingBottom: 60 },
+  scrollContent: { padding: 16, gap: 16, paddingBottom: 24 },
 
   balanceCard: { padding: 24, borderRadius: 28, elevation: 6, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 16, gap: 12 },
   balanceHeader: { justifyContent: 'space-between', alignItems: 'center' },
@@ -337,8 +557,23 @@ const styles = StyleSheet.create({
   balanceSubRow: { justifyContent: 'space-between', alignItems: 'center' },
   subLabel: { color: 'rgba(255,255,255,0.75)', fontSize: 11, fontWeight: '600' },
   subValue: { color: '#fff', fontSize: 14, fontWeight: '800', marginTop: 2 },
-  withdrawBtn: { backgroundColor: '#fff', height: 48, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 6 },
-  withdrawText: { fontWeight: '800', fontSize: 14 },
+  withdrawBtn: { backgroundColor: '#fff', height: 48, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
+  withdrawText: { fontWeight: '800', fontSize: 13 },
+  topUpBtn: { height: 48, paddingHorizontal: 16, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)' },
+  topUpBtnText: { color: '#fff', fontWeight: '800', fontSize: 13 },
+
+  installmentHubCard: { padding: 18, borderRadius: 24, borderWidth: 1, gap: 12 },
+  installmentHubHeader: { justifyContent: 'space-between', alignItems: 'center' },
+  installmentHubIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  installmentHubTitle: { fontSize: 15, fontWeight: '900' },
+  activePill: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  installmentMetricsGrid: { gap: 8, marginTop: 4 },
+  metricBox: { flex: 1, padding: 10, borderRadius: 14, gap: 3 },
+  metricLabel: { fontSize: 10.5, fontWeight: '700' },
+  metricVal: { fontSize: 13.5, fontWeight: '900' },
+  chipsWrap: { flexWrap: 'wrap', gap: 6 },
+  installmentRowItem: { padding: 12, borderRadius: 16, borderWidth: 1, alignItems: 'center', gap: 10 },
+  instStatusIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
 
   quickActionsGrid: { flexDirection: 'row', gap: 10 },
   actionTile: { flex: 1, padding: 14, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: 8 },
@@ -368,4 +603,48 @@ const styles = StyleSheet.create({
   transTitle: { fontSize: 14, fontWeight: '700' },
   transDate: { fontSize: 11 },
   transAmount: { fontSize: 15, fontWeight: '800' },
+
+  topUpModalBackdrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+    zIndex: 1000,
+  },
+  topUpModalContent: {
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    padding: 24,
+    borderWidth: 1,
+  },
+  topUpInputWrap: {
+    height: 52,
+    borderRadius: 16,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  topUpInput: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '800',
+    height: '100%',
+  },
+  confirmTopUpBtn: {
+    height: 52,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginTop: 8,
+  },
+  confirmTopUpBtnText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '800',
+  },
 });
