@@ -264,17 +264,17 @@ export default function ChatDetailScreen() {
                 <Text style={[styles.productContextLabel, { color: colors.tint }]}>
                   {isRTL ? 'گفتگو درباره محصول:' : 'Inquiry about product:'}
                 </Text>
-                <Text style={[styles.productContextTitle, { color: '#FFFFFF' }]} numberOfLines={1}>
+                <Text style={[styles.productContextTitle, { color: colors.text }]} numberOfLines={1}>
                   {productTitle}
                 </Text>
                 {productPrice ? (
-                  <Text style={[styles.productContextPrice, { color: '#A09CBA' }]}>
+                  <Text style={[styles.productContextPrice, { color: colors.textSecondary }]}>
                     ${Number(productPrice).toLocaleString()}
                   </Text>
                 ) : null}
               </View>
               <TouchableOpacity onPress={() => setShowPinned(false)} style={{ padding: 4 }}>
-                <Iconify icon="solar:close-circle-broken" size={20} color="#A09CBA" />
+                <Iconify icon="solar:close-circle-broken" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
           ) : (

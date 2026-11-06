@@ -51,7 +51,7 @@ export const ProfileProductCard = ({ product, isRTL }: ProfileProductCardProps) 
           <View style={[styles.footer, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <Text style={[styles.price, { color: colors.tint }]}>{product.price}</Text>
             <View style={[styles.rating, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-              <Iconify icon="solar:star-bold" size={12} color="#FBBF24" />
+              <Iconify icon="solar:star-bold" size={12} color={colors.warning} />
               <Text style={[styles.ratingText, { color: colors.textSecondary }]}>{product.rating}</Text>
             </View>
           </View>

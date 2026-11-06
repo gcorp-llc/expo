@@ -260,7 +260,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
                   <Text style={[styles.storeSub, { color: colors.textSecondary }]}>{s.specialty}</Text>
                 </View>
                 <View style={[styles.ratingChip, { backgroundColor: colors.tint + '18' }]}>
-                  <Iconify icon="solar:star-bold" size={12} color="#fbbf24" />
+                  <Iconify icon="solar:star-bold" size={12} color={colors.warning} />
                   <Text style={[styles.ratingText, { color: colors.tint }]}>{s.rating}</Text>
                 </View>
               </TouchableOpacity>

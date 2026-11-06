@@ -49,10 +49,13 @@ const extraMappings = [
   'bag-smile-outline',
   'bag-smile-bold-duotone',
   'bell-broken',
+  'bell-bold',
   'chat-unread-broken',
+  'chat-round-check-broken',
   'chat-square-check-broken',
   'volume-cross-broken',
-  'map-point-wave-broken'
+  'map-point-wave-broken',
+  'settings-broken'
 ];
 
 extraMappings.forEach(i => foundIcons.add(i));

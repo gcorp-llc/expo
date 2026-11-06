@@ -34,6 +34,8 @@ const TabIcon = React.memo(({
   activeIconName,
   badge,
 }: TabIconProps) => {
+  const colorScheme = (useColorScheme() ?? 'light') as 'light' | 'dark';
+  const colors = Colors[colorScheme];
   const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
 
@@ -69,7 +71,7 @@ const TabIcon = React.memo(({
         />
 
         {!!badge && (
-          <View style={[styles.badge, { backgroundColor: '#EF4444' }]}>
+          <View style={[styles.badge, { backgroundColor: colors.destructive }]}>
             <Text style={styles.badgeText}>{badge}</Text>
           </View>
         )}

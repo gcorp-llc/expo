@@ -676,7 +676,7 @@ export default function TabShopScreen() {
                       </View>
 
                       <View style={styles.footerStat}>
-                        <Iconify icon="solar:star-bold" size={13} color="#fbbf24" />
+                        <Iconify icon="solar:star-bold" size={13} color={colors.warning} />
                         <Text style={[styles.footerStatText, { color: colors.textSecondary }]}>{product.rating || '۴.۸'}</Text>
                       </View>
                     </View>

@@ -97,7 +97,7 @@ export default function FavoritesScreen() {
       </Animated.View>
       {favorites.length === 0 && (
         <Animated.View entering={FadeInDown.duration(600).delay(300)} style={styles.emptyContainer}>
-          <Iconify icon="solar:heart-broken-bold" width={64} height={64} color={colors.icon} />
+          <Iconify icon="solar:heart-broken-bold" width={64} height={64} color={colors.tint} />
           <Text style={[styles.emptyText, { color: colors.textSecondary, textAlign: 'center' }]}>
             {searchQuery.trim()
               ? (isRTL ? 'محصولی با این عبارت یافت نشد' : 'No favorites found matching search')
