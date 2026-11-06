@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   headerContent: { height: 52, alignItems: 'center', justifyContent: 'space-between' },
   floatingHeaderBtn: { width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: 'transparent' },
   headerTitle: { fontSize: 18, fontWeight: '800' },
-  scrollContent: { padding: 16, paddingBottom: 40 },
+  scrollContent: { padding: 16, paddingBottom: 24 },
   sectionTitle: { fontSize: 13, fontWeight: '600', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
   row: { padding: 16, borderRadius: 24, alignItems: 'center', marginBottom: 12, gap: 12 },
   iconBox: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

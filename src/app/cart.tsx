@@ -199,7 +199,7 @@ export default function CartScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
-          { paddingBottom: enrichedCartItems.length > 0 ? 180 : 40 },
+          { paddingBottom: enrichedCartItems.length > 0 ? 100 : 36 },
         ]}
       >
         {enrichedCartItems.length === 0 ? (

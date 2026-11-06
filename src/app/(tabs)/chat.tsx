@@ -108,8 +108,8 @@ export default function ChatScreen() {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          paddingTop: insets.top + 80,
-          paddingBottom: 120
+          paddingTop: insets.top + 70,
+          paddingBottom: 36
         }}
         renderItem={renderItem}
         ListEmptyComponent={

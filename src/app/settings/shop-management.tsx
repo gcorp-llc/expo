@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 18, fontWeight: '800' },
   saveBtn: { paddingHorizontal: 20, height: 40, borderRadius: 20, justifyContent: 'center' },
   saveBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
-  scrollContent: { padding: 16, gap: 16 },
+  scrollContent: { padding: 16, gap: 16, paddingBottom: 24 },
   card: { borderRadius: 24, padding: 16 },
   logoSection: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   logoWrapper: { width: 80, height: 80, borderRadius: 40, borderWidth: 2, padding: 3 },

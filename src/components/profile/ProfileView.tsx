@@ -311,7 +311,7 @@ export const ProfileView = ({ profile, mode, userId }: ProfileViewProps) => {
         )}
 
         {/* Bottom padding */}
-        <View style={{ height: 100 }} />
+        <View style={{ height: 24 }} />
       </Animated.ScrollView>
 
       <ShareBottomSheet
@@ -358,7 +358,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 40,
+    paddingBottom: 30,
   },
   floatingHeader: {
     position: 'absolute',

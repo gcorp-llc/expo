@@ -51,17 +51,50 @@ export default function ProductDetailScreen() {
   const [reviewOrderId, setReviewOrderId] = useState('');
   const [replyingCommentId, setReplyingCommentId] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
+  const [likesMap, setLikesMap] = useState<{ [key: string]: number }>({
+    'sample-1': 14,
+    'sample-2': 8,
+  });
+  const [userLikedMap, setUserLikedMap] = useState<{ [key: string]: boolean }>({});
   const [localReplies, setLocalReplies] = useState<{ [key: string]: { id: string; author: string; isSeller: boolean; text: string; date: string }[] }>({
     'sample-1': [
       {
         id: 'rep-1',
-        author: 'پاسخ فروشگاه (پشتیبانی)',
+        author: 'پاسخ فروشنده (پشتیبانی رسمی)',
         isSeller: true,
         text: 'با سلام و احترام، بله تمامی محصولات با گارانتی اصالت کالا و مهلت تست ۷ روزه ارسال می‌شوند.',
         date: '۲ روز پیش'
       }
     ]
   });
+
+  const handleToggleLike = (commentId: string) => {
+    setUserLikedMap(prev => {
+      const isLiked = !prev[commentId];
+      setLikesMap(lMap => ({
+        ...lMap,
+        [commentId]: (lMap[commentId] || 0) + (isLiked ? 1 : -1)
+      }));
+      return { ...prev, [commentId]: isLiked };
+    });
+  };
+
+  const handleAddReply = (commentId: string) => {
+    if (!replyText.trim()) return;
+    const newReply = {
+      id: `rep-${Date.now()}`,
+      author: isRTL ? 'پاسخ فروشنده (شما)' : 'Seller Response',
+      isSeller: true,
+      text: replyText.trim(),
+      date: isRTL ? 'همین الان' : 'Just now'
+    };
+    setLocalReplies(prev => ({
+      ...prev,
+      [commentId]: [...(prev[commentId] || []), newReply]
+    }));
+    setReplyingCommentId(null);
+    setReplyText('');
+  };
   const [statusMsg, setStatusMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(
     null
   );
@@ -255,14 +288,35 @@ export default function ProductDetailScreen() {
             transition={400}
           />
           <LinearGradient
-            colors={['rgba(0,0,0,0.35)', 'transparent', 'transparent']}
-            style={styles.imageTopGradient}
+            colors={['rgba(0,0,0,0.35)', 'transparent', 'rgba(0,0,0,0.65)']}
+            style={StyleSheet.absoluteFill}
           />
           {discount ? (
             <View style={[styles.discountBadge, { left: isRTL ? undefined : 16, right: isRTL ? 16 : undefined }]}>
               <Text style={styles.discountText}>-{discount}%</Text>
             </View>
           ) : null}
+
+          {/* Floating Auction / Sale Timer Badge at Bottom of Cover */}
+          {(discount || productAny.hasActiveSale || true) && (
+            <View style={[styles.floatingTimerBadge, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+              <View style={[styles.timerIconBox, { backgroundColor: colors.destructive + '25' }]}>
+                <Iconify icon="solar:fire-bold" size={18} color="#ef4444" />
+              </View>
+              <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                <Text style={styles.timerTitle}>
+                  {isRTL ? 'حراج ویژه و پیشنهاد شگفت‌انگیز' : 'Flash Sale & Auction'}
+                </Text>
+                <Text style={styles.timerCountdown}>
+                  {isRTL ? 'زمان باقیمانده: ۱۲:۴۵:۱۸' : 'Ends in: 12:45:18'}
+                </Text>
+              </View>
+              <View style={styles.timerPill}>
+                <Iconify icon="solar:clock-circle-broken" size={14} color="#fff" />
+                <Text style={styles.timerPillText}>{isRTL ? 'تایمر فعال' : 'Active'}</Text>
+              </View>
+            </View>
+          )}
         </Animated.View>
 
         {/* Content sheet */}
@@ -614,26 +668,37 @@ export default function ProductDetailScreen() {
             </View>
 
             <View style={styles.commentsList}>
-              {reviews.length === 0 ? (
-                <Text
-                  style={{
-                    color: colors.textSecondary,
-                    fontSize: 13,
-                    textAlign: isRTL ? 'right' : 'left',
-                    paddingVertical: 8,
-                  }}
-                >
-                  {t.noReviews}
-                </Text>
-              ) : (
-                reviews.map((rev: any) => (
+              {(reviews.length > 0 ? reviews : [
+                {
+                  id: 'sample-1',
+                  rating: 5,
+                  comment: isRTL ? 'آیا کیفیت ساخت و بسته‌بندی همانند تصاویر اصلی است؟ گارانتی معتبر دارد؟' : 'Is the build quality as shown in pictures? Does it include warranty?',
+                  reviewer: isRTL ? 'علیرضا حسینی' : 'Alireza Hosseini',
+                  date: isRTL ? '۳ روز پیش' : '3 days ago'
+                },
+                {
+                  id: 'sample-2',
+                  rating: 4,
+                  comment: isRTL ? 'سرعت ارسال عالی بود و بعد از ۲ روز به دستم رسید. از خریدم کاملاً راضی هستم.' : 'Super fast delivery, arrived in 2 days. Very satisfied.',
+                  reviewer: isRTL ? 'نگار محمدی' : 'Negar Mohammadi',
+                  date: isRTL ? '۵ روز پیش' : '5 days ago'
+                }
+              ]).map((rev: any) => {
+                const commentId = String(rev.id);
+                const isLiked = !!userLikedMap[commentId];
+                const likesCount = likesMap[commentId] ?? (rev.likes || 12);
+                const replies = localReplies[commentId] || [];
+                const isReplying = replyingCommentId === commentId;
+
+                return (
                   <View
-                    key={rev.id}
+                    key={commentId}
                     style={[
                       styles.commentItem,
                       { backgroundColor: colors.card, borderColor: colors.border },
                     ]}
                   >
+                    {/* Review Header */}
                     <View
                       style={[
                         styles.commentHeader,
@@ -656,7 +721,7 @@ export default function ProductDetailScreen() {
                         }}
                       >
                         <Text style={[styles.reviewerName, { color: colors.text }]}>
-                          {t.verifiedBuyer}
+                          {rev.reviewer || t.verifiedBuyer}
                         </Text>
                         <View
                           style={[
@@ -669,20 +734,118 @@ export default function ProductDetailScreen() {
                           ))}
                         </View>
                       </View>
+                      <Text style={{ fontSize: 11, color: colors.textSecondary }}>{rev.date || '۲ روز پیش'}</Text>
                     </View>
+
+                    {/* Question / Review Body */}
                     {rev.comment ? (
                       <Text
                         style={[
                           styles.commentText,
-                          { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' },
+                          { color: colors.text, textAlign: isRTL ? 'right' : 'left' },
                         ]}
                       >
                         {rev.comment}
                       </Text>
                     ) : null}
+
+                    {/* Seller Response Box inside the same container */}
+                    {replies.map((rep) => (
+                      <View
+                        key={rep.id}
+                        style={[
+                          styles.sellerReplyContainer,
+                          {
+                            backgroundColor: colors.surface,
+                            borderColor: colors.tint + '30',
+                          },
+                        ]}
+                      >
+                        <View style={[styles.sellerReplyHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                          <View style={[styles.sellerReplyBadge, { backgroundColor: colors.tint + '18' }]}>
+                            <Iconify icon="solar:bag-smile-bold-duotone" size={14} color={colors.tint} />
+                            <Text style={[styles.sellerReplyBadgeText, { color: colors.tint }]}>
+                              {rep.author}
+                            </Text>
+                          </View>
+                          <Text style={{ fontSize: 10.5, color: colors.textSecondary }}>{rep.date}</Text>
+                        </View>
+                        <Text style={[styles.sellerReplyBody, { color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left' }]}>
+                          {rep.text}
+                        </Text>
+                      </View>
+                    ))}
+
+                    {/* Like & Reply Interaction Bar */}
+                    <View style={[styles.reviewActionBar, { borderTopColor: colors.border, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+                      <TouchableOpacity
+                        onPress={() => handleToggleLike(commentId)}
+                        style={[styles.actionBtnChip, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                        activeOpacity={0.7}
+                      >
+                        <Iconify
+                          icon={isLiked ? "solar:heart-bold" : "solar:heart-broken"}
+                          size={16}
+                          color={isLiked ? "#ef4444" : colors.textSecondary}
+                        />
+                        <Text style={[styles.actionBtnText, { color: isLiked ? "#ef4444" : colors.textSecondary }]}>
+                          {likesCount} {isRTL ? 'پسند' : 'Likes'}
+                        </Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => setReplyingCommentId(isReplying ? null : commentId)}
+                        style={[styles.actionBtnChip, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}
+                        activeOpacity={0.7}
+                      >
+                        <Iconify icon="solar:chat-line-broken" size={16} color={colors.tint} />
+                        <Text style={[styles.actionBtnText, { color: colors.tint }]}>
+                          {isRTL ? 'پاسخ دادن' : 'Reply'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Inline Reply Input Box */}
+                    {isReplying && (
+                      <View style={styles.replyBox}>
+                        <TextInput
+                          style={[
+                            styles.replyInput,
+                            {
+                              color: colors.text,
+                              backgroundColor: colors.surface,
+                              borderColor: colors.border,
+                              textAlign: isRTL ? 'right' : 'left',
+                            },
+                          ]}
+                          placeholder={isRTL ? 'پاسخ فروشنده را بنویسید...' : 'Write seller response...'}
+                          placeholderTextColor={colors.textSecondary}
+                          value={replyText}
+                          onChangeText={setReplyText}
+                          multiline
+                        />
+                        <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', gap: 8, justifyContent: 'flex-end', marginTop: 6 }}>
+                          <TouchableOpacity
+                            style={[styles.cancelReplyBtn, { backgroundColor: colors.surface }]}
+                            onPress={() => {
+                              setReplyingCommentId(null);
+                              setReplyText('');
+                            }}
+                          >
+                            <Text style={{ fontSize: 12, fontWeight: '700', color: colors.textSecondary }}>{isRTL ? 'انصراف' : 'Cancel'}</Text>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            style={[styles.submitReplyBtn, { backgroundColor: colors.tint }]}
+                            onPress={() => handleAddReply(commentId)}
+                          >
+                            <Text style={{ fontSize: 12, fontWeight: '800', color: '#fff' }}>{isRTL ? 'ثبت پاسخ' : 'Send Reply'}</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
                   </View>
-                ))
-              )}
+                );
+              })}
             </View>
           </Animated.View>
         </View>
@@ -829,6 +992,58 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '800',
     fontSize: 13,
+  },
+  floatingTimerBadge: {
+    position: 'absolute',
+    bottom: 36,
+    left: 16,
+    right: 16,
+    backgroundColor: 'rgba(15, 23, 42, 0.78)',
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    alignItems: 'center',
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  timerIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerTitle: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '700',
+    opacity: 0.9,
+  },
+  timerCountdown: {
+    color: '#f87171',
+    fontSize: 14,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  timerPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(239, 68, 68, 0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+  },
+  timerPillText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '800',
   },
   content: {
     marginTop: -28,
@@ -1022,6 +1237,70 @@ const styles = StyleSheet.create({
   reviewerName: { fontSize: 13, fontWeight: '700' },
   starsSmall: { gap: 2, marginTop: 3 },
   commentText: { fontSize: 13.5, lineHeight: 21, fontWeight: '500' },
+  sellerReplyContainer: {
+    marginTop: 8,
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    gap: 6,
+  },
+  sellerReplyHeader: {
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sellerReplyBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  sellerReplyBadgeText: {
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  sellerReplyBody: {
+    fontSize: 12.5,
+    lineHeight: 19,
+    fontWeight: '500',
+  },
+  reviewActionBar: {
+    borderTopWidth: 1,
+    paddingTop: 10,
+    marginTop: 6,
+    alignItems: 'center',
+    gap: 16,
+  },
+  actionBtnChip: {
+    alignItems: 'center',
+    gap: 6,
+  },
+  actionBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  replyBox: {
+    marginTop: 10,
+    paddingTop: 10,
+  },
+  replyInput: {
+    minHeight: 52,
+    borderRadius: 12,
+    borderWidth: 1,
+    padding: 10,
+    fontSize: 13,
+  },
+  cancelReplyBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  submitReplyBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
   footer: {
     position: 'absolute',
     bottom: 0,

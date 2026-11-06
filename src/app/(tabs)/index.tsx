@@ -160,18 +160,18 @@ export default function HomeScreen() {
   const suggestionScrollRef = useRef<any>(null);
   const suggestionIndex = useRef(0);
 
-  const reversedCategories = useMemo(() => [...CATEGORIES].reverse(), []);
+  const displayCategories = useMemo(() => CATEGORIES, []);
 
   const categoryOptions: Option[] = useMemo(
     () => [
       { label: isRTL ? 'همه' : 'All', value: 'All', icon: 'solar:widget-2-broken' },
-      ...reversedCategories.map((cat) => ({
+      ...displayCategories.map((cat) => ({
         label: isRTL ? CATEGORY_TRANSLATIONS[cat.name] || cat.name : cat.name,
         value: cat.name,
         icon: CATEGORY_ICONS[cat.name] || cat.icon || 'solar:box-broken',
       })),
     ],
-    [isRTL, reversedCategories]
+    [isRTL, displayCategories]
   );
 
   useEffect(() => {
@@ -228,6 +228,27 @@ export default function HomeScreen() {
     });
   }, [products, normalizedQuery, selectedCategory]);
 
+  const PAGE_SIZE = 8;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [selectedCategory, searchQuery]);
+
+  const displayedProducts = useMemo(() => {
+    return filteredProducts.slice(0, visibleCount);
+  }, [filteredProducts, visibleCount]);
+
+  const handleEndReached = useCallback(() => {
+    if (isLoadingMore || visibleCount >= filteredProducts.length) return;
+    setIsLoadingMore(true);
+    setTimeout(() => {
+      setVisibleCount((prev) => Math.min(prev + PAGE_SIZE, filteredProducts.length));
+      setIsLoadingMore(false);
+    }, 400);
+  }, [isLoadingMore, visibleCount, filteredProducts.length]);
+
   const showSkeletons = isLoading || isSearchLoading;
   const hotProducts = products.slice(0, 3);
 
@@ -264,20 +285,29 @@ export default function HomeScreen() {
         <ModernHeader scrollY={scrollY} />
 
         <AnimatedFlashList
-          data={showSkeletons ? [1, 2, 3, 4] : filteredProducts}
+          data={showSkeletons ? [1, 2, 3, 4] : displayedProducts}
           keyExtractor={(item: any) =>
             showSkeletons ? `skeleton-${item}` : String(item.id)
           }
           numColumns={2}
           contentContainerStyle={{
             paddingTop: insets.top + 145,
-            paddingBottom: 175,
+            paddingBottom: 120,
             paddingHorizontal: Spacing.sm,
             flexGrow: 1,
           }}
           {...({ estimatedItemSize: 280 } as any)}
           onScroll={scrollHandler}
           scrollEventThrottle={16}
+          onEndReached={handleEndReached}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <View style={{ paddingVertical: 16, alignItems: 'center', justifyContent: 'center' }}>
+                <Skeleton width={120} height={18} borderRadius={9} />
+              </View>
+            ) : null
+          }
           ListEmptyComponent={!showSkeletons ? <EmptyState /> : null}
           ListHeaderComponent={
             <View style={styles.headerContent}>
@@ -340,7 +370,7 @@ export default function HomeScreen() {
                       colors={colors}
                       onPress={() => handleCategorySelect('All')}
                     />
-                    {reversedCategories.map((cat, index) => (
+                    {displayCategories.map((cat, index) => (
                       <Animated.View
                         key={cat.id}
                         entering={FadeInRight.delay(index * 60).duration(400)}
