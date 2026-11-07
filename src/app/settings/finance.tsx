@@ -20,15 +20,17 @@ export default function FinanceScreen() {
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const showModal = useModalStore((state) => state.showModal);
-  const { language, finance, updateFinance } = useStore();
+  const { language, finance, updateFinance, payInstallment, rechargeWallet } = useStore();
   const isRTL = language === 'fa';
 
   const [iban, setIban] = useState(finance.iban);
   const [isEditingIban, setIsEditingIban] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'sales' | 'payouts' | 'fees'>('all');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'sales' | 'payouts' | 'fees' | 'installment' | 'topup'>('all');
   const [isTopUpModalVisible, setIsTopUpModalVisible] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState('1000000');
-  const [activeInstallmentTab, setActiveInstallmentTab] = useState<'all' | 'paid' | 'remaining' | 'due'>('all');
+  const [installmentPerspective, setInstallmentPerspective] = useState<'buyer' | 'seller'>('buyer');
+  const [activeInstallmentTab, setActiveInstallmentTab] = useState<'all' | 'paid' | 'remaining' | 'due' | 'overdue'>('all');
+  const [selectedInstallmentPlan, setSelectedInstallmentPlan] = useState<any | null>(null);
 
   const formatCurrency = (amount: number) => {
     return amount.toLocaleString(isRTL ? 'fa-IR' : 'en-US');
@@ -37,15 +39,55 @@ export default function FinanceScreen() {
   const handleTopUpWallet = () => {
     const num = parseInt(topUpAmount.replace(/[^0-9]/g, ''), 10);
     if (!num || num <= 0) return;
-    updateFinance({ balance: finance.balance + num });
+    rechargeWallet(num);
     setIsTopUpModalVisible(false);
     showModal({
       title: isRTL ? 'کیف پول شارژ شد 🎉' : 'Wallet Recharged 🎉',
       message: isRTL
-        ? `مبلغ ${formatCurrency(num)} تومان با موفقیت به موجودی کیف پول شما افزوده شد.`
-        : `Successfully added ${formatCurrency(num)} TOMAN to your wallet.`,
+        ? `مبلغ ${formatCurrency(num)} تومان با موفقیت از طریق درگاه بانکی به موجودی کیف پول شما افزوده شد.`
+        : `Successfully recharged ${formatCurrency(num)} TOMAN to your wallet.`,
       icon: 'solar:check-circle-bold',
       buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }]
+    });
+  };
+
+  const handlePayInstallmentItem = (installmentId: string, item: any) => {
+    showModal({
+      title: isRTL ? 'پرداخت قسط' : 'Pay Installment',
+      message: isRTL
+        ? `آیا از پرداخت قسط شماره ${item.number} به مبلغ ${formatCurrency(item.amount)} تومان از موجودی کیف پول خود اطمینان دارید؟`
+        : `Are you sure you want to pay installment #${item.number} for ${formatCurrency(item.amount)} TOMAN using your wallet balance?`,
+      icon: 'solar:card-transfer-broken',
+      iconColor: colors.tint,
+      buttons: [
+        { text: isRTL ? 'انصراف' : 'Cancel', style: 'cancel' },
+        {
+          text: isRTL ? 'تایید و پرداخت' : 'Confirm & Pay',
+          style: 'primary',
+          onPress: () => {
+            const res = payInstallment(installmentId, item.number);
+            if (res.success) {
+              setSelectedInstallmentPlan(null);
+              showModal({
+                title: isRTL ? 'پرداخت موفق 🎉' : 'Payment Successful 🎉',
+                message: isRTL
+                  ? `قسط شماره ${item.number} با موفقیت تسویه گردید.`
+                  : `Installment #${item.number} has been settled successfully.`,
+                icon: 'solar:check-circle-bold',
+                buttons: [{ text: isRTL ? 'باشه' : 'OK', style: 'primary' }],
+              });
+            } else {
+              showModal({
+                title: isRTL ? 'خطا در پرداخت' : 'Payment Error',
+                message: res.message || (isRTL ? 'موجودی کیف پول کافی نیست.' : 'Insufficient wallet balance.'),
+                icon: 'solar:danger-circle-bold',
+                iconColor: colors.destructive,
+                buttons: [{ text: isRTL ? 'متوجه شدم' : 'OK', style: 'primary' }],
+              });
+            }
+          },
+        },
+      ],
     });
   };
 
@@ -119,14 +161,28 @@ export default function FinanceScreen() {
     ],
   };
 
-  const transactions = [
-    { id: '1', type: 'sales', titleFa: 'واریز فروش سفارش #۱۰۴۸', titleEn: 'Sale Deposit #1048', date: '۱۴۰۲/۰۷/۲۰', amount: 4500000, positive: true },
-    { id: '2', type: 'payouts', titleFa: 'تسویه حساب به کارت بانک ملت', titleEn: 'Bank Settlement Payout', date: '۱۴۰۲/۰۷/۱۹', amount: 12000000, positive: false },
-    { id: '3', type: 'fees', titleFa: 'کارمزد زیرساخت فروشگاهی (۲.۵٪)', titleEn: 'Platform Commission Fee', date: '۱۴۰۲/۰۷/۱۸', amount: 112500, positive: false },
-    { id: '4', type: 'sales', titleFa: 'واریز فروش سفارش #۱۰۴۷', titleEn: 'Sale Deposit #1047', date: '۱۴۰۲/۰۷/۱۷', amount: 8900000, positive: true },
-  ];
+  const storeTransactions = finance.transactions || [];
+  const filteredTransactions = storeTransactions.filter(t => selectedFilter === 'all' || t.type === selectedFilter);
 
-  const filteredTransactions = transactions.filter(t => selectedFilter === 'all' || t.type === selectedFilter);
+  const allInstallments = finance.installments || [];
+  const roleInstallments = allInstallments.filter(i => installmentPerspective === 'buyer' ? i.type === 'purchase' : i.type === 'sale');
+
+  // Aggregated installment stats
+  const totalInstallmentVolume = roleInstallments.reduce((acc, i) => acc + i.totalAmount, 0);
+  const totalPaidAmount = roleInstallments.reduce((acc, i) => {
+    const paidSum = i.schedule.filter(s => s.isPaid).reduce((sAcc, s) => sAcc + s.amount, 0);
+    return acc + paidSum + (i.downPayment || 0);
+  }, 0);
+  const remainingInstallmentBalance = Math.max(0, totalInstallmentVolume - totalPaidAmount);
+  const overdueCount = roleInstallments.reduce((acc, i) => acc + i.schedule.filter(s => !s.isPaid && s.isOverdue).length, 0);
+
+  const filteredRoleInstallments = roleInstallments.filter(inst => {
+    if (activeInstallmentTab === 'paid') return inst.paidCount === inst.totalCount;
+    if (activeInstallmentTab === 'remaining') return inst.paidCount < inst.totalCount;
+    if (activeInstallmentTab === 'due') return inst.schedule.some(s => !s.isPaid && s.isDueSoon);
+    if (activeInstallmentTab === 'overdue') return inst.schedule.some(s => !s.isPaid && s.isOverdue);
+    return true;
+  });
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -212,39 +268,83 @@ export default function FinanceScreen() {
             </View>
             <View style={[styles.activePill, { backgroundColor: colors.success + '18' }]}>
               <Text style={{ fontSize: 11, fontWeight: '800', color: colors.success }}>
-                {isRTL ? '۴ طرح فعال' : '4 Active'}
+                {roleInstallments.length} {isRTL ? 'طرح فعال' : 'Active'}
               </Text>
             </View>
+          </View>
+
+          {/* Perspective Switcher: Buyer vs Seller */}
+          <View style={[styles.perspectiveSwitcher, { backgroundColor: colors.surface, flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <TouchableOpacity
+              onPress={() => setInstallmentPerspective('buyer')}
+              style={[
+                styles.perspectiveBtn,
+                installmentPerspective === 'buyer' && { backgroundColor: colors.tint },
+              ]}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.perspectiveText,
+                  { color: installmentPerspective === 'buyer' ? '#fff' : colors.textSecondary },
+                ]}
+              >
+                {isRTL ? 'اقساط پرداختی من (خریدار)' : 'Payable by Me (Buyer)'}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setInstallmentPerspective('seller')}
+              style={[
+                styles.perspectiveBtn,
+                installmentPerspective === 'seller' && { backgroundColor: colors.tint },
+              ]}
+              activeOpacity={0.8}
+            >
+              <Text
+                style={[
+                  styles.perspectiveText,
+                  { color: installmentPerspective === 'seller' ? '#fff' : colors.textSecondary },
+                ]}
+              >
+                {isRTL ? 'اقساط دریافتی من (فروشنده)' : 'Receivable by Me (Seller)'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           {/* Quick Metrics Bar */}
           <View style={[styles.installmentMetricsGrid, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
             <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'اقساط پرداخت شده' : 'Paid'}</Text>
-              <Text style={[styles.metricVal, { color: colors.success }]}>۱۲,۴۰۰,۰۰۰</Text>
-              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? '۸ قسط کامل' : '8 settled'}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'تسویه / وصول شده' : 'Paid / Settled'}</Text>
+              <Text style={[styles.metricVal, { color: colors.success }]}>{formatCurrency(totalPaidAmount)}</Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? 'تومان' : 'TOMAN'}</Text>
             </View>
 
             <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'اقساط باقی‌مانده' : 'Remaining'}</Text>
-              <Text style={[styles.metricVal, { color: colors.warning }]}>۱۸,۶۰۰,۰۰۰</Text>
-              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? '۶ قسط باقی' : '6 pending'}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'مانده اقساط' : 'Remaining'}</Text>
+              <Text style={[styles.metricVal, { color: colors.warning }]}>{formatCurrency(remainingInstallmentBalance)}</Text>
+              <Text style={{ fontSize: 10, color: colors.textSecondary }}>{isRTL ? 'تومان' : 'TOMAN'}</Text>
             </View>
 
             <View style={[styles.metricBox, { backgroundColor: colors.surface }]}>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'نزدیک‌ترین سررسید' : 'Next Due'}</Text>
-              <Text style={[styles.metricVal, { color: colors.tint }]}>۱۵ اسفند</Text>
-              <Text style={{ fontSize: 10, color: colors.destructive }}>{isRTL ? '۳ روز دیگر' : 'In 3 days'}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{isRTL ? 'اقساط سررسید/معوق' : 'Due / Overdue'}</Text>
+              <Text style={[styles.metricVal, { color: overdueCount > 0 ? colors.destructive : colors.tint }]}>
+                {overdueCount > 0 ? `${overdueCount} معوق` : (isRTL ? 'به‌موقع' : 'On track')}
+              </Text>
+              <Text style={{ fontSize: 10, color: colors.destructive }}>
+                {overdueCount > 0 ? (isRTL ? 'نیاز به پیگیری' : 'Needs attention') : (isRTL ? 'وضعیت منظم' : 'Good standing')}
+              </Text>
             </View>
           </View>
 
           {/* Installment Filter Chips */}
           <View style={[styles.chipsWrap, { flexDirection: isRTL ? 'row-reverse' : 'row', marginTop: 10 }]}>
             {[
-              { id: 'all', labelFa: 'همه اقساط', labelEn: 'All' },
-              { id: 'paid', labelFa: 'پرداخت شده', labelEn: 'Paid' },
-              { id: 'remaining', labelFa: 'باقی‌مانده', labelEn: 'Remaining' },
-              { id: 'due', labelFa: 'سررسید نزدیک', labelEn: 'Upcoming Due' },
+              { id: 'all', labelFa: 'همه', labelEn: 'All' },
+              { id: 'paid', labelFa: 'تسویه شده', labelEn: 'Completed' },
+              { id: 'remaining', labelFa: 'در جریان', labelEn: 'Active' },
+              { id: 'due', labelFa: 'سررسید نزدیک', labelEn: 'Upcoming' },
+              { id: 'overdue', labelFa: 'معوقه', labelEn: 'Overdue' },
             ].map((st) => {
               const isSelected = activeInstallmentTab === st.id;
               return (
@@ -271,48 +371,98 @@ export default function FinanceScreen() {
 
           {/* Installments List */}
           <View style={{ gap: 8, marginTop: 12 }}>
-            {[
-              { id: 'inst-1', title: 'گوشی موبایل گلکسی S24 اولترا', total: '۴۵,۰۰۰,۰۰۰ تومان', part: 'قسط ۲ از ۶', amount: '۷,۵۰۰,۰۰۰ تومان', due: 'سررسید: ۱۵ اسفند ۱۴۰۳', isPaid: false, isDueSoon: true },
-              { id: 'inst-2', title: 'لپ‌تاپ گیمینگ ایسوس TUF', total: '۶۸,۰۰۰,۰۰۰ تومان', part: 'قسط ۱ از ۴', amount: '۱۷,۰۰۰,۰۰۰ تومان', due: 'پرداخت شده در ۱ اسفند', isPaid: true, isDueSoon: false },
-              { id: 'inst-3', title: 'ساعت هوشمند اپل واچ اولترا', total: '۳۲,۰۰۰,۰۰۰ تومان', part: 'قسط ۳ از ۴', amount: '۸,۰۰۰,۰۰۰ تومان', due: 'سررسید: ۲۵ اسفند ۱۴۰۳', isPaid: false, isDueSoon: false },
-            ]
-              .filter(item => {
-                if (activeInstallmentTab === 'paid') return item.isPaid;
-                if (activeInstallmentTab === 'remaining') return !item.isPaid;
-                if (activeInstallmentTab === 'due') return item.isDueSoon;
-                return true;
-              })
-              .map(inst => (
-                <View
+            {filteredRoleInstallments.map((inst: any) => {
+              const isFullyPaid = inst.paidCount >= inst.totalCount;
+              const hasOverdue = inst.schedule.some((s: any) => !s.isPaid && s.isOverdue);
+              const hasDueSoon = inst.schedule.some((s: any) => !s.isPaid && s.isDueSoon);
+
+              return (
+                <TouchableOpacity
                   key={inst.id}
+                  onPress={() => setSelectedInstallmentPlan(inst)}
+                  activeOpacity={0.85}
                   style={[
                     styles.installmentRowItem,
                     {
                       backgroundColor: colors.surface,
-                      borderColor: inst.isDueSoon ? colors.destructive + '40' : colors.border,
+                      borderColor: hasOverdue ? colors.destructive : hasDueSoon ? colors.warning : colors.border,
                       flexDirection: isRTL ? 'row-reverse' : 'row',
                     },
                   ]}
                 >
-                  <View style={[styles.instStatusIcon, { backgroundColor: inst.isPaid ? colors.success + '18' : inst.isDueSoon ? colors.destructive + '18' : colors.warning + '18' }]}>
+                  <View
+                    style={[
+                      styles.instStatusIcon,
+                      {
+                        backgroundColor: isFullyPaid
+                          ? colors.success + '18'
+                          : hasOverdue
+                          ? colors.destructive + '18'
+                          : hasDueSoon
+                          ? colors.warning + '18'
+                          : colors.tint + '18',
+                      },
+                    ]}
+                  >
                     <Iconify
-                      icon={inst.isPaid ? "solar:check-circle-bold" : inst.isDueSoon ? "solar:calendar-mark-broken" : "solar:clock-circle-broken"}
+                      icon={
+                        isFullyPaid
+                          ? 'solar:check-circle-bold'
+                          : hasOverdue
+                          ? 'solar:danger-triangle-broken'
+                          : hasDueSoon
+                          ? 'solar:calendar-mark-broken'
+                          : 'solar:clock-circle-broken'
+                      }
                       size={18}
-                      color={inst.isPaid ? colors.success : inst.isDueSoon ? colors.destructive : colors.warning}
+                      color={
+                        isFullyPaid
+                          ? colors.success
+                          : hasOverdue
+                          ? colors.destructive
+                          : hasDueSoon
+                          ? colors.warning
+                          : colors.tint
+                      }
                     />
                   </View>
                   <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start', gap: 2 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }} numberOfLines={1}>{inst.title}</Text>
-                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>{inst.part} • {inst.due}</Text>
-                  </View>
-                  <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end', gap: 2 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '900', color: colors.tint }}>{inst.amount}</Text>
-                    <Text style={{ fontSize: 10, color: inst.isPaid ? colors.success : inst.isDueSoon ? colors.destructive : colors.textSecondary, fontWeight: '700' }}>
-                      {inst.isPaid ? (isRTL ? 'تسویه شده' : 'Paid') : inst.isDueSoon ? (isRTL ? 'سررسید نزدیک' : 'Due Soon') : (isRTL ? 'باقی‌مانده' : 'Pending')}
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }} numberOfLines={1}>
+                      {inst.title}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                      {isRTL ? `قسط ${inst.paidCount} از ${inst.totalCount}` : `Installment ${inst.paidCount}/${inst.totalCount}`} • {inst.nextDueDate}
                     </Text>
                   </View>
-                </View>
-              ))}
+                  <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end', gap: 2 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: colors.tint }}>
+                      {formatCurrency(inst.installmentAmount)} {isRTL ? 'تومان' : 'T'}
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        color: isFullyPaid
+                          ? colors.success
+                          : hasOverdue
+                          ? colors.destructive
+                          : hasDueSoon
+                          ? colors.warning
+                          : colors.textSecondary,
+                        fontWeight: '700',
+                      }}
+                    >
+                      {isFullyPaid
+                        ? (isRTL ? 'تسویه کامل' : 'Completed')
+                        : hasOverdue
+                        ? (isRTL ? 'دارای معوقه' : 'Overdue')
+                        : hasDueSoon
+                        ? (isRTL ? 'سررسید نزدیک' : 'Due Soon')
+                        : (isRTL ? 'مشاهده جدول' : 'Schedule')}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </Animated.View>
 
@@ -477,6 +627,111 @@ export default function FinanceScreen() {
         </View>
       </ScrollView>
 
+      {/* Installment Plan Schedule Modal */}
+      {selectedInstallmentPlan && (
+        <View style={styles.topUpModalBackdrop}>
+          <View style={[styles.topUpModalContent, { backgroundColor: colors.card, borderColor: colors.border, maxHeight: '80%' }]}>
+            <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row', marginBottom: 12 }]}>
+              <View style={{ flexDirection: isRTL ? 'row-reverse' : 'row', alignItems: 'center', gap: 8 }}>
+                <Iconify icon="solar:calendar-mark-broken" size={24} color={colors.tint} />
+                <Text style={[styles.sectionTitle, { color: colors.text }]}>
+                  {isRTL ? 'جدول زمان‌بندی اقساط' : 'Installment Schedule'}
+                </Text>
+              </View>
+              <TouchableOpacity onPress={() => setSelectedInstallmentPlan(null)}>
+                <Iconify icon="solar:close-circle-broken" size={24} color={colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text, textAlign: isRTL ? 'right' : 'left' }}>
+              {selectedInstallmentPlan.title}
+            </Text>
+            <Text style={{ fontSize: 12, color: colors.textSecondary, textAlign: isRTL ? 'right' : 'left', marginBottom: 14 }}>
+              {isRTL
+                ? `مبلغ کل: ${formatCurrency(selectedInstallmentPlan.totalAmount)} تومان | پیش‌پرداخت: ${formatCurrency(selectedInstallmentPlan.downPayment)} تومان`
+                : `Total: ${formatCurrency(selectedInstallmentPlan.totalAmount)} TOMAN | Down Payment: ${formatCurrency(selectedInstallmentPlan.downPayment)} TOMAN`}
+            </Text>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10, paddingBottom: 10 }}>
+              {selectedInstallmentPlan.schedule.map((sch: any) => (
+                <View
+                  key={sch.number}
+                  style={[
+                    styles.installmentRowItem,
+                    {
+                      backgroundColor: colors.surface,
+                      borderColor: sch.isPaid ? colors.success + '40' : sch.isOverdue ? colors.destructive : colors.border,
+                      flexDirection: isRTL ? 'row-reverse' : 'row',
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.instStatusIcon,
+                      {
+                        backgroundColor: sch.isPaid
+                          ? colors.success + '18'
+                          : sch.isOverdue
+                          ? colors.destructive + '18'
+                          : colors.warning + '18',
+                      },
+                    ]}
+                  >
+                    <Iconify
+                      icon={
+                        sch.isPaid
+                          ? 'solar:check-circle-bold'
+                          : sch.isOverdue
+                          ? 'solar:danger-triangle-broken'
+                          : 'solar:clock-circle-broken'
+                      }
+                      size={18}
+                      color={sch.isPaid ? colors.success : sch.isOverdue ? colors.destructive : colors.warning}
+                    />
+                  </View>
+
+                  <View style={{ flex: 1, alignItems: isRTL ? 'flex-end' : 'flex-start' }}>
+                    <Text style={{ fontSize: 13, fontWeight: '800', color: colors.text }}>
+                      {isRTL ? `قسط شماره ${sch.number}` : `Installment #${sch.number}`}
+                    </Text>
+                    <Text style={{ fontSize: 11, color: colors.textSecondary }}>
+                      {sch.isPaid
+                        ? (isRTL ? `تسویه در ${sch.paidDate}` : `Paid on ${sch.paidDate}`)
+                        : (isRTL ? `سررسید: ${sch.dueDate}` : `Due: ${sch.dueDate}`)}
+                    </Text>
+                  </View>
+
+                  <View style={{ alignItems: isRTL ? 'flex-start' : 'flex-end', gap: 4 }}>
+                    <Text style={{ fontSize: 13, fontWeight: '900', color: colors.tint }}>
+                      {formatCurrency(sch.amount)} {isRTL ? 'تومان' : 'T'}
+                    </Text>
+                    {selectedInstallmentPlan.type === 'purchase' && !sch.isPaid ? (
+                      <TouchableOpacity
+                        onPress={() => handlePayInstallmentItem(selectedInstallmentPlan.id, sch)}
+                        style={[styles.payNowBtn, { backgroundColor: colors.tint }]}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.payNowBtnText}>{isRTL ? 'پرداخت این قسط' : 'Pay'}</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          fontWeight: '800',
+                          color: sch.isPaid ? colors.success : sch.isOverdue ? colors.destructive : colors.textSecondary,
+                        }}
+                      >
+                        {sch.isPaid ? (isRTL ? 'پرداخت شده' : 'Paid') : (isRTL ? 'در انتظار' : 'Pending')}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      )}
+
       {/* Wallet Top-Up Modal */}
       {isTopUpModalVisible && (
         <View style={styles.topUpModalBackdrop}>
@@ -572,8 +827,37 @@ const styles = StyleSheet.create({
   metricLabel: { fontSize: 10.5, fontWeight: '700' },
   metricVal: { fontSize: 13.5, fontWeight: '900' },
   chipsWrap: { flexWrap: 'wrap', gap: 6 },
+  perspectiveSwitcher: {
+    borderRadius: 16,
+    padding: 4,
+    gap: 6,
+    marginBottom: 4,
+  },
+  perspectiveBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  perspectiveText: {
+    fontSize: 12,
+    fontWeight: '800',
+  },
   installmentRowItem: { padding: 12, borderRadius: 16, borderWidth: 1, alignItems: 'center', gap: 10 },
   instStatusIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  payNowBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  payNowBtnText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '800',
+  },
 
   quickActionsGrid: { flexDirection: 'row', gap: 10 },
   actionTile: { flex: 1, padding: 14, borderRadius: 20, borderWidth: 1, alignItems: 'center', gap: 8 },
